@@ -1,0 +1,55 @@
+
+
+<!-- Top Navigation Bar -->
+<div class="lg:hidden flex top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 dark:bg-neutral-800 dark:border-neutral-700">
+  <div class="flex items-center justify-between p-4">
+    <!-- Botón de menú -->
+    <button
+      type="button"
+      (click)="toggleSidebar()"
+      class="inline-flex items-center justify-center p-2 text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:bg-neutral-800 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-white dark:focus:ring-neutral-600"
+      aria-label="Abrir menú principal"
+    >
+      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M1 1h15M1 7h15M1 13h15"
+        />
+      </svg>
+    </button>
+
+    <h1 class="ml-6 text-xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
+    <div class="w-8"></div>
+  </div>
+</div>
+
+<!-- Layout principal -->
+<div class="flex pt-0 min-h-screen bg-gray-50 dark:bg-neutral-900">
+
+  <!-- Sidebar -->
+  <div
+    id="hs-sidebar-header"
+    class="fixed inset-y-0 left-0 z-40 w-64 transform bg-white border-r border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto"
+    [class.-translate-x-full]="!isSidebarOpen"
+    [class.translate-x-0]="isSidebarOpen"
+  >
+    <app-side-menu (closeSidebar)="closeSidebar()"></app-side-menu>
+  </div>
+
+  <!-- Overlay (solo móvil) -->
+  <div
+    class="fixed inset-0 bg-black/50 z-30 transition-opacity duration-300 lg:hidden"
+    [class.opacity-100]="isSidebarOpen"
+    [class.opacity-0]="!isSidebarOpen"
+    [class.pointer-events-none]="!isSidebarOpen"
+    (click)="closeSidebar()"
+  ></div>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-6 transition-all duration-300">
+    <router-outlet></router-outlet>
+  </main>
+</div>

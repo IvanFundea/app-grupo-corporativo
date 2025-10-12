@@ -9,4 +9,10 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected title = 'grupo-corporativo';
+
+  isSidebarOpen = false;
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 }
