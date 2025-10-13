@@ -1,0 +1,93 @@
+<!-- Dashboard Item (Active) -->
+<a class="flex items-center gap-x-3 py-2.5 px-3 text-sm bg-primary-100 text-primary-700 border-l-4 border-primary-500 rounded-r-lg font-medium hover:bg-primary-200 focus:outline-none focus:bg-primary-200 transition-colors duration-200"
+    href="#" aria-current="page">
+    <app-custom-icon [name]="'house'"></app-custom-icon>
+    Dashboard
+</a>
+
+<!-- Usuarios Accordion -->
+<div class="hs-accordion" id="users-accordion">
+    <button type="button"
+        class="hs-accordion-toggle w-full flex items-center gap-x-3 py-2.5 px-3 text-sm text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-secondary-50 transition-colors duration-200"
+        aria-expanded="false" aria-controls="users-accordion-child">
+        <app-custom-icon [name]="'user'"></app-custom-icon>
+        Usuarios
+        <svg class="hs-accordion-active:rotate-180 shrink-0 size-4 ml-auto transition-transform duration-200"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+        </svg>
+    </button>
+
+    <div id="users-accordion-child"
+        class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden">
+        <div class="pl-8 space-y-1 mt-1">
+            <a class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 hover:bg-warning-50 hover:text-warning-700 rounded-lg font-medium focus:outline-none focus:bg-warning-50 transition-colors duration-200"
+                href="#">
+                <app-custom-icon [name]="'plus'"></app-custom-icon>
+                Crear Usuario
+            </a>
+            <a class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 hover:bg-success-50 hover:text-success-700 rounded-lg font-medium focus:outline-none focus:bg-success-50 transition-colors duration-200"
+                href="#">
+                <app-custom-icon [name]="'book-user'"></app-custom-icon>
+                Lista Usuarios
+            </a>
+            <a class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 hover:bg-danger-50 hover:text-danger-700 rounded-lg font-medium focus:outline-none focus:bg-danger-50 transition-colors duration-200"
+                href="#">
+                <app-custom-icon [name]="'lock'"></app-custom-icon>
+                Permisos
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<!-- Reportes Accordion -->
+<div class="hs-accordion" id="reports-accordion">
+    <button type="button"
+        class="hs-accordion-toggle w-full flex items-center gap-x-3 py-2.5 px-3 text-sm text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-secondary-50 transition-colors duration-200"
+        aria-expanded="false" aria-controls="reports-accordion-child">
+        <app-custom-icon [name]="'clipboard'"></app-custom-icon>
+        Reportes
+        <svg class="hs-accordion-active:rotate-180 shrink-0 size-4 ml-auto transition-transform duration-200"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+        </svg>
+    </button>
+
+    <div id="reports-accordion-child"
+        class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden">
+        <div class="pl-8 space-y-1 mt-1">
+            <a class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-secondary-50 transition-colors duration-200"
+                href="#">                
+                <app-custom-icon [name]="'badge-dollar-sign'"></app-custom-icon>
+                Ventas
+            </a>
+            <a class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-secondary-50 transition-colors duration-200"
+                href="#">                
+                <app-custom-icon [name]="'trending-up'"></app-custom-icon>
+                Finanzas
+            </a>
+            <a class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-secondary-50 transition-colors duration-200"
+                href="#">                
+                <app-custom-icon [name]="'warehouse'"></app-custom-icon>
+                Inventario
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Configuración -->
+<a class="flex items-center gap-x-3 py-2.5 px-3 text-sm text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-secondary-50 transition-colors duration-200"
+    href="#">
+    <app-custom-icon [name]="'settings'"></app-custom-icon>
+    Configuración
+</a>
+
+<!-- Ayuda -->
+<a class="flex items-center gap-x-3 py-2.5 px-3 text-sm text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-secondary-50 transition-colors duration-200"
+    href="#">
+    <app-custom-icon [name]="'info'"></app-custom-icon>
+    Ayuda
+</a>

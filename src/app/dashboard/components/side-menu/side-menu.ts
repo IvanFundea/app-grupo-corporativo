@@ -1,4 +1,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, AfterViewInit } from '@angular/core';
+import { SideMenuHeaderComponent } from './side-menu-header/side-menu-header';
+import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
+import { SideMenuListComponent } from './side-menu-list/side-menu-list.component';
 
 // Declarar Preline como variable global
 declare global {
@@ -11,7 +14,7 @@ declare global {
 
 @Component({
   selector: 'app-side-menu',
-  imports: [],
+  imports: [SideMenuHeaderComponent, SideMenuListComponent],
   templateUrl: './side-menu.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
