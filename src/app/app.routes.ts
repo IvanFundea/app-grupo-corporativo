@@ -20,6 +20,25 @@ export const routes: Routes = [
                 path: '',
                 loadComponent: () => import('./shared/pages/home-page/home-page'),
             },
+            {
+                path: 'tesoreria',
+                //loadComponent: () => import('./tesoreria/pages/tesoreria-home/tesoreria-home'),
+                // canActivate: [AuthGuard],
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./tesoreria/pages/tesoreria-home/tesoreria-home'),
+                    },
+                    {
+                        path: 'tipo-moneda',
+                        loadComponent: () => import('./tesoreria/pages/tipo-moneda-page/tipo-moneda-page'),
+                    },
+                    {
+                        path: 'empresa',
+                        loadComponent: () => import('./tesoreria/pages/empresa-page/empresa-page'),
+                    },
+                ]
+            },
             // {
             //     path: 'config',
             //     children: [

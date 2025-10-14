@@ -2,13 +2,14 @@
 @import "tailwindcss";
 @import "preline/variants.css";
 @import "./styles/colors.css";
+@import "ngx-toastr/toastr"; /* ✅ Estilos de ngx-toastr */
 
 /* Custom color utilities for the corporate dashboard */
 .bg-primary-500 { background-color: rgb(14 165 233); }
 .bg-primary-600 { background-color: rgb(2 132 199); }
 .bg-primary-700 { background-color: rgb(3 105 161); }
 .bg-primary-800 { background-color: rgb(7 89 133); }
-.bg-primary-100 { background-color: rgb(224 242 254); }
+.bg-primary-100 { background-color: rgb(234, 243, 250); }
 .bg-primary-50 { background-color: rgb(240 249 255); }
 .bg-primary-200 { background-color: rgb(186 230 253); }
 
