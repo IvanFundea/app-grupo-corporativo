@@ -1,0 +1,38 @@
+@if(showText()){
+    <div class="text-xs text-gray-700">
+        Mostrando {{ (paginationObj().page - 1) * paginationObj().pageSize + 1 }} a
+        {{ Math.min(paginationObj().page * paginationObj().pageSize, paginationObj().totalItems) }}
+        de {{ paginationObj().totalItems }} resultados
+    </div>
+}
+<nav class="flex items-center justify-center space-x-1 mt-2">
+    <form class="max-w-sm mx-auto text-[0.8em]">
+        <label for="underline_select" class="sr-only">Underline select</label>
+        <select id="underline_select" (change)="changePageSize(+txtPageSize.value)" #txtPageSize
+            class="block py-0.5 px-2 w-full text-sm text-gray-600 bg-transparent border-gray-300 border-1 rounded-sm appearance-none dark:text-gray-400 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-gray-600 peer">
+            <option value="5" [selected]="paginationObj().pageSize === 5">5 registros página</option>
+            <option value="10" [selected]="paginationObj().pageSize === 10">10 registros página</option>
+            <option value="20" [selected]="paginationObj().pageSize === 20">20 registros página</option>
+            <option value="50" [selected]="paginationObj().pageSize === 50">50 registros página</option>
+        </select>
+    </form>
+</nav>
+<nav class="flex items-center justify-center space-x-1 mt-1">
+    <button (click)="previousPage()" [disabled]="paginationObj().page === 1"
+        class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+        ←
+    </button>
+
+    @for (page of totalPagesArray(); track $index) {
+    <button (click)="goToPage(page)" [class.bg-blue-500]="page === paginationObj().page"
+        [class.text-white]="page === paginationObj().page" class="px-3 py-1 rounded hover:bg-gray-300">
+        {{ page }}
+    </button>
+    }
+
+    <button (click)="nextPage()" [disabled]="paginationObj().page === totalPages"
+        class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+        →
+    </button>
+</nav>
+<!--  -->
