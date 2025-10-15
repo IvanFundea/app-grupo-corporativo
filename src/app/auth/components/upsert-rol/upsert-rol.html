@@ -1,0 +1,78 @@
+<form [formGroup]="form()" (ngSubmit)="onSubmit()" class="space-y-6">
+  <!-- Nombre -->
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+    <input
+      type="text"
+      formControlName="nombre"
+      class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+    />
+
+    @if (form().get('nombre')?.touched && form().get('nombre')?.invalid) {
+      <div class="text-red-600 text-sm mt-1 space-y-1">
+        @if (form().get('nombre')?.errors?.['required']) {
+          <div>Nombre es requerido</div>
+        }
+        @if (form().get('nombre')?.errors?.['minlength']) {
+          <div>Mínimo 3 caracteres</div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Switches -->
+  <div class="grid grid-cols-2 gap-4">
+    <div class="flex items-center">
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          formControlName="activo"
+          class="sr-only peer"
+        />
+        <div
+          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-colors"
+        ></div>
+        <div
+          class="absolute top-1/2 left-0.5 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"
+        ></div>
+        <span class="ml-3 text-sm font-medium text-gray-700">Activo</span>
+      </label>
+    </div>
+
+    <div class="flex items-center">
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          formControlName="invitado"
+          class="sr-only peer"
+        />
+        <div
+          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-colors"
+        ></div>
+        <div
+          class="absolute top-1/2 left-0.5 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"
+        ></div>
+        <span class="ml-3 text-sm font-medium text-gray-700">Por defecto</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Botones -->
+  <div class="flex justify-end space-x-3 pt-2">
+    <button
+      type="button"
+      (click)="onCancel()"
+      class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+    >
+      Cancelar
+    </button>
+
+    <button
+      type="submit"
+      [disabled]="form().invalid"
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {{ btnText }}
+    </button>
+  </div>
+</form>
