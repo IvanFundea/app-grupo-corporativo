@@ -11,13 +11,13 @@ import { of } from 'rxjs';
 import { UpsertRolComponent } from '../../components/upsert-rol/upsert-rol';
 
 const emptyRol: IRol = {
-      rolId: '',
-      nombre: '',
-      invitado: false,
-      esAdmin: false,
-      activo: true,
-      created_at: new Date(),
-    }
+  rolId: '',
+  nombre: '',
+  invitado: false,
+  esAdmin: false,
+  activo: true,
+  created_at: new Date(),
+}
 
 @Component({
   selector: 'app-rol-page',
@@ -108,7 +108,7 @@ export default class RolPageComponent {
       }, 500);
     }
     this.isLoading.set(false);
-    
+
   }
 
   onSearch(searchTerm: string) {
@@ -142,33 +142,13 @@ export default class RolPageComponent {
  * Alterna el estado activo/inactivo de un rol
  */
   async toggleRolStatus(rol: IRol, status: boolean) {
-    try {
-      // Crear una copia del rol con el estado invertido
-      const updatedRol: IRol = {
-        ...rol,
-        activo: status
-      };
-
-      // Llamar al servicio para actualizar
-      const response = await this.rolService.updateRol(updatedRol);
-
-      if (response?.success) {
-        // Actualizar la lista local
-        this.rolesList.update(roles =>
-          roles.map(r =>
-            r.rolId === rol.rolId
-              ? { ...r, activo: !r.activo }
-              : r
-          )
-        );
-      } else {
-        this.toastr.error('Error al actualizar el estado del rol', 'Error');
-      }
-    } catch (error) {
-      console.error('Error updating rol status:', error);
-      this.toastr.error('Error al actualizar el estado del rol', 'Error');
-    }
+    const updatedRol: IRol = {
+      ...rol,
+      activo: status
+    };
+    this.updateRol(updatedRol);
   }
+
   onChangePage(newPagination: IPagination) {
     this.rolesList.set([]); // Limpiamos la lista antes de cargar nuevos datos
     this.pagination.set(newPagination);
@@ -181,7 +161,7 @@ export default class RolPageComponent {
     console.log("🚀 ~ RolPageComponent ~ openUpsertModal ~ nuevo:", nuevo)
     console.log('🟦 Abriendo modal...');
     console.log('🟦 Abriendo modal...');
-    
+
     this.formKey.set(Date.now());
     this.nuevoRol.set(nuevo);
     this.rolEdit.set({ ...rol }); // Asegurarse de crear una nueva referencia
@@ -214,7 +194,7 @@ export default class RolPageComponent {
     }
   }
 
-  
+
   async createRol(rol: IRol) {
     let resp = await this.rolService.createRol(rol)
     if (resp?.success) {
