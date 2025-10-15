@@ -21,9 +21,19 @@ export const routes: Routes = [
                 loadComponent: () => import('./shared/pages/home-page/home-page'),
             },
             {
+                path: 'config',
+                // canActivate: [AccessGuard]
+                children: [
+                    {
+                        path: 'roles',
+                        loadComponent: () => import('./auth/pages/rol-page/rol-page'),
+                    },
+                ]
+            },
+            {
                 path: 'tesoreria',
                 //loadComponent: () => import('./tesoreria/pages/tesoreria-home/tesoreria-home'),
-                // canActivate: [AuthGuard],
+                // canActivate: [AccessGuard]
                 children: [
                     {
                         path: '',
