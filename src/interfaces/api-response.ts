@@ -16,17 +16,6 @@ export interface ApiMetadata {
   limit: number;
 }
 
-// Interfaces específicas para Tesorería
-export interface TipoMoneda {
-  tipoMonedaId: string;
-  descripcion: string;
-  simbolo: string;
-}
-
-// Tipos de respuesta específicos para diferentes endpoints
-export type TipoMonedaResponse = ApiResponse<TipoMoneda>;
-export type TipoMonedaListResponse = ApiResponse<TipoMoneda[]>;
-
 // Ejemplo de uso genérico para otros endpoints
 export type SingleItemResponse<T> = ApiResponse<T>;
 export type ListResponse<T> = ApiResponse<T[]>;
