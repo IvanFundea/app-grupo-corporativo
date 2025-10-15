@@ -41,7 +41,7 @@ export default class RolPageComponent {
 
   pagination = signal<IPagination>({
     page: 1,
-    pageSize: 5,
+    pageSize: 10,
     totalItems: 0
   });
 
@@ -60,6 +60,7 @@ export default class RolPageComponent {
 
   // Referencia al contenedor del modal
   @ViewChild('upsertModal', { static: true }) upsertModal!: ElementRef<HTMLDivElement>;
+  @ViewChild('deleteModal', { static: true }) deleteModal!: ElementRef<HTMLDivElement>;
 
   constructor(private toastr: ToastrService) { }
 
@@ -102,10 +103,13 @@ export default class RolPageComponent {
           totalItems: response.metadata?.total || 0
         }));
       }
+      // Espera un ciclo de renderizado antes de reinicializar Preline
       setTimeout(() => {
-        (window as any).HSStaticMethods.autoInit();
-        console.log('Preline reloaded');
-      }, 500);
+        if ((window as any).HSStaticMethods) {
+          (window as any).HSStaticMethods.autoInit();
+          console.log('✅ Preline reloaded after data fetch');
+        }
+      }, 100);
     }
     this.isLoading.set(false);
 
@@ -121,23 +125,6 @@ export default class RolPageComponent {
     this.pagination.update(p => ({ ...p, page }));
     this.fetchData();
   }
-
-  async deleteRol(rol: IRol) {
-    if (confirm(`¿Está seguro de eliminar el rol "${rol.nombre}"?`)) {
-      const response = await this.rolService.deleteRol(rol.rolId || '');
-      if (response?.success) {
-        this.fetchData();
-      }
-    }
-  }
-
-  updateRolField(field: keyof IRol, value: any) {
-    this.rolEdit.update(rol => ({
-      ...rol,
-      [field]: value
-    }));
-  }
-
   /**
  * Alterna el estado activo/inactivo de un rol
  */
@@ -155,34 +142,61 @@ export default class RolPageComponent {
     this.fetchData();
   }
 
-  /** Abre el modal de Preline manualmente */
   openUpsertModal(nuevo: boolean, rol: IRol = emptyRol) {
-    console.log("🚀 ~ RolPageComponent ~ openUpsertModal ~ rol:", rol)
-    console.log("🚀 ~ RolPageComponent ~ openUpsertModal ~ nuevo:", nuevo)
-    console.log('🟦 Abriendo modal...');
     console.log('🟦 Abriendo modal...');
 
     this.formKey.set(Date.now());
     this.nuevoRol.set(nuevo);
-    this.rolEdit.set({ ...rol }); // Asegurarse de crear una nueva referencia
+    this.rolEdit.set({ ...rol });
+
     this.modal.update(m => ({
       ...m,
       titulo: nuevo ? 'Crear Rol' : 'Editar Rol',
       boton: nuevo ? 'Crear Rol' : 'Actualizar Rol',
       visible: true
     }));
+
+    const modalEl = this.upsertModal.nativeElement;
+
+    // Si Preline está cargado correctamente:
+    if ((window as any).HSOverlay) {
+      new (window as any).HSOverlay(modalEl).open();
+    } else {
+      // Fallback manual si HSOverlay no existe
+      modalEl.classList.remove('hidden');
+      modalEl.classList.add('pointer-events-auto');
+    }
+  }
+
+
+  openDeleteModal(rol: IRol) {
+    this.rolEdit.set({ ...rol });
+    const modalEl = this.deleteModal.nativeElement;
+
+    // Si Preline está cargado correctamente:
+    if ((window as any).HSOverlay) {
+      new (window as any).HSOverlay(modalEl).open();
+    } else {
+      // Fallback manual si HSOverlay no existe
+      modalEl.classList.remove('hidden');
+      modalEl.classList.add('pointer-events-auto');
+    }
   }
 
   /** Cierra el modal */
   closeModal() {
     console.log('🔴 Cerrando modal...');
     const modalEl = this.upsertModal.nativeElement;
+    const modalDEl = this.deleteModal.nativeElement;
 
     if ((window as any).HSOverlay) {
       (window as any).HSOverlay.close(modalEl);
+      (window as any).HSOverlay.close(modalDEl);
     } else {
       modalEl.classList.add('hidden');
       modalEl.classList.remove('open', 'pointer-events-auto');
+      modalDEl.classList.add('hidden');
+      modalDEl.classList.remove('open', 'pointer-events-auto');
     }
   }
 
@@ -210,6 +224,17 @@ export default class RolPageComponent {
     if (resp?.success) {
       this.fetchData()
       this.closeModal();
+    }
+  }
+
+
+  async deleteRol(rol: IRol) {
+    const response = await this.rolService.deleteRol(rol.rolId || '');
+    if (response?.success) {
+      this.fetchData();
+      this.closeModal();
+      this.rolEdit.set(emptyRol);
+      this.nuevoRol.set(true); // Reseteamos el estado de nuevo rol
     }
   }
 
