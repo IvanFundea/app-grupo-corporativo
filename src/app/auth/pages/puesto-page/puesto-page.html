@@ -1,0 +1,212 @@
+<nav class="mb-4" aria-label="breadcrumb">
+    <ol class="flex flex-wrap text-sm text-gray-700">
+        <li class="flex items-center">
+            <a routerLink="/dashboard" class="text-blue-600 hover:underline">Inicio</a>
+            <span class="mx-2">></span>
+        </li>
+        <li class="flex items-center">
+            <a routerLink="/dashboard/tesoreria" class="text-blue-600 hover:underline">Configuración</a>
+            <span class="mx-2">></span>
+        </li>
+        <li class="flex items-center text-gray-500">
+            Puestos
+        </li>
+    </ol>
+</nav>
+
+
+<div class="bg-white shadow rounded-lg border border-gray-300">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-300">
+        <h2 class="text-lg font-semibold text-gray-800">Puestos</h2>
+        <button (click)="openUpsertModal(true)"
+            class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+            Nuevo puesto
+        </button>
+    </div>
+
+    <div class="p-4">
+        <form class="flex flex-wrap items-center gap-3">
+            <div>
+                <label for="searchPuesto" class="sr-only">Buscar puesto</label>
+                <input type="text" id="searchPuesto" placeholder="Buscar puesto..." [value]="buscador()"
+                    (input)="onSearch($any($event.target).value)"
+                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+                <button type="button" (click)="fetchData()" [disabled]="isLoading()"
+                    class="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition disabled:opacity-50">
+                    @if (isLoading()) {
+                    Buscando...
+                    } @else {
+                    Buscar
+                    }
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6 overflow-x-auto">
+            <table class="min-w-full text text-left border border-gray-400">
+                <thead class="bg-white text-black">
+                    <tr>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">#</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Nombre</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading()) {
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                            Cargando puestos ...
+                        </td>
+                    </tr>
+                    } @else if (puestosList().length === 0) {
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                            <app-custom-icon name="user-star" class="inline mr-2"></app-custom-icon>
+                            No se encontraron puestos
+                        </td>
+                    </tr>
+                    } @else {
+                    @for (puesto of puestosList(); track puesto.puestoId; let i = $index) {
+                    <tr class="hover:bg-gray-300 odd:bg-white even:bg-gray-100">
+                        <td class="px-2 py-2 text-center border border-gray-300 justify-center">
+                            {{ (pagination().page - 1) * pagination().pageSize + i + 1 }}
+                        </td>
+                        <td class="px-2 py-2 border border-gray-300">{{ puesto.nombre }}</td>
+                        <td class="px-3 py-1.5 text-center border space-x-2 border-gray-300">
+                            <button (click)="openUpsertModal(false, puesto)"
+                                class="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition">
+                                <app-custom-icon [name]="'square-pen'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                            </button>
+                            <button (click)="openDeleteModal(puesto)"
+                                class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition">
+                                <app-custom-icon [name]="'trash-2'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        @if (pagination().totalItems > 0) {
+        <div class="mt-4 flex justify-center items-center">
+            <app-pagination [paginationObj]="pagination()" (changePage)="onChangePage($event)" [showText]="true" />
+        </div>
+        }
+    </div>
+</div>
+
+
+<!-- MODAL UPSERT -->
+<div #upsertModal id="hs-upsert-modal"
+    class="hs-overlay hidden size-full fixed top-0 start-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+    role="dialog" tabindex="-1" aria-labelledby="hs-upsert-modal-label">
+    <div
+        class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div
+            class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
+                <h3 id="hs-upsert-modal-label" class="font-bold text-gray-800 dark:text-white">
+                    {{ modal().titulo }}
+                </h3>
+                <button type="button" (click)="closeModal()"
+                    class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600"
+                    aria-label="Close" data-hs-overlay="#hs-scroll-inside-body-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="space-y-4">
+                    <app-upsert-puesto [puesto]="puestoEdit()" [nuevo]="nuevoPuesto()" (save)="upsertPuesto($event)"
+                        (cancel)="closeModal()" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div #deleteModal id="hs-delete-modal"
+    class="hs-overlay hidden size-full fixed top-0 start-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+    role="dialog" tabindex="-1" aria-labelledby="hs-delete-modal-label">
+    <div
+        class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div
+            class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
+                <h3 id="hs-delete-modal-label" class="font-bold text-gray-800 dark:text-white">
+                    Eliminar puesto
+                </h3>
+                <button type="button" (click)="closeModal()"
+                    class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600"
+                    aria-label="Close" data-hs-overlay="#hs-scroll-inside-body-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="space-y-4">
+                    <div class="flex">
+                        <div class=" flex-1 bg-red-50 border border-red-200 text-sm text-red-800 rounded-lg p-4 dark:bg-red-800/10 dark:border-red-900 dark:text-red-500"
+                            role="alert" tabindex="-1" aria-labelledby="hs-with-list-label">
+                            <div class="flex">
+                                <div class="shrink-0">
+                                    <svg class="shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="m15 9-6 6"></path>
+                                        <path d="m9 9 6 6"></path>
+                                    </svg>
+                                </div>
+                                <div class="ms-4">
+                                    <h3 id="hs-with-list-label" class="text-sm font-semibold">
+                                        Esta seguro de eliminar el puesto "{{ puestoEdit().nombre }}"?
+                                    </h3>
+                                    <!-- <div class="mt-2 text-sm text-red-700 dark:text-red-400">
+                                        <ul class="list-disc space-y-1 ps-5">
+                                            <li>
+                                                This username is already in use
+                                            </li>
+                                            <li>
+                                                Email field can't be empty
+                                            </li>
+                                            <li>
+                                                Please enter a valid phone number
+                                            </li>
+                                        </ul>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
+                <button type="button" (click)="closeModal()"
+                    class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
+                    Cerrar
+                </button>
+                <button type="button" (click)="deletePuesto(puestoEdit())"
+                    class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-hidden focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

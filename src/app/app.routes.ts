@@ -28,6 +28,10 @@ export const routes: Routes = [
                         path: 'roles',
                         loadComponent: () => import('./auth/pages/rol-page/rol-page'),
                     },
+                     {
+                        path: 'puestos',
+                        loadComponent: () => import('./auth/pages/puesto-page/puesto-page'),
+                    },
                 ]
             },
             {

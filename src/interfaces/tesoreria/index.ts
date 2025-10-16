@@ -31,8 +31,3 @@ export interface ITipoTransaccion {
   nombre: string;
   tipo: TipoTransaccionTipo;
 }
-
-export interface IPuesto {
-  puestoId: string;  // UUID del puesto
-  nombre: string;    // Nombre del puesto
-}
