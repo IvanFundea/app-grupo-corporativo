@@ -1,0 +1,156 @@
+<nav class="mb-4" aria-label="breadcrumb">
+    <ol class="flex flex-wrap text-sm text-gray-700">
+        <li class="flex items-center">
+            <a routerLink="/dashboard" class="text-blue-600 hover:underline">Inicio</a>
+            <span class="mx-2">></span>
+        </li>
+        <li class="flex items-center">
+            <a routerLink="/dashboard/config" class="text-blue-600 hover:underline">Configuración</a>
+            <span class="mx-2">></span>
+        </li>
+        <li class="flex items-center text-gray-500">Usuarios</li>
+    </ol>
+</nav>
+
+<div class="bg-white shadow rounded-lg border border-gray-300">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-300">
+        <h2 class="text-lg font-semibold text-gray-800">Usuarios</h2>
+        <button (click)="openUpsertModal(true)"
+            class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">Nuevo usuario</button>
+    </div>
+
+    <div class="p-4">
+        <form class="flex flex-wrap items-center gap-3">
+            <div>
+                <label for="searchUsuario" class="sr-only">Buscar usuario</label>
+                <input type="text" id="searchUsuario" placeholder="Buscar usuario..." [value]="buscador()"
+                    (input)="onSearch($any($event.target).value)"
+                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+                <button type="button" (click)="fetchData()" [disabled]="isLoading()"
+                    class="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50">
+                    @if (isLoading()) { Buscando... } @else { Buscar }
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6 overflow-x-auto">
+            <table class="min-w-full text text-left border border-gray-400">
+                <thead class="bg-white text-black">
+                    <tr>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">#</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Usuario</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Nombre</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Rol</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Puesto</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Activo</th>
+                        <th class="px-2 py-2 text-center font-bold border border-gray-300">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading()) {
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">Cargando usuarios ...</td>
+                    </tr>
+                    } @else if ((usuariosList() || []).length === 0) {
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">No se encontraron usuarios</td>
+                    </tr>
+                    } @else {
+                    @for (u of (usuariosList() || []); track u.usuarioId; let i = $index) {
+                    <tr class="hover:bg-gray-300 odd:bg-white even:bg-gray-100">
+                        <td class="px-2 py-2 text-center border border-gray-300">{{ (pagination().page - 1) *
+                            pagination().pageSize + i + 1 }}</td>
+                        <td class="px-2 py-2 border border-gray-300">{{ u.userName }}</td>
+                        <td class="px-2 py-2 border border-gray-300">{{ u.nombreCompleto || (u.nombre1 + ' ' +
+                            u.apellido1) }}</td>
+                        <td class="px-2 py-2 border border-gray-300">{{ getRolName(u.rolId) }}</td>
+                        <td class="px-2 py-2 border border-gray-300">{{ getPuestoName(u.puestoId) }}</td>
+                        <td class="px-2 py-2 text-center border border-gray-300">
+                            <label [for]="'switch-' + u.usuarioId" class="relative inline-block w-8 h-4 cursor-pointer">
+                                <input type="checkbox" [id]="'switch-' + u.usuarioId" [checked]="u.activo"
+                                    (change)="toggleStatus(u, cbxActivo.checked)" [value]="u.activo" #cbxActivo
+                                    [disabled]="u.rol?.esAdmin" class="peer sr-only">
+                                <span
+                                    class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span
+                                    class="absolute top-0 left-0.5 -translate-y-0 size-4 bg-white rounded-full shadow transition-transform duration-200 ease-in-out peer-checked:translate-x-5 dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                            </label>
+                        </td>
+                        <td class="px-3 py-1.5 text-center border space-x-2 border-gray-300">
+                            <button (click)="openUpsertModal(false, u)"
+                                class="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition">
+                                <app-custom-icon [name]="'square-pen'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                            </button>
+                            <button (click)="openDeleteModal(u)"
+                                class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition">
+                                <app-custom-icon [name]="'trash-2'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (pagination().totalItems > 0) {
+        <div class="mt-4 flex justify-center items-center">
+            <app-pagination [paginationObj]="pagination()" (changePage)="onChangePage($event)" [showText]="true" />
+        </div>
+        }
+    </div>
+</div>
+
+<!-- MODAL UPSERT -->
+<div #upsertModal id="hs-upsert-usuario"
+    class="hs-overlay hidden size-full fixed top-0 start-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+    role="dialog" tabindex="-1" aria-labelledby="hs-upsert-usuario-label">
+    <div
+        class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div
+            class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto">
+            <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                <h3 id="hs-upsert-usuario-label" class="font-bold text-gray-800">{{ modal().titulo }}</h3>
+                <button type="button" (click)="closeModal()"
+                    class="size-8 inline-flex justify-center items-center rounded-full bg-gray-100 hover:bg-gray-200">
+                    <span class="sr-only">Close</span>
+                    ✕
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <app-upsert-usuario [usuario]="usuarioEdit()" [roles]="rolesList()" [puestos]="puestosList()"
+                    [nuevo]="nuevoUsuario()" (save)="upsertUsuario($event)" (cancel)="closeModal()" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DELETE -->
+<div #deleteModal id="hs-delete-usuario"
+    class="hs-overlay hidden size-full fixed top-0 start-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+    role="dialog" tabindex="-1" aria-labelledby="hs-delete-usuario-label">
+    <div
+        class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div
+            class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto">
+            <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                <h3 id="hs-delete-usuario-label" class="font-bold text-gray-800">Eliminar usuario</h3>
+                <button type="button" (click)="closeModal()"
+                    class="size-8 inline-flex justify-center items-center rounded-full bg-gray-100 hover:bg-gray-200">✕</button>
+            </div>
+            <div class="p-4">
+                <div class=" bg-red-50 border border-red-200 text-sm text-red-800 rounded-lg p-4" role="alert">
+                    ¿Está seguro de eliminar al usuario "{{ usuarioEdit().userName }}"?
+                </div>
+            </div>
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200">
+                <button type="button" (click)="closeModal()"
+                    class="py-2 px-3 text-sm rounded-lg bg-white border">Cerrar</button>
+                <button type="button" (click)="deleteUsuario(usuarioEdit())"
+                    class="py-2 px-3 text-sm rounded-lg text-white bg-red-600">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>

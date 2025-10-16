@@ -32,6 +32,10 @@ export const routes: Routes = [
                         path: 'puestos',
                         loadComponent: () => import('./auth/pages/puesto-page/puesto-page'),
                     },
+                    {
+                        path: 'usuarios',
+                        loadComponent: () => import('./auth/pages/usuarios-page/usuarios-page'),
+                    },
                 ]
             },
             {
