@@ -31,3 +31,10 @@ export interface ITipoTransaccion {
   nombre: string;
   tipo: TipoTransaccionTipo;
 }
+
+export interface IBanco {
+  bancoId: string;           // UUID del banco
+  nombre: string;            // Nombre completo del banco
+  nombreCorto: string;       // Nombre corto o abreviado del banco
+  cuentasBancarias?: ICuentaBancaria[]; // Cuentas asociadas al banco (opcional)
+}
