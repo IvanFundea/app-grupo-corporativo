@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,7 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export default class LoginComponent { 
 
-  // public authService = inject(AuthAliadoService)  
+  public authService = inject(AuthService);  
   // public userAliado = this.authService.getUserStorage();
   public router = inject(Router)
 
@@ -24,6 +25,13 @@ export default class LoginComponent {
 
   loading = signal(false);
 
+  onSubmit(event: Event) {
+    event.preventDefault();
+    if (!this.loading()) {
+      this.login();
+    }
+  }
+
   async login() {
     try {
       this.loading.set(true);
@@ -33,30 +41,35 @@ export default class LoginComponent {
         isError: false
       })
 
-      // let authData = await  this.authService.login({ userName: this.userName(), password: this.password() })
-      // if(authData.success) {
-      //   localStorage.setItem('tokenAliado', authData?.data.token || '');
-      //   localStorage.setItem('userAliado', JSON.stringify(authData?.data.user || {}));
+      let authData = await  this.authService.login({ userName: this.userName(), password: this.password() })
+      if(authData && authData.success) {
+        localStorage.setItem('tokenAliado', authData?.data.token || '');
+        localStorage.setItem('userAliado', JSON.stringify(authData?.data.user || {}));
 
-      //   this.errorObj.set({
-      //     message: '',
-      //     code: 0,
-      //     isError: false
-      //   });
-      //   this.loading.set(false);
-      //   this.router.navigate(['/aliado/home']);
-      // } else {
-      //   this.loading.set(false);
-      //   this.errorObj.set({
-      //     message: authData.message || 'Login failed',
-      //     code: 401,
-      //     isError: true
-      //   });
-      // }
+        this.errorObj.set({
+          message: '',
+          code: 0,
+          isError: false
+        });
+        this.loading.set(false);
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.loading.set(false);
+        this.errorObj.set({
+          message: authData?.message || 'Login failed',
+          code: 401,
+          isError: true
+        });
+      }
 
-    } catch (error) {
+    } catch (error: any) {
       this.loading.set(false);
       console.error('Login failed:', error);
+      this.errorObj.set({
+        message: error?.error?.message || 'No se pudo iniciar sesión. Inténtalo de nuevo.',
+        code: 500,
+        isError: true,
+      });
     }
   }
 

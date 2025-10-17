@@ -15,8 +15,8 @@
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                 alt="Avatar">
             <div class="text-left">
-                <div class="font-medium text-gray-800 dark:text-white">Ivan Archila</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Administrador</div>
+                <div class="font-medium text-gray-800 dark:text-white">{{user().nombre1}} {{user().apellido1}}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{user().rol?.nombre || 'Sin rol'}}</div>
             </div>
             <svg class="hs-dropdown-open:rotate-180 shrink-0 size-4 ml-auto transition-transform duration-200"
                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -35,8 +35,8 @@
                         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                         alt="Avatar">
                     <div>
-                        <div class="font-medium text-gray-800 dark:text-white">Ivan Archila</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">ivan.archila&#64;empresa.com</div>
+                        <div class="font-medium text-gray-800 dark:text-white">{{user().nombre1}} {{user().apellido1}}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{user().userName}}</div>
                     </div>
                 </div>
             </div>
@@ -45,24 +45,13 @@
             <div class="py-2">
                 <a class="flex items-center gap-x-3 py-2 px-4 text-sm text-gray-800 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:bg-primary-50 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white transition-colors duration-200"
                     href="#" role="menuitem">
-                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                    </svg>
+                    <app-custom-icon [name]="'circle-user'"></app-custom-icon>
                     Mi Perfil
                 </a>
 
                 <a class="flex items-center gap-x-3 py-2 px-4 text-sm text-gray-800 hover:bg-warning-50 hover:text-warning-700 focus:outline-none focus:bg-warning-50 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white transition-colors duration-200"
                     href="#" role="menuitem">
-                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3" />
-                        <path
-                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                    </svg>
+                    <app-custom-icon [name]="'cog'"></app-custom-icon>
                     Configuración
                 </a>
             </div>
@@ -70,14 +59,8 @@
             <!-- Cerrar Sesión -->
             <div class="py-2 border-t border-gray-200 dark:border-neutral-700">
                 <a class="flex items-center gap-x-3 py-2 px-4 text-sm text-danger-600 hover:bg-danger-50 hover:text-danger-700 focus:outline-none focus:bg-danger-50 dark:text-red-400 dark:hover:bg-neutral-700 dark:hover:text-red-300 transition-colors duration-200"
-                    href="#" role="menuitem">
-                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <polyline points="16,17 21,12 16,7" />
-                        <line x1="21" x2="9" y1="12" y2="12" />
-                    </svg>
+                    href="#" role="menuitem" (click)="logout()">
+                    <app-custom-icon [name]="'log-out'" [color]="'red'"></app-custom-icon>
                     Cerrar Sesión
                 </a>
             </div>

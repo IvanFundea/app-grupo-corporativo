@@ -73,5 +73,10 @@ export interface IRol {
     deleted_at?: Date | null;
 }
 
+export interface ILogin {
+  user: IUsuario,
+  token: string
+}
+
 
 
