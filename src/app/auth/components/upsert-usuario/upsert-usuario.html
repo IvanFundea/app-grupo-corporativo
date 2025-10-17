@@ -3,18 +3,18 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Primer nombre</label>
-      <input type="text" formControlName="nombre1" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="text" formControlName="nombre1" class="input-control"/>
       @if (form().get('nombre1')?.touched && form().get('nombre1')?.invalid) {
         <div class="text-red-600 text-xs mt-1">Requerido (min 2)</div>
       }
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Segundo nombre</label>
-      <input type="text" formControlName="nombre2" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="text" formControlName="nombre2" class="input-control"/>
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Tercer nombre</label>
-      <input type="text" formControlName="nombre3" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="text" formControlName="nombre3" class="input-control"/>
     </div>
   </div>
 
@@ -22,18 +22,18 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Primer apellido</label>
-      <input type="text" formControlName="apellido1" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="text" formControlName="apellido1" class="input-control"/>
       @if (form().get('apellido1')?.touched && form().get('apellido1')?.invalid) {
         <div class="text-red-600 text-xs mt-1">Requerido (min 2)</div>
       }
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Segundo apellido</label>
-      <input type="text" formControlName="apellido2" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="text" formControlName="apellido2" class="input-control"/>
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Tercer apellido</label>
-      <input type="text" formControlName="apellido3" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="text" formControlName="apellido3" class="input-control"/>
     </div>
   </div>
 
@@ -41,11 +41,11 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-      <input type="text" formControlName="userName" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="text" formControlName="userName" class="input-control"/>
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Correo</label>
-      <input type="email" formControlName="correo" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="email" formControlName="correo" class="input-control"/>
       @if (form().get('correo')?.touched && form().get('correo')?.invalid) {
         <div class="text-red-600 text-xs mt-1">Correo inválido</div>
       }
@@ -56,7 +56,7 @@
   @if (nuevo()) {
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-      <input type="password" formControlName="clave" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"/>
+  <input type="password" formControlName="clave" class="input-control"/>
       @if (form().get('clave')?.touched && form().get('clave')?.invalid) {
         <div class="text-red-600 text-xs mt-1">Mínimo 6 caracteres</div>
       }
@@ -67,7 +67,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-      <select formControlName="rolId" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+  <select formControlName="rolId" class="input-control">
         <option value="">Seleccione un rol</option>
         @for (rol of (roles() || []); track rol.rolId) {
           <option [value]="rol.rolId">{{ rol.nombre }}</option>
@@ -76,7 +76,7 @@
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Puesto</label>
-      <select formControlName="puestoId" class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+  <select formControlName="puestoId" class="input-control">
         <option value="">(Opcional) Seleccione un puesto</option>
         @for (p of (puestos() || []); track p.puestoId) {
           <option [value]="p.puestoId">{{ p.nombre }}</option>
