@@ -1,12 +1,15 @@
 {
   "name": "grupo-corporativo",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    
+    "deploy:ubuntu": "git fetch origin && git pull && npm install && ng build --configuration production && sudo rm -rf /var/www/grupoCorporativo/* && sudo cp -r dist/grupo-corporativo/* /var/www/grupoCorporativo/",
+    "deploy:amazon": "git fetch origin && git pull && npm install && ng build --configuration production && sudo rm -rf /usr/share/nginx/html/grupoCorporativo/* && sudo cp -r dist/grupo-corporativo/* /usr/share/nginx/html/grupoCorporativo"
   },
   "private": true,
   "dependencies": {
