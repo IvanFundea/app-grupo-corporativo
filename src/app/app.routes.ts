@@ -56,6 +56,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./tesoreria/pages/tipo-moneda-page/tipo-moneda-page'),
                     },
                     {
+                        path: 'tipo-transacciones',
+                        loadComponent: () => import('./tesoreria/pages/tipo-transaccion-page/tipo-transaccion-page'),
+                    },
+                    {
                         path: 'cuentas',
                         loadComponent: () => import('./tesoreria/pages/cuenta-bancaria-page/cuenta-bancaria-page'),
                     },

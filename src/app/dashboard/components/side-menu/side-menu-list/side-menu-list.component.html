@@ -33,6 +33,12 @@
                 <app-custom-icon [name]="'hand-coins'"></app-custom-icon>
                 Transacciones
             </a>
+            <a [routerLink]="'/dashboard/tesoreria/tipo-transacciones'"
+                routerLinkActive="bg-primary-200 text-primary-700 border-l-4 border-primary-500"
+                class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 font-medium hover:bg-primary-200 hover:text-secondary-900 focus:outline-none focus:bg-primary-200 transition-colors duration-200">
+                <app-custom-icon [name]="'handshake'"></app-custom-icon>
+                Tipo transacciones
+            </a>
             <a [routerLink]="'/dashboard/tesoreria/cuentas'"
                 routerLinkActive="bg-primary-200 text-primary-700 border-l-4 border-primary-500"
                 class="flex items-center gap-x-3 py-2 px-3 text-sm text-secondary-600 font-medium hover:bg-primary-200 hover:text-secondary-900 focus:outline-none focus:bg-primary-200 transition-colors duration-200">
