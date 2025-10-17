@@ -52,6 +52,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./tesoreria/pages/tipo-moneda-page/tipo-moneda-page'),
                     },
                     {
+                        path: 'cuentas',
+                        loadComponent: () => import('./tesoreria/pages/cuenta-bancaria-page/cuenta-bancaria-page'),
+                    },
+                    {
                         path: 'empresa',
                         loadComponent: () => import('./tesoreria/pages/empresa-page/empresa-page'),
                     },

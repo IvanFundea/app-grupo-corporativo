@@ -1,0 +1,79 @@
+<form [formGroup]="form()" (ngSubmit)="onSubmit()" class="space-y-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Banco</label>
+      <select formControlName="bancoId" class="input-control">
+        <option value="">Seleccione...</option>
+        @for (b of (bancos() || []); track b.bancoId) {
+          <option [value]="b.bancoId">{{ b.nombre }}</option>
+        }
+      </select>
+      @if (form().get('bancoId')?.touched && form().get('bancoId')?.invalid) {
+        <div class="text-red-600 text-xs mt-1">Requerido</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+      <select formControlName="empresaId" class="input-control">
+        <option value="">Seleccione...</option>
+        @for (e of (empresas() || []); track e.empresaId) {
+          <option [value]="e.empresaId">{{ e.nombre }}</option>
+        }
+      </select>
+      @if (form().get('empresaId')?.touched && form().get('empresaId')?.invalid) {
+        <div class="text-red-600 text-xs mt-1">Requerido</div>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Número de cuenta</label>
+      <input type="text" formControlName="numero" class="input-control"/>
+      @if (form().get('numero')?.touched && form().get('numero')?.invalid) {
+        <div class="text-red-600 text-xs mt-1">Requerido (mín 3)</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de cuenta</label>
+      <select formControlName="tipoCuenta" class="input-control">
+        <option value="">Seleccione...</option>
+        <option value="Monetaria">Monetaria</option>
+        <option value="Ahorro">Ahorro</option>
+        <option value="Depósitos">Depósitos</option>
+      </select>
+      @if (form().get('tipoCuenta')?.touched && form().get('tipoCuenta')?.invalid) {
+        <div class="text-red-600 text-xs mt-1">Requerido</div>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
+      <select formControlName="tipoMonedaId" class="input-control">
+        <option value="">Seleccione...</option>
+        @for (tm of (tiposMoneda() || []); track tm.tipoMonedaId) {
+          <option [value]="tm.tipoMonedaId">{{ tm.descripcion }} ({{ tm.simbolo }})</option>
+        }
+      </select>
+      @if (form().get('tipoMonedaId')?.touched && form().get('tipoMonedaId')?.invalid) {
+        <div class="text-red-600 text-xs mt-1">Requerido</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Saldo (opcional)</label>
+      <input type="number" formControlName="saldoBanco" class="input-control"/>
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+    <input type="text" formControlName="descripcion" class="input-control"/>
+  </div>
+
+  <div class="flex justify-end space-x-3 pt-2">
+    <button type="button" (click)="onCancel()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancelar</button>
+    <button type="submit" [disabled]="form().invalid" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50">{{ btnText }}</button>
+  </div>
+</form>
