@@ -21,6 +21,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./shared/pages/home-page/home-page'),
             },
             {
+                path: 'test',
+                loadComponent: () => import('./test/pages/test-page/test-page'),
+            },
+            {
                 path: 'config',
                 // canActivate: [AccessGuard]
                 children: [
@@ -28,7 +32,7 @@ export const routes: Routes = [
                         path: 'roles',
                         loadComponent: () => import('./auth/pages/rol-page/rol-page'),
                     },
-                     {
+                    {
                         path: 'puestos',
                         loadComponent: () => import('./auth/pages/puesto-page/puesto-page'),
                     },
