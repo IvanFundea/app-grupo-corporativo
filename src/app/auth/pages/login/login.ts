@@ -33,6 +33,16 @@ export default class LoginComponent {
   }
 
   async login() {
+
+    if(this.userName().trim() === '' || this.password().trim() === '') {
+      this.errorObj.set({
+        message: 'Por favor ingrese usuario y contraseña.',
+        code: 400,
+        isError: true
+      });
+      return;
+    }
+
     try {
       this.loading.set(true);
       this.errorObj.set({
