@@ -48,3 +48,30 @@ export interface IEmpresaUsuario {
   updated_at?: Date;           // Fecha de última actualización
   deleted_at?: Date;           // Fecha de eliminación (soft delete)
 }
+
+export interface IMovimientoBancarioCab {
+  cabeceraId: string;
+  empredsaId: string;
+  cuentaBancariaId: string;
+  tipoMonedaBanco: string;
+  saldoInicial: number;
+  saldoFinal: number;
+  totalCreditos: number;
+  totalDebitos: number;
+  usrIngreso: string;
+  created_at: Date;
+  updated_at?: Date;
+  deleted_at?: Date;
+  detalles?: IMovimientoBancarioDet[];
+}
+
+export interface IMovimientoBancarioDet {
+  movimientoBancarioDetId: string;
+  cabeceraId: string;
+  tipoTransaccionId: string;
+  valor: number;
+  usrIngreso: string;
+  created_at: Date;
+  updated_at?: Date;
+  deleted_at?: Date;
+}

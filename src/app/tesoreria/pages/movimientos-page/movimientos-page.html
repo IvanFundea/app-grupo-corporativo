@@ -1,36 +1,212 @@
 <nav class="mb-4" aria-label="breadcrumb">
-  <ol class="flex flex-wrap text-sm text-gray-700">
-    <li class="flex items-center">
-      <a routerLink="/dashboard" class="text-blue-600 hover:underline">Inicio</a>
-      <span class="mx-2">></span>
-    </li>
-    <li class="flex items-center">
-      <a routerLink="/dashboard/tesoreria" class="text-blue-600 hover:underline">Tesorería</a>
-      <span class="mx-2">></span>
-    </li>
-    <li class="flex items-center text-gray-500">Movimientos bancarios</li>
-  </ol>
+    <ol class="flex flex-wrap text-sm text-gray-700">
+        <li class="flex items-center">
+            <a routerLink="/dashboard" class="text-blue-600 hover:underline">Inicio</a>
+            <span class="mx-2">></span>
+        </li>
+        <li class="flex items-center">
+            <a routerLink="/dashboard/tesoreria" class="text-blue-600 hover:underline">Tesorería</a>
+            <span class="mx-2">></span>
+        </li>
+        <li class="flex items-center text-gray-500">Movimientos bancarios</li>
+    </ol>
 </nav>
 
 <div class="bg-white shadow rounded-lg border border-gray-300">
-  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-300">
-    <h2 class="text-lg font-semibold text-gray-800">Movimientos bancarios</h2>
-  </div>
-
-  <div class="p-4 space-y-4">
-    <div class="bg-secondary-50 border border-secondary-200 text-secondary-800 rounded-lg p-4 text-sm">
-      Esta sección estará disponible próximamente. Aquí podrás consultar, registrar y analizar los movimientos de tus cuentas bancarias.
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-300">
+        <h2 class="text-lg font-semibold text-gray-800">Movimientos bancarios (del día)</h2>
     </div>
 
-    <div class="flex flex-wrap gap-3">
-      <a routerLink="/dashboard/tesoreria/cuentas" class="inline-flex items-center gap-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 text-sm font-medium">
-        <app-custom-icon [name]="'trending-up'" [size]="18" [color]="'#fff'"></app-custom-icon>
-        Ir a Cuentas bancarias
-      </a>
-      <a routerLink="/dashboard/tesoreria/bancos" class="inline-flex items-center gap-2 rounded-lg bg-secondary-700 hover:bg-secondary-800 text-white px-4 py-2 text-sm font-medium">
-        <app-custom-icon [name]="'landmark'" [size]="18" [color]="'#fff'"></app-custom-icon>
-        Ver Bancos
-      </a>
+    <div class="p-4 space-y-5">
+        <!-- Saldo actual -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <app-custom-icon [name]="'piggy-bank'" [size]="20"></app-custom-icon>
+                <div>
+                    <div class="text-xs text-gray-500">Saldo actual de la cuenta</div>
+                    <div class="text-xl font-semibold text-gray-800">{{ currencySymbol }} {{ saldoActual |
+                        number:'1.2-2' }}</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end text-sm text-gray-600">
+                Fecha/Hora: <span class="ml-2 font-medium">{{ nowLabel() }}</span>
+            </div>
+        </div>
+
+        <!-- Fila 1: Empresa asignada y fecha/hora -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa asignada</label>
+                <select class="w-full input-control p-2 border rounded"
+                    (change)="onEmpresaChange($any($event.target).value)">
+                    <option value="">Seleccione empresa...</option>
+                    @for (e of (empresas() || []); track e.empresaId) {
+                    <option [value]="e.empresaId">{{ e.nombre }}</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha y hora</label>
+                <input type="text" class="w-full input-control p-2 border rounded bg-gray-50" [value]="nowLabel()"
+                    readonly>
+            </div>
+        </div>
+
+        <!-- Fila 2: Banco y Cuenta por empresa -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Banco</label>
+                <select class="w-full input-control p-2 border rounded"
+                    (change)="selectedBancoId.set($any($event.target).value)" [disabled]="!selectedEmpresaId()">
+                    <option value="">Todos los bancos</option>
+                    @for (b of (bancos() || []); track b.bancoId) {
+                    <option [value]="b.bancoId">{{ b.nombre }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="lg:col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Cuenta bancaria</label>
+                <select class="w-full input-control p-2 border rounded"
+                    (change)="onCuentaChange($any($event.target).value)" [disabled]="!selectedEmpresaId()">
+                    <option value="">Seleccione cuenta...</option>
+                    @for (c of (cuentasFiltradas || []); track c.cuentaBancariaId) {
+                    <option [value]="c.cuentaBancariaId">{{ c.numero }} - {{ c.descripcion }}</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
+                <input type="text" class="w-full input-control p-2 border rounded bg-gray-50"
+                    [value]="currencySymbol || '-'" readonly>
+            </div>
+        </div>
+
+        <!-- Fila 3: Tipo transacción y monto -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de transacción</label>
+                <select class="w-full input-control p-2 border rounded"
+                    (change)="selectedTipoTransaccionId.set($any($event.target).value)"
+                    [disabled]="!selectedCuentaId()">
+                    <option value="">Seleccione tipo...</option>
+                    @for (t of (tipos() || []); track t.tipoTransaccionId) {
+                    <option [value]="t.tipoTransaccionId">{{ t.nombre }} ({{ t.tipo }})</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Monto</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500 mr-8">{{
+                        currencySymbol }}</div>
+                    <input type="number" min="0" step="0.01" class="w-full input-control p-2 border rounded ml-10"
+                        [disabled]="!selectedCuentaId()" [value]="monto() || ''" (input)="onMontoInput($event)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón agregar -->
+        <div class="flex justify-end">
+            <button type="button" (click)="agregarDetalle()"
+                [disabled]="!selectedCuentaId() || !selectedTipoTransaccionId() || !monto() || isAdding()"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm disabled:opacity-50">
+                @if (isAdding()) {
+                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                Agregando...
+                } @else {
+                <app-custom-icon [name]="'plus'" [size]="16" [color]="'#fff'"></app-custom-icon>
+                Agregar
+                }
+            </button>
+        </div>
+
+        <!-- Tablas de débitos y créditos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Débitos -->
+            <div>
+                <h3 class="text-base font-semibold text-gray-800 mb-2">Movimientos - Débito</h3>
+                <div class="overflow-x-auto border border-gray-300 rounded">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 border-b">Fecha</th>
+                                <th class="px-3 py-2 border-b">Tipo</th>
+                                <th class="px-3 py-2 border-b">Usuario</th>
+                                <th class="px-3 py-2 border-b text-right">Monto</th>
+                                <th class="px-3 py-2 border-b">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (isLoading()) {
+                            <tr>
+                                <td colspan="3" class="px-3 py-6 text-center text-gray-500">Cargando...</td>
+                            </tr>
+                            } @else if (detallesDebito.length === 0) {
+                            <tr>
+                                <td colspan="3" class="px-3 py-6 text-center text-gray-500">Sin movimientos</td>
+                            </tr>
+                            } @else {
+                            @for (d of detallesDebito; track d.movimientoBancarioDetId) {
+                            <tr class="odd:bg-white even:bg-gray-50">
+                                <td class="px-3 py-2">{{ d.created_at | date:'shortTime' }}</td>
+                                <td class="px-3 py-2">{{ getTipoNombre(d.tipoTransaccionId) }}</td>
+                                <td class="px-3 py-2">{{ d.usrIngreso }}</td>
+                                <td class="px-3 py-2 text-right">{{ currencySymbol }} {{ d.valor | number:'1.2-2' }}
+                                </td>
+                                
+                                <td>    </td>
+                            </tr>
+                            }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Créditos -->
+            <div>
+                <h3 class="text-base font-semibold text-gray-800 mb-2">Movimientos - Crédito</h3>
+                <div class="overflow-x-auto border border-gray-300 rounded">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 border-b">Fecha</th>
+                                <th class="px-3 py-2 border-b">Tipo</th>
+                                <th class="px-3 py-2 border-b">Usuario</th>
+                                <th class="px-3 py-2 border-b text-right">Monto</th>
+                                <th class="px-3 py-2 border-b">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (isLoading()) {
+                            <tr>
+                                <td colspan="3" class="px-3 py-6 text-center text-gray-500">Cargando...</td>
+                            </tr>
+                            } @else if (detallesCredito.length === 0) {
+                            <tr>
+                                <td colspan="3" class="px-3 py-6 text-center text-gray-500">Sin movimientos</td>
+                            </tr>
+                            } @else {
+                            @for (d of detallesCredito; track d.movimientoBancarioDetId) {
+                            <tr class="odd:bg-white even:bg-gray-50">
+                                <td class="px-3 py-2">{{ d.created_at | date:'shortTime' }}</td>
+                                <td class="px-3 py-2">{{ getTipoNombre(d.tipoTransaccionId) }}</td>
+                                <td class="px-3 py-2">{{ d.usrIngreso }}</td>
+                                <td class="px-3 py-2 text-right">{{ currencySymbol }} {{ d.valor | number:'1.2-2' }}
+                                </td>
+                                <td>    </td>
+                            </tr>
+                            }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>

@@ -146,6 +146,21 @@ export class EmpresaService extends HttpService {
     }
   }
 
+  // Empresas asignadas a un usuario
+  async getEmpresasPorUsuario(usuarioId: string): Promise<EmpresaListResponse | null> {
+    try {
+      const resp = await firstValueFrom(this.get<EmpresaListResponse>(`${this.endpoints.empresa}/por-usuario/${usuarioId}`));
+      if (resp.body?.success) {
+        return resp.body;
+      }
+      return null;
+    } catch (error: any) {
+      console.log('🚀 ~ EmpresaService ~ getEmpresasPorUsuario ~ error:', error);
+      this.toastr.error(error?.error?.message || 'Error al obtener empresas asignadas', 'Error');
+      return null;
+    }
+  }
+
   // Listar usuarios asignados a una empresa
   async listarUsuariosAsignados(empresaId: string): Promise<UsuarioListResponse | null> {
     try {

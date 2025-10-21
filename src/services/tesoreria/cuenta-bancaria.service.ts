@@ -33,6 +33,19 @@ export class CuentaBancariaService extends HttpService {
     }
   }
 
+  async getCuentasByEmpresa(empresaId: string): Promise<CuentaListResponse | null> {
+    try {
+      const params: any = { empresaId, todos: true };
+      const resp = await firstValueFrom(this.get<CuentaListResponse>(`${this.endpoints.cuenta}`, params));
+      if (resp.body?.success) return resp.body;
+      return null;
+    } catch (error: any) {
+      console.log('CuentaBancariaService.getCuentasByEmpresa error:', error);
+      this.toastr.error(error?.error?.message || 'Error al obtener cuentas por empresa', 'Error');
+      return null;
+    }
+  }
+
   async getCuenta(cuentaBancariaId: string): Promise<CuentaResponse | null> {
     try {
       const resp = await firstValueFrom(this.get<CuentaResponse>(`${this.endpoints.cuenta}/${cuentaBancariaId}`));

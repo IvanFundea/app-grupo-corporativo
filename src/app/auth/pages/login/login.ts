@@ -55,8 +55,8 @@ export default class LoginComponent {
 
       let authData = await  this.authService.login({ userName: this.userName(), password: this.password() })
       if(authData && authData.success) {
-        localStorage.setItem('tokenAliado', authData?.data.token || '');
-        localStorage.setItem('userAliado', JSON.stringify(authData?.data.user || {}));
+        localStorage.setItem('token', authData?.data.token || '');
+        localStorage.setItem('usuario', JSON.stringify(authData?.data.user || {}));
 
         this.errorObj.set({
           message: '',
