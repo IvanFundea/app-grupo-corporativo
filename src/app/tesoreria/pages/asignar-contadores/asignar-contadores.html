@@ -1,0 +1,103 @@
+<nav class="mb-4" aria-label="breadcrumb">
+  <ol class="flex flex-wrap text-sm text-gray-700">
+    <li class="flex items-center">
+      <a routerLink="/dashboard" class="text-blue-600 hover:underline">Inicio</a>
+      <span class="mx-2">></span>
+    </li>
+    <li class="flex items-center">
+      <a routerLink="/dashboard/tesoreria" class="text-blue-600 hover:underline">Tesorería</a>
+      <span class="mx-2">></span>
+    </li>
+    <li class="flex items-center text-gray-500">Asignar contadores</li>
+  </ol>
+</nav>
+
+<div class="bg-white shadow rounded-lg border border-gray-300">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-300">
+    <h2 class="text-lg font-semibold text-gray-800">Asignar contadores a empresas</h2>
+  </div>
+
+  <div class="p-4 space-y-4">
+    <!-- Selects y botón en una sola fila en pantallas grandes -->
+    <div class="grid grid-cols-1 lg:grid-cols-6 gap-3 items-end ">
+      <!-- Empresa -->
+      <div class="col-span-2">
+        <label for="empresaSelect" class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+        <select id="empresaSelect" class="w-full input-control p-2 border rounded"
+          (change)="onEmpresaChange($any($event.target).value)">
+          <option value="">Seleccione una empresa...</option>
+          @for (e of (empresas() || []); track e.empresaId) {
+            <option [value]="e.empresaId">{{ e.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Contador / Usuario disponible -->
+      <div  class="col-span-3">
+        <label for="usuarioSelect" class="block text-sm font-medium text-gray-700 mb-1">Contador</label>
+        <select id="usuarioSelect" class="w-full input-control p-2 border rounded" [disabled]="!selectedEmpresaId()"
+          (change)="selectedUsuarioId.set($any($event.target).value)">
+          <option value="">Seleccione un contador...</option>
+          @for (u of (usuariosDisponibles() || []); track u.usuarioId) {
+            <option [value]="u.usuarioId">{{ u.nombreCompleto || u.userName }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Botón Asignar -->
+      <div class="flex items-end">
+        <button type="button" (click)="asignarUsuario()" [disabled]="!selectedEmpresaId() || !selectedUsuarioId()"
+          class="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2">
+          <app-custom-icon [name]="'user-round-plus'" [color]="'#fff'" [size]="18"></app-custom-icon>
+          Asignar
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla de contadores asignados -->
+    <div class="mt-2 overflow-x-auto">
+      <table class="min-w-full text text-left border border-gray-400">
+        <thead class="bg-white text-black">
+          <tr>
+            <th class="px-2 py-2 text-center font-bold border border-gray-300">Empresa</th>
+            <th class="px-2 py-2 text-center font-bold border border-gray-300">Nombre contador</th>
+            <th class="px-2 py-2 text-center font-bold border border-gray-300">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!selectedEmpresaId()) {
+            <tr>
+              <td colspan="3" class="px-4 py-8 text-center text-gray-500">
+                Seleccione una empresa para ver los contadores asignados
+              </td>
+            </tr>
+          } @else if (isLoading()) {
+            <tr>
+              <td colspan="3" class="px-4 py-8 text-center text-gray-500">Cargando usuarios ...</td>
+            </tr>
+          } @else if ((usuariosAsignados() || []).length === 0) {
+            <tr>
+              <td colspan="3" class="px-4 py-8 text-center text-gray-500">
+                <app-custom-icon name="users" class="inline mr-2"></app-custom-icon>
+                No hay contadores asignados para {{ selectedEmpresaNombre }}
+              </td>
+            </tr>
+          } @else {
+            @for (u of (usuariosAsignados() || []); track u.usuarioId) {
+              <tr class="hover:bg-gray-300 odd:bg-white even:bg-gray-100">
+                <td class="px-2 py-2 border border-gray-300">{{ selectedEmpresaNombre }}</td>
+                <td class="px-2 py-2 border border-gray-300">{{ u.nombreCompleto || u.userName }}</td>
+                <td class="px-3 py-1.5 text-center border space-x-2 border-gray-300">
+                  <button (click)="desasignarUsuario(u)"
+                    class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">
+                    <app-custom-icon [name]="'trash-2'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

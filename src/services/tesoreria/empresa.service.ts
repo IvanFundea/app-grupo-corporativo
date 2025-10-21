@@ -4,11 +4,14 @@ import { HttpService } from '../HttpService';
 import { firstValueFrom } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { IEmpresa } from '../../interfaces/tesoreria';
+import { IUsuario } from '../../interfaces/auth';
 import { ApiResponse } from '../../interfaces/api-response';
 
 // Tipos específicos para las respuestas del servicio
 type EmpresaResponse = ApiResponse<IEmpresa>;
 type EmpresaListResponse = ApiResponse<IEmpresa[]>;
+type UsuarioListResponse = ApiResponse<IUsuario[]>;
+type AsignacionResponse = ApiResponse<any>;
 
 @Injectable({
   providedIn: 'root'
@@ -139,6 +142,42 @@ export class EmpresaService extends HttpService {
     } catch (error: any) {
       console.log("🚀 ~ EmpresaService ~ getEmpresasByTipoMoneda ~ error:", error)
       this.toastr.error(error?.error?.message || 'Error al obtener empresas por tipo de moneda', 'Error');
+      return null;
+    }
+  }
+
+  // Listar usuarios asignados a una empresa
+  async listarUsuariosAsignados(empresaId: string): Promise<UsuarioListResponse | null> {
+    try {
+      const resp = await firstValueFrom(this.get<UsuarioListResponse>(`${this.endpoints.empresa}/${empresaId}/usuarios`));
+      if (resp.body?.success) {
+        return resp.body;
+      }
+      return null;
+    } catch (error: any) {
+      console.log('🚀 ~ EmpresaService ~ listarUsuariosAsignados ~ error:', error);
+      this.toastr.error(error?.error?.message || 'Error al listar usuarios asignados', 'Error');
+      return null;
+    }
+  }
+
+  // Asignar o desasignar usuario a una empresa
+  async asignarUsuario(
+    empresaId: string,
+    dto: { usuarioId: string; asignar?: boolean; usuarioModifica: string }
+  ): Promise<AsignacionResponse | null> {
+    try {
+      const resp = await firstValueFrom(
+        this.post<AsignacionResponse>(`${this.endpoints.empresa}/${empresaId}/usuarios`, dto)
+      );
+      if (resp.body?.success) {
+        this.toastr.success(resp.body.message || 'Operación realizada', 'Éxito');
+        return resp.body;
+      }
+      return null;
+    } catch (error: any) {
+      console.log('🚀 ~ EmpresaService ~ asignarUsuario ~ error:', error);
+      this.toastr.error(error?.error?.message || 'Error al actualizar asignación', 'Error');
       return null;
     }
   }

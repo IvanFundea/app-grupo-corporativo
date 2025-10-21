@@ -71,6 +71,10 @@ export const routes: Routes = [
                         path: 'bancos',
                         loadComponent: () => import('./tesoreria/pages/banco-page/banco-page'),
                     },
+                    {
+                        path: 'asignar-contadores',
+                        loadComponent: () => import('./tesoreria/pages/asignar-contadores/asignar-contadores'),
+                    },
                 ]
             },
             // {

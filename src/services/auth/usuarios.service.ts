@@ -19,10 +19,11 @@ export class UsuariosService extends HttpService {
     super(http);
   }
 
-  async getUsuarios({ page = 1, limit = 10, busqueda = '', all = false } = {}): Promise<UsuarioListResponse | null> {
+  async getUsuarios({ page = 1, limit = 10, busqueda = '', all = false , puestoNombre = ''} = {}): Promise<UsuarioListResponse | null> {
     try {
       let params: any = { page, limit, busqueda };
       if (all) params = { ...params, todos: all };
+      if (puestoNombre) params = { ...params, puestoNombre}
       const resp = await firstValueFrom(this.get<UsuarioListResponse>(`${this.endpoints.usuarios}`, params));
       if (resp.body?.success) return resp.body;
       return null;
