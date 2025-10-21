@@ -1,62 +1,80 @@
-<h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Esta es una prueba</h2>
-<p class="text-gray-700 dark:text-gray-300">
-    Este contenido se adapta al ancho del sidebar automáticamente.
-</p>
-
-<div class="mt-8 space-y-4">
-    <div class="bg-white dark:bg-neutral-700 p-4 rounded-lg shadow">
-        <h3 class="text-lg font-semibold mb-2">Sección 1</h3>
-        <p>Lorem ipsum dolor sit amet...</p>
+<!-- Hero / Sobre nosotros -->
+<section class="relative overflow-hidden rounded-xl border border-gray-200 bg-white dark:bg-neutral-800">
+  <div class="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-primary-800/10 pointer-events-none"></div>
+  <div class="p-6 sm:p-10">
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+      Grupo Corporativo FUNDEA
+    </h1>
+    <p class="mt-3 max-w-3xl text-gray-600 dark:text-gray-300 leading-relaxed">
+      Especializados en atender los segmentos de agricultura, MIPYMES y vivienda, impulsamos servicios financieros
+      y empresariales diversificados e innovadores que contribuyen al desarrollo económico y social de nuestros
+      clientes. Este portal apoya esa misión integrando la gestión de tesorería, empresas, cuentas y usuarios,
+      para facilitar decisiones ágiles y seguras.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a [routerLink]="'/dashboard/tesoreria/asignar-contadores'"
+         class="inline-flex items-center gap-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 text-sm font-medium shadow focus:outline-none focus:ring-2 focus:ring-primary-500">
+        <app-custom-icon [name]="'user-round-plus'" [size]="18" [color]="'#fff'"></app-custom-icon>
+        Ir a Asignar contadores
+      </a>
+      <a [routerLink]="'/dashboard/tesoreria/movimientos'"
+         class="inline-flex items-center gap-2 rounded-lg bg-secondary-700 hover:bg-secondary-800 text-white px-4 py-2 text-sm font-medium shadow focus:outline-none focus:ring-2 focus:ring-secondary-600">
+        <app-custom-icon [name]="'hand-coins'" [size]="18" [color]="'#fff'"></app-custom-icon>
+        Ver Movimientos bancarios
+      </a>
     </div>
-    <div class="bg-white dark:bg-neutral-700 p-4 rounded-lg shadow">
-        <h3 class="text-lg font-semibold mb-2">Sección 2</h3>
-        <p>Ut enim ad minim veniam...</p>
-    </div>
-    <div class="bg-white dark:bg-neutral-700 p-4 rounded-lg shadow">
-        <h3 class="text-lg font-semibold mb-2">Sección 3</h3>
-        <p>Duis aute irure dolor in reprehenderit...</p>
-    </div>
-</div>
+  </div>
+</section>
 
-<div class="bg-gradient-to-r from-primary-500 to-primary-800 text-white p-6 rounded-lg mb-4">
-  Header Corporativo
-</div>
+<!-- Accesos rápidos en formato tarjeta -->
+<section class="mt-8">
+  <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Accesos rápidos</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <!-- Card: Asignar contadores -->
+    <a [routerLink]="'/dashboard/tesoreria/asignar-contadores'"
+       class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white dark:bg-neutral-800 p-5 shadow hover:shadow-md transition-shadow focus:outline-none">
+      <div class="flex items-start gap-4">
+        <div class="rounded-lg bg-primary-50 p-3 text-primary-700 group-hover:bg-primary-100">
+          <app-custom-icon [name]="'user-round-plus'" [size]="24" [color]="'#1f2937'"></app-custom-icon>
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white">Asignar contadores</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Gestiona la relación entre empresas y usuarios
+            contadores de forma rápida.</p>
+        </div>
+      </div>
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-500 to-primary-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+    </a>
 
-<!-- Ejemplos de la paleta de colores -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-  <!-- Primary Colors -->
-  <div class="bg-primary-500 text-white p-4 rounded-lg">
-    <h4 class="font-semibold">Primary 500</h4>
-    <p class="text-sm">Color principal</p>
+    <!-- Card: Movimientos bancarios -->
+    <a [routerLink]="'/dashboard/tesoreria/movimientos'"
+       class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white dark:bg-neutral-800 p-5 shadow hover:shadow-md transition-shadow focus:outline-none">
+      <div class="flex items-start gap-4">
+        <div class="rounded-lg bg-secondary-50 p-3 text-secondary-700 group-hover:bg-secondary-100">
+          <app-custom-icon [name]="'hand-coins'" [size]="24" [color]="'#1f2937'"></app-custom-icon>
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white">Movimientos bancarios</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Consulta, registra y analiza movimientos de tus
+            cuentas bancarias.</p>
+        </div>
+      </div>
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-secondary-500 to-secondary-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+    </a>
+
+    <!-- Card opcional: Empresas -->
+    <a [routerLink]="'/dashboard/tesoreria/empresa'"
+       class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white dark:bg-neutral-800 p-5 shadow hover:shadow-md transition-shadow focus:outline-none">
+      <div class="flex items-start gap-4">
+        <div class="rounded-lg bg-corporate-dark-blue/10 p-3 text-corporate-dark-blue group-hover:bg-corporate-dark-blue/20">
+          <app-custom-icon [name]="'building'" [size]="24" [color]="'#1f2937'"></app-custom-icon>
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white">Empresas</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Administra información central de tus empresas.</p>
+        </div>
+      </div>
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-corporate-dark-blue to-primary-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+    </a>
   </div>
-  
-  <!-- Secondary Colors -->
-  <div class="bg-secondary-600 text-white p-4 rounded-lg">
-    <h4 class="font-semibold">Secondary 600</h4>
-    <p class="text-sm">Color secundario</p>
-  </div>
-  
-  <!-- Success Colors -->
-  <div class="bg-success-500 text-white p-4 rounded-lg">
-    <h4 class="font-semibold">Success 500</h4>
-    <p class="text-sm">Color de éxito</p>
-  </div>
-  
-  <!-- Warning Colors -->
-  <div class="bg-warning-500 text-white p-4 rounded-lg">
-    <h4 class="font-semibold">Warning 500</h4>
-    <p class="text-sm">Color de advertencia</p>
-  </div>
-  
-  <!-- Danger Colors -->
-  <div class="bg-danger-500 text-white p-4 rounded-lg">
-    <h4 class="font-semibold">Danger 500</h4>
-    <p class="text-sm">Color de error</p>
-  </div>
-  
-  <!-- Corporate Colors -->
-  <div class="bg-corporate-dark-blue text-white p-4 rounded-lg">
-    <h4 class="font-semibold">Corporate Dark Blue</h4>
-    <p class="text-sm">Azul corporativo</p>
-  </div>
-</div>
+</section>

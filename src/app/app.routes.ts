@@ -5,7 +5,8 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
     {
         path: '',
-        loadComponent: () => import('./shared/pages/home-page/home-page'),
+        // loadComponent: () => import('./shared/pages/home-page/home-page'),
+        loadComponent: () => import('./auth/pages/login/login')
     },
     {
         path: 'login',
@@ -70,6 +71,10 @@ export const routes: Routes = [
                     {
                         path: 'bancos',
                         loadComponent: () => import('./tesoreria/pages/banco-page/banco-page'),
+                    },
+                    {
+                        path: 'movimientos',
+                        loadComponent: () => import('./tesoreria/pages/movimientos-page/movimientos-page'),
                     },
                     {
                         path: 'asignar-contadores',

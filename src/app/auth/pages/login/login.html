@@ -34,10 +34,20 @@
         }
 
         <!-- Botón Ingresar -->
-        <button type="submit"
-          class="w-2/3 mx-auto bg-white text-blue-800 font-semibold border border-blue-800 rounded-full py-2 mt-4 hover:bg-blue-800 hover:text-white transition-all cursor-pointer"
+        <button type="button"
+          class="w-2/3 mx-auto bg-white text-blue-800 font-semibold border border-blue-800 rounded-full py-2 mt-4 hover:bg-blue-800 hover:text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="loading()" (click)="login()">
-          Ingresar
+          @if (loading()) {
+            <span class="inline-flex items-center gap-2">
+              <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+              Ingresando...
+            </span>
+          } @else {
+            Ingresar
+          }
         </button>
       </div>
     </div>

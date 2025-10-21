@@ -1,0 +1,36 @@
+<nav class="mb-4" aria-label="breadcrumb">
+  <ol class="flex flex-wrap text-sm text-gray-700">
+    <li class="flex items-center">
+      <a routerLink="/dashboard" class="text-blue-600 hover:underline">Inicio</a>
+      <span class="mx-2">></span>
+    </li>
+    <li class="flex items-center">
+      <a routerLink="/dashboard/tesoreria" class="text-blue-600 hover:underline">Tesorería</a>
+      <span class="mx-2">></span>
+    </li>
+    <li class="flex items-center text-gray-500">Movimientos bancarios</li>
+  </ol>
+</nav>
+
+<div class="bg-white shadow rounded-lg border border-gray-300">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-300">
+    <h2 class="text-lg font-semibold text-gray-800">Movimientos bancarios</h2>
+  </div>
+
+  <div class="p-4 space-y-4">
+    <div class="bg-secondary-50 border border-secondary-200 text-secondary-800 rounded-lg p-4 text-sm">
+      Esta sección estará disponible próximamente. Aquí podrás consultar, registrar y analizar los movimientos de tus cuentas bancarias.
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <a routerLink="/dashboard/tesoreria/cuentas" class="inline-flex items-center gap-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 text-sm font-medium">
+        <app-custom-icon [name]="'trending-up'" [size]="18" [color]="'#fff'"></app-custom-icon>
+        Ir a Cuentas bancarias
+      </a>
+      <a routerLink="/dashboard/tesoreria/bancos" class="inline-flex items-center gap-2 rounded-lg bg-secondary-700 hover:bg-secondary-800 text-white px-4 py-2 text-sm font-medium">
+        <app-custom-icon [name]="'landmark'" [size]="18" [color]="'#fff'"></app-custom-icon>
+        Ver Bancos
+      </a>
+    </div>
+  </div>
+</div>

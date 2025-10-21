@@ -33,6 +33,8 @@ export default class LoginComponent {
   }
 
   async login() {
+    // Evitar múltiples envíos mientras está cargando
+    if (this.loading()) return;
 
     if(this.userName().trim() === '' || this.password().trim() === '') {
       this.errorObj.set({
