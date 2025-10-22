@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination';
 import { IMenu } from '../../../../interfaces/auth';
 import { MenuService } from '../../../../services/auth/menu.service';
 import { UpsertMenuComponent } from '../../components/upsert-menu/upsert-menu';
@@ -21,7 +22,7 @@ const emptyMenu: IMenu = {
 @Component({
   selector: 'app-menu-page',
   standalone: true,
-  imports: [RouterLink, CustomIconComponent, UpsertMenuComponent],
+  imports: [RouterLink, CustomIconComponent, UpsertMenuComponent, PaginationComponent],
   templateUrl: './menu-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -32,10 +33,17 @@ export default class MenuPageComponent {
   menusPrincipales = signal<IMenu[]>([]);
   submenus = signal<IMenu[]>([]);
 
-  pagination = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
+  // Tabs and filters
+  activeTab = signal<'menus' | 'submenus'>('menus');
+  buscadorMenus = signal('');
+  buscadorSubs = signal('');
+
+  // Independent pagination states
+  paginationMenus = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
+  paginationSubs = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
+
   isLoading = signal(false);
   esMenuPrincipal = signal(true);
-  buscador = signal('');
 
   nuevoMenu = signal(true);
   menuEdit = signal<IMenu>({ ...emptyMenu });
@@ -70,23 +78,68 @@ export default class MenuPageComponent {
   async fetchData() {
     if (this.isLoading()) return;
     this.isLoading.set(true);
-    const resp = await this.menuService.getMenus({ all: true, busqueda: this.buscador() });
+    const resp = await this.menuService.getMenus({ all: true });
     if (resp?.success) {
       const data = resp.data || [];
       this.menusList.set(data);
       this.splitMenus(data);
-      if (resp.metadata) {
-        this.pagination.update(p => ({ ...p, totalItems: resp.metadata?.total || data.length }));
-      }
+      this.updatePaginationTotals();
       setTimeout(() => (window as any).HSStaticMethods?.autoInit(), 100);
     }
     this.isLoading.set(false);
   }
 
-  onSearch(term: string) {
-    this.buscador.set(term);
-    this.pagination.update(p => ({ ...p, page: 1 }));
-    this.fetchData();
+  // Filtering helpers
+  private normalize(t: string): string { return (t || '').toLowerCase(); }
+  private filterMenus(list: IMenu[], term: string): IMenu[] {
+    const q = this.normalize(term);
+    if (!q) return list || [];
+    return (list || []).filter(m =>
+      this.normalize(m.label).includes(q) ||
+      this.normalize(m.icono || '').includes(q) ||
+      this.normalize(m.pathWeb || '').includes(q)
+    );
+  }
+
+  getMenusPrincipalesPageSlice(): IMenu[] {
+    const filtered = this.filterMenus(this.menusPrincipales(), this.buscadorMenus());
+    const { page, pageSize } = this.paginationMenus();
+    const start = (page - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }
+
+  getSubmenusPageSlice(): IMenu[] {
+    const filtered = this.filterMenus(this.submenus(), this.buscadorSubs());
+    const { page, pageSize } = this.paginationSubs();
+    const start = (page - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }
+
+  private updatePaginationTotals() {
+    const totalMenus = this.filterMenus(this.menusPrincipales(), this.buscadorMenus()).length;
+    const totalSubs = this.filterMenus(this.submenus(), this.buscadorSubs()).length;
+    this.paginationMenus.update(p => ({ ...p, totalItems: totalMenus }));
+    this.paginationSubs.update(p => ({ ...p, totalItems: totalSubs }));
+  }
+
+  onSearchMenus(term: string) {
+    this.buscadorMenus.set(term);
+    this.paginationMenus.update(p => ({ ...p, page: 1 }));
+    this.updatePaginationTotals();
+  }
+
+  onSearchSubs(term: string) {
+    this.buscadorSubs.set(term);
+    this.paginationSubs.update(p => ({ ...p, page: 1 }));
+    this.updatePaginationTotals();
+  }
+
+  onChangePageMenus(newPagination: IPagination) {
+    this.paginationMenus.set(newPagination);
+  }
+
+  onChangePageSubs(newPagination: IPagination) {
+    this.paginationSubs.set(newPagination);
   }
 
   openUpsertModal(nuevo: boolean, menu: IMenu = emptyMenu) {
