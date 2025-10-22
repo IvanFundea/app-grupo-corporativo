@@ -1,0 +1,94 @@
+<form [formGroup]="form()" (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Etiqueta -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Etiqueta</label>
+        <input type="text" formControlName="label" class="input-control" />
+        @if (form().get('label')?.touched && form().get('label')?.invalid) {
+        <div class="text-red-600 text-sm mt-1 space-y-1">
+            @if (form().get('label')?.errors?.['required']) { <div>Etiqueta es requerida</div> }
+            @if (form().get('label')?.errors?.['minlength']) { <div>Mínimo 3 caracteres</div> }
+        </div>
+        }
+    </div>
+
+    <!-- Icono y vista previa -->
+    <div class="grid grid-cols-3 gap-4 items-end">
+        <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ícono (Lucide)</label>
+            <input type="text" formControlName="icono" placeholder="p. ej. menu, settings, user"
+                class="input-control" />
+            <p class="text-xs text-gray-500 mt-1">Escribe el nombre del icono Lucide. Se previsualiza a la derecha.</p>
+        </div>
+
+        <div class="col-span-1 pl-5">
+            @if (iconName()) {
+            <app-custom-icon [name]="iconName()" [size]="36" [color]="iconColor()"></app-custom-icon>
+            }
+            <div class="flex items-center justify-center h-[36px] ">
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <!-- Descripción -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+        <textarea formControlName="descripcion" rows="2" class="input-control"></textarea>
+    </div>
+
+    <!-- Paths -->
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ruta App</label>
+            <input type="text" formControlName="pathApp" class="input-control" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ruta Web</label>
+            <input type="text" formControlName="pathWeb" class="input-control" />
+        </div>
+    </div>
+
+    <!-- Color -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+           <input type="color" formControlName="color" class="h-10 w-16 p-0 border rounded-md" />
+    </div>
+
+    <!-- Tipo: Principal o Submenú -->
+    <div class="grid grid-cols-2 gap-4">
+        <div class="flex items-center">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" formControlName="principal" class="sr-only peer" />
+                <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
+                <div
+                    class="absolute top-1/2 left-0.5 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5">
+                </div>
+                <span class="ml-3 text-sm font-medium text-gray-700">Es menú principal</span>
+            </label>
+        </div>
+
+        <div class="flex items-center">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" formControlName="activo" class="sr-only peer" />
+                <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
+                <div
+                    class="absolute top-1/2 left-0.5 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5">
+                </div>
+                <span class="ml-3 text-sm font-medium text-gray-700">Activo</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Eliminado: selección de menú padre y orden -->
+
+    <!-- Botones -->
+    <div class="flex justify-end space-x-3 pt-2">
+        <button type="button" (click)="onCancel()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancelar</button>
+        <button type="submit" [disabled]="form().invalid"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50">{{
+            btnText }}</button>
+    </div>
+</form>

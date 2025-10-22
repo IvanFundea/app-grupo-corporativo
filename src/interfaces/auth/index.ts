@@ -79,4 +79,23 @@ export interface ILogin {
 }
 
 
+export interface IMenu {
+  menuId?: string;        // UUID del menú
+  label: string;          // Nombre o etiqueta del menú
+  descripcion: string;    // Descripción del menú
+  pathApp: string;        // Ruta de la aplicación móvil o cliente
+  pathWeb: string;        // Ruta de la aplicación web
+  icono: string;          // Nombre del ícono asociado
+  color: string;          // Color del ícono o del menú
+  principal: boolean;     // Indica si es un menú principal
+  activo: boolean;        // Indica si el menú está activo
+
+  // Relaciones
+  accesos?: IAcceso[];    // Lista de accesos asociados al menú
+
+  // Metadatos de auditoría
+  created_at: Date;       // Fecha de creación
+  updated_at?: Date | null; // Fecha de última actualización
+  deleted_at?: Date | null; // Fecha de eliminación (soft delete)
+}
 

@@ -30,6 +30,10 @@ export const routes: Routes = [
                 // canActivate: [AccessGuard]
                 children: [
                     {
+                        path: 'menus',
+                        loadComponent: () => import('./auth/pages/menu-page/menu-page'),
+                    },
+                    {
                         path: 'roles',
                         loadComponent: () => import('./auth/pages/rol-page/rol-page'),
                     },
