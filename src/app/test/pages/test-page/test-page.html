@@ -135,13 +135,7 @@
         </svg>
       </button>
     </div>
-    <app-upsert-test
-      [empresa]="empresaEdit()"
-      [nuevo]="nuevoEmpresa()"
-      [key]="formKey()"
-      (save)="upsertEmpresa($event)"
-      (cancel)="closeModal()"
-    />
+    <!-- <app-upsert-cuenta-bancaria [cuenta]="cuentaEdit()" [bancos]="bancos()" [empresas]="empresas()" [tiposMoneda]="tiposMoneda()" [nuevo]="nuevaCuenta()" (save)="upsertCuenta($event)" (cancel)="closeModal()" /> -->
   </div>
 </div>
 }
