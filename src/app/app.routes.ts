@@ -34,6 +34,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./auth/pages/menu-page/menu-page'),
                     },
                     {
+                        path: 'general',
+                        loadComponent: () => import('./auth/pages/configuraciones-page/configuraciones-page'),
+                    },
+                    {
                         path: 'roles',
                         loadComponent: () => import('./auth/pages/rol-page/rol-page'),
                     },

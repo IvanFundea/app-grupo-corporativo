@@ -99,3 +99,30 @@ export interface IMenu {
   deleted_at?: Date | null; // Fecha de eliminación (soft delete)
 }
 
+export enum TipoConfiguracion {
+  STRING = 'string',
+  NUMBER = 'number',
+  BOOLEAN = 'boolean',
+  ARRAY = 'array',
+  OBJECT = 'object',
+}
+/**
+ * Representa una configuración del sistema.
+ */
+export interface IConfig {
+  configId?: string;            // UUID único de la configuración
+  llave: string;                // Clave identificadora de la configuración (ej. "TOKEN_EXPIRATION")
+  valor: string;                // Valor de la configuración (almacenado como texto)
+  tipo: TipoConfiguracion;      // Tipo de dato (string, number, boolean, array, object)
+  descripcion?: string | null;  // Descripción opcional sobre el uso de la configuración
+  activo: boolean;              // Indica si la configuración está activa
+
+  // Metadatos de auditoría
+  created_at: Date;             // Fecha de creación
+  updated_at?: Date | null;     // Fecha de última actualización
+  deleted_at?: Date | null;     // Fecha de eliminación lógica
+}
+
+
+
+
