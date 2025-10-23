@@ -60,8 +60,12 @@
                   </label>
                 </td>
                 <td class="px-3 py-1.5 text-center border space-x-2 border-gray-300">
-                  <button (click)="openUpsertModal(false, c)" class="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition">Editar</button>
-                  <button (click)="openDeleteModal(c)" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition">Eliminar</button>
+                  <button (click)="openUpsertModal(false, c)" class="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition" title="Editar">
+                    <app-custom-icon [name]="'square-pen'" [color]="'#ffffff'" [size]="18"></app-custom-icon>
+                  </button>
+                  <button (click)="openDeleteModal(c)" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition" title="Eliminar">
+                    <app-custom-icon [name]="'trash-2'" [color]="'#ffffff'" [size]="18"></app-custom-icon>
+                  </button>
                 </td>
               </tr>
             }
@@ -110,4 +114,7 @@
       </div>
     </div>
   </div>
+
+      <!-- Hidden fallback usage to satisfy template analyzers for imported components -->
+      <app-custom-icon class="hidden" [name]="'circle-help'" [color]="'#888'" [size]="16"></app-custom-icon>
 </div>

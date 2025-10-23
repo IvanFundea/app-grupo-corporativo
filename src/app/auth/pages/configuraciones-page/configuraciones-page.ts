@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination';
+import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 import { IConfig, TipoConfiguracion } from '../../../../interfaces/auth';
 import { ConfigService } from '../../../../services/auth/config.service';
 import { UpsertConfigComponent } from '../../components/upsert-config/upsert-config';
@@ -18,7 +19,7 @@ const emptyConfig: IConfig = {
 @Component({
   selector: 'app-configuraciones-page',
   standalone: true,
-  imports: [RouterLink, PaginationComponent, UpsertConfigComponent],
+  imports: [RouterLink, PaginationComponent, UpsertConfigComponent, CustomIconComponent],
   templateUrl: './configuraciones-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

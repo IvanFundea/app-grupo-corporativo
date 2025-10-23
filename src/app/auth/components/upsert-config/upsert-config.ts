@@ -72,6 +72,28 @@ export class UpsertConfigComponent implements OnDestroy {
             this.lastConfigId = cfg?.configId;
             this.lastKey = k;
             this.lastNuevo = isNuevo;
+
+            // Initialize helper arrays for ARRAY/OBJECT editors
+            const currentTipo = form.get('tipo')?.value as TipoConfiguracion;
+            if (currentTipo === TipoConfiguracion.ARRAY) {
+                try {
+                    const arr = JSON.parse(String(form.get('valorArray')?.value || '[]'));
+                    this.arrayValues.set(Array.isArray(arr) ? arr.map((x: any) => String(x)) : []);
+                } catch { this.arrayValues.set([]); }
+            } else if (currentTipo === TipoConfiguracion.OBJECT) {
+                try {
+                    const obj = JSON.parse(String(form.get('valorObject')?.value || '{}'));
+                    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+                        const entries: basicObject[] = Object.keys(obj).map(k => ({ key: k, value: String(obj[k]) }));
+                        this.objectValues.set(entries);
+                    } else {
+                        this.objectValues.set([]);
+                    }
+                } catch { this.objectValues.set([]); }
+            } else {
+                this.arrayValues.set([]);
+                this.objectValues.set([]);
+            }
         });
     }
 
@@ -185,18 +207,17 @@ export class UpsertConfigComponent implements OnDestroy {
         this.arrayValues.update((prev) => [...prev, value]);
         input.value = ''; // ✅ limpia el input
 
-        // Actualizamos el value del form
-        const valueJoin = this.arrayValues().join(',');
-        this.form().get('value')?.setValue(valueJoin);
+        // Actualizamos el valor del form como JSON bonito
+        const json = JSON.stringify(this.arrayValues(), null, 2);
+        this.form().get('valorArray')?.setValue(json);
     }
 
     removeElement(index: number) {
         this.arrayValues.update((prev) => prev.filter((_, i) => i !== index));
 
-        // Actualizamos el value del form
-        const valueJoin = this.arrayValues().join(',');
-        this.form().get('value')?.setValue(valueJoin);
-
+        // Actualizamos el valor del form como JSON bonito
+        const json = JSON.stringify(this.arrayValues(), null, 2);
+        this.form().get('valorArray')?.setValue(json);
     }
 
     addElementObj(nameInput: HTMLInputElement, valueInput: HTMLInputElement) {
@@ -208,16 +229,18 @@ export class UpsertConfigComponent implements OnDestroy {
         nameInput.value = ''; // ✅ limpia el input
         valueInput.value = ''; // ✅ limpia el input
 
-        // Actualizamos el value del form
-        const valueJson = JSON.stringify(this.objectValues());
-        this.form().get('value')?.setValue(valueJson);
+        // Actualizamos el valor del form como JSON (objeto clave:valor)
+        const obj = this.objectValues().reduce((acc: any, cur) => { acc[cur.key] = cur.value; return acc; }, {} as any);
+        const json = JSON.stringify(obj, null, 2);
+        this.form().get('valorObject')?.setValue(json);
     }
 
     removeElementObj(index: number) {
         this.objectValues.update((prev) => prev.filter((_, i) => i !== index));
 
-        // Actualizamos el value del form
-        const valueJson = JSON.stringify(this.objectValues());
-        this.form().get('value')?.setValue(valueJson);
+        // Actualizamos el valor del form como JSON (objeto clave:valor)
+        const obj = this.objectValues().reduce((acc: any, cur) => { acc[cur.key] = cur.value; return acc; }, {} as any);
+        const json = JSON.stringify(obj, null, 2);
+        this.form().get('valorObject')?.setValue(json);
     }
 }
