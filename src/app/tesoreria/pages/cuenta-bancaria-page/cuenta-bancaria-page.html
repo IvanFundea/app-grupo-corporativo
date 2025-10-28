@@ -25,6 +25,24 @@
         <input type="text" id="searchCuenta" placeholder="Buscar por número o descripción..." [value]="buscador()" (input)="onSearch($any($event.target).value)" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
       <div>
+        <label class="sr-only">Empresa</label>
+        <select class="px-3 py-2 border border-gray-300 rounded-md" (change)="onEmpresaFilterChange($any($event.target).value)">
+          <option value="">Todas las empresas</option>
+          @for (e of (empresas() || []); track e.empresaId) {
+            <option [value]="e.empresaId">{{ e.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="sr-only">Banco</label>
+        <select class="px-3 py-2 border border-gray-300 rounded-md" (change)="onBancoFilterChange($any($event.target).value)">
+          <option value="">Todos los bancos</option>
+          @for (b of (bancos() || []); track b.bancoId) {
+            <option [value]="b.bancoId">{{ b.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div>
         <button type="button" (click)="fetchData()" [disabled]="isLoading()" class="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50">
           @if (isLoading()) { Buscando... } @else { Buscar }
         </button>

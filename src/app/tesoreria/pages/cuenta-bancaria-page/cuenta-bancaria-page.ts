@@ -39,6 +39,8 @@ export default class CuentaBancariaPageComponent {
   tiposMoneda = signal<ITipoMoneda[]>([]);
   pagination = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
   buscador = signal('');
+  selectedEmpresaId = signal<string>('');
+  selectedBancoId = signal<string>('');
   isLoading = signal(false);
 
   nuevaCuenta = signal(true);
@@ -82,6 +84,8 @@ export default class CuentaBancariaPageComponent {
       page: this.pagination().page,
       limit: this.pagination().pageSize,
       busqueda: this.buscador(),
+      empresaId: this.selectedEmpresaId(),
+      bancoId: this.selectedBancoId(),
     });
     if (resp?.success) {
       this.cuentas.set(resp.data || []);
@@ -100,6 +104,18 @@ export default class CuentaBancariaPageComponent {
   onChangePage(newPagination: IPagination) {
     this.cuentas.set([]);
     this.pagination.set(newPagination);
+    this.fetchData();
+  }
+
+  onEmpresaFilterChange(id: string) {
+    this.selectedEmpresaId.set(id);
+    this.pagination.update(p => ({ ...p, page: 1 }));
+    this.fetchData();
+  }
+
+  onBancoFilterChange(id: string) {
+    this.selectedBancoId.set(id);
+    this.pagination.update(p => ({ ...p, page: 1 }));
     this.fetchData();
   }
 

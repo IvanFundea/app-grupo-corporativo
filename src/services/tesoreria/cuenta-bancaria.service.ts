@@ -19,10 +19,12 @@ export class CuentaBancariaService extends HttpService {
     super(http);
   }
 
-  async getCuentas({ page = 1, limit = 10, busqueda = '', all = false } = {}): Promise<CuentaListResponse | null> {
+  async getCuentas({ page = 1, limit = 10, busqueda = '', all = false, empresaId = '', bancoId = '' } = {}): Promise<CuentaListResponse | null> {
     try {
       let params: any = { page, limit, busqueda };
       if (all) params = { ...params, todos: all };
+      if (empresaId) params = { ...params, empresaId };
+      if (bancoId) params = { ...params, bancoId };
       const resp = await firstValueFrom(this.get<CuentaListResponse>(`${this.endpoints.cuenta}`, params));
       if (resp.body?.success) return resp.body;
       return null;
