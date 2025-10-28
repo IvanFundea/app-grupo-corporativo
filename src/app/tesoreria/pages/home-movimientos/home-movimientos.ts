@@ -15,13 +15,10 @@ interface AccountRow {
   empresa: IEmpresa;
   banco: IBanco;
   cuenta: ICuentaBancaria;
-  debitoFlotante: number;
-  creditoFlotante: number;
-  saldoProyectado: number;
 }
 
-interface RowTest {
-  filaId: string,
+interface CabeceraRow {
+  cabeceraId: string;
   empresaNombre: string;
   bancoNombre: string;
   cuentaNumero: string;
@@ -55,44 +52,8 @@ export default class HomeMovimientosPageComponent {
   bancos = signal<IBanco[]>([]);
   monedas = signal<ITipoMoneda[]>([]);
   tipos = signal<ITipoTransaccion[]>([]);
-  rowsNew = signal<RowTest[]>([
-    {
-      filaId: '1',
-      empresaNombre: 'FUNDEA',
-      bancoNombre: 'Industrial',
-      cuentaNumero: '123456789',
-      saldoAnterior: 1000,
-      debitos: 200,
-      creditos: 300,
-      saldoDisponible: 1100,
-      flotante: 100,
-      saldoBanco: 1200
-    },
-    {
-      filaId: '2',
-      empresaNombre: 'FUNDEA',
-      bancoNombre: 'GyT',
-      cuentaNumero: '123456789',
-      saldoAnterior: 1000,
-      debitos: 200,
-      creditos: 300,
-      saldoDisponible: 1100,
-      flotante: 100,
-      saldoBanco: 1200
-    },
-    {
-      filaId: '2',
-      empresaNombre: 'FUNDEA',
-      bancoNombre: 'Industrial',
-      cuentaNumero: '123456789',
-      saldoAnterior: 1000,
-      debitos: 200,
-      creditos: 300,
-      saldoDisponible: 1100,
-      flotante: 100,
-      saldoBanco: 1200
-    }
-  ]);
+  // Cabeceras que se muestran en la tabla (por cuenta y fecha)
+  cabeceras = signal<CabeceraRow[]>([]);
 
   // Todas las cuentas pertenecientes a las empresas del usuario
   cuentas = signal<ICuentaBancaria[]>([]);
@@ -171,29 +132,55 @@ export default class HomeMovimientosPageComponent {
 
     const cuentas = this.cuentasFiltradas;
 
-    const newRows: AccountRow[] = [];
-    // Cargar detalles del día para cada cuenta y construir resumen
+    const newCabeceras: CabeceraRow[] = [];
+    // Para cada cuenta obtener la cabecera de la fecha (si existe) y construir fila
     await Promise.all(cuentas.map(async (c) => {
-      const det = await this.movService.findDetallesDelDia(c.empresaId, c.cuentaBancariaId, fecha);
-      let deb = 0, cred = 0;
-      if (det?.success && det.data) {
-        for (const d of det.data) {
-          const tipo = tiposMap.get(d.tipoTransaccionId);
-          if (tipo === 'DEBITO') deb += (d.valor || 0);
-          if (tipo === 'CREDITO') cred += (d.valor || 0);
-        }
-      }
+      const cabResp = await this.movService.listarCabeceraPorFecha(c.cuentaBancariaId, fecha, c.empresaId);
       const empresa = empresasMap.get(c.empresaId)!;
       const banco = bancosMap.get(c.bancoId)!;
+      const cuentaNumero = c.numero || '';
       const saldoBanco = c.saldoBanco || 0;
-      const saldoProyectado = saldoBanco + cred - deb;
-      newRows.push({ empresa, banco, cuenta: c, debitoFlotante: deb, creditoFlotante: cred, saldoProyectado });
+
+      if (cabResp?.success && cabResp.data) {
+        const cab = cabResp.data;
+        const saldoAnterior = (cab.saldoInicial as number) || 0;
+        const debitos = (cab.totalDebitos as number) || 0;
+        const creditos = (cab.totalCreditos as number) || 0;
+        const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos);
+        const flotante = saldoBanco - saldoDisponible;
+        newCabeceras.push({
+          cabeceraId: cab.cabeceraId || `${c.cuentaBancariaId}-${fecha}`,
+          empresaNombre: empresa?.nombre || '',
+          bancoNombre: banco?.nombre || '',
+          cuentaNumero,
+          saldoAnterior,
+          debitos,
+          creditos,
+          saldoDisponible,
+          flotante,
+          saldoBanco,
+        });
+      } else {
+        // Cabecera no encontrada -> mostrar ceros
+        newCabeceras.push({
+          cabeceraId: `${c.cuentaBancariaId}-${fecha}`,
+          empresaNombre: empresa?.nombre || '',
+          bancoNombre: banco?.nombre || '',
+          cuentaNumero,
+          saldoAnterior: 0,
+          debitos: 0,
+          creditos: 0,
+          saldoDisponible: 0,
+          flotante: 0,
+          saldoBanco,
+        });
+      }
     }));
 
     // Orden básico por empresa y banco
-    newRows.sort((a, b) => (a.empresa.nombre.localeCompare(b.empresa.nombre) || a.banco.nombre.localeCompare(b.banco.nombre)));
+    newCabeceras.sort((a, b) => (a.empresaNombre.localeCompare(b.empresaNombre) || a.bancoNombre.localeCompare(b.bancoNombre)));
 
-    this.rows.set(newRows);
+    this.cabeceras.set(newCabeceras);
     this.isLoading.set(false);
   }
 

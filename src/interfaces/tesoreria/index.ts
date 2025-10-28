@@ -58,7 +58,8 @@ export interface IMovimientoBancarioCab {
   saldoFinal: number;
   totalCreditos: number;
   totalDebitos: number;
-  usrIngreso: string;
+  totalFlotante: number;
+  fecha: Date;
   created_at: Date;
   updated_at?: Date;
   deleted_at?: Date;
@@ -69,6 +70,8 @@ export interface IMovimientoBancarioDet {
   movimientoBancarioDetId: string;
   cabeceraId: string;
   tipoTransaccionId: string;
+  descripcion: string;
+  flotante: boolean; 
   valor: number;
   usrIngreso: string;
   created_at: Date;

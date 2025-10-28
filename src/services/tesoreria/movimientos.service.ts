@@ -9,6 +9,8 @@ import { IMovimientoBancarioDet } from '../../interfaces/tesoreria';
 
 export type MovimientoDetResponse = ApiResponse<IMovimientoBancarioDet>;
 export type MovimientoDetListResponse = ApiResponse<IMovimientoBancarioDet[]>;
+import { IMovimientoBancarioCab } from '../../interfaces/tesoreria';
+export type MovimientoCabResponse = ApiResponse<IMovimientoBancarioCab>;
 
 @Injectable({ providedIn: 'root' })
 export class MovimientosService extends HttpService {
@@ -61,6 +63,21 @@ export class MovimientosService extends HttpService {
     } catch (error: any) {
       console.log('MovimientosService.removeDetalle error:', error);
       this.toastr.error(error?.error?.message || 'Error al eliminar detalle', 'Error');
+      return null;
+    }
+  }
+
+  // Obtener la cabecera asociada a una cuenta en una fecha (puede no existir)
+  async listarCabeceraPorFecha(cuentaBancariaId: string, fecha: string, empresaId?: string): Promise<MovimientoCabResponse | null> {
+    try {
+      const params: any = { cuentaBancariaId, fecha };
+      if (empresaId) params.empresaId = empresaId;
+      const resp = await firstValueFrom(this.get<MovimientoCabResponse>(`${this.endpoints.base}/cabeceras-por-fecha`, params));
+      if (resp.body?.success) return resp.body;
+      return null;
+    } catch (error: any) {
+      console.log('MovimientosService.listarCabeceraPorFecha error:', error);
+      this.toastr.error(error?.error?.message || 'Error al obtener cabecera por fecha', 'Error');
       return null;
     }
   }
