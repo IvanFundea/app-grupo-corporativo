@@ -34,6 +34,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./auth/pages/menu-page/menu-page'),
                     },
                     {
+                        path: 'accesos',
+                        loadComponent: () => import('./auth/pages/acceso-page/acceso-page'),
+                    },
+                    {
                         path: 'general',
                         loadComponent: () => import('./auth/pages/configuraciones-page/configuraciones-page'),
                     },
@@ -59,6 +63,10 @@ export const routes: Routes = [
                     {
                         path: '',
                         loadComponent: () => import('./tesoreria/pages/tesoreria-home/tesoreria-home'),
+                    },
+                    {
+                        path: 'home-movimientos',
+                        loadComponent: () => import('./tesoreria/pages/home-movimientos/home-movimientos'),
                     },
                     {
                         path: 'tipo-moneda',

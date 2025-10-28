@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, AfterViewInit } from '@angular/core';
+import { Component, OnInit, inject, AfterViewInit, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { CustomIconComponent } from '../../../../shared/components/custom-icon/custom-icon.component';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-side-menu-list',
@@ -11,6 +12,10 @@ import { RouterModule } from '@angular/router';
 })
 export class SideMenuListComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
+
+  authService = inject(AuthService); 
+  usuario = this.authService.getUserStorage();
+  esAdmin = signal(false);
   
   // Mapeo dinámico de rutas a acordeones
   private routeToAccordionMap: { [key: string]: string } = {
@@ -34,6 +39,9 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
         this.checkActiveRoutes(event.url);
       }, 50);
     });
+
+    console.log('SideMenuListComponent initialized', this.usuario);
+    this.esAdmin.set(this.usuario?.rol?.esAdmin || false);
   }
 
   ngAfterViewInit() {
