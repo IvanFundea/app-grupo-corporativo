@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 import { AuthService } from '../../../../services/auth/auth.service';
@@ -19,6 +19,7 @@ import { IEmpresa, ICuentaBancaria, ITipoMoneda, ITipoTransaccion, TipoTransacci
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class MovimientosPageComponent {
+  private router = inject(Router);
   private auth = inject(AuthService);
   private empresaService = inject(EmpresaService);
   private cuentaService = inject(CuentaBancariaService);
@@ -40,6 +41,7 @@ export default class MovimientosPageComponent {
   selectedCuentaId = signal<string>('');
   selectedTipoTransaccionId = signal<string>('');
   monto = signal<number | null>(null);
+  selectedFechaISO = signal<string>('');
 
   detalles = signal<IMovimientoBancarioDet[]>([]);
 
@@ -50,6 +52,9 @@ export default class MovimientosPageComponent {
 
   ngOnInit() {
     this.nowLabel.set(new Date().toLocaleString());
+    // Fecha seleccionada por defecto: hoy (YYYY-MM-DD)
+    const today = new Date().toISOString().slice(0, 10);
+    this.selectedFechaISO.set(today);
     this.loadInitial();
   }
 
@@ -71,6 +76,9 @@ export default class MovimientosPageComponent {
     ]);
     if (monResp?.success) this.monedas.set(monResp.data || []);
     if (tiposResp?.success) this.tipos.set(tiposResp.data || []);
+
+    // Intentar aplicar estado de navegación preseleccionado
+    await this.applyNavigationStateIfAny();
   }
 
   async onEmpresaChange(id: string) {
@@ -101,8 +109,8 @@ export default class MovimientosPageComponent {
   private async loadDetallesDelDia() {
     if (!this.selectedEmpresaId() || !this.selectedCuentaId()) return;
     this.isLoading.set(true);
-    const today = new Date().toISOString().slice(0, 10);
-    const det = await this.movService.findDetallesDelDia(this.selectedEmpresaId(), this.selectedCuentaId(), today);
+    const fecha = this.selectedFechaISO();
+    const det = await this.movService.findDetallesDelDia(this.selectedEmpresaId(), this.selectedCuentaId(), fecha);
     if (det?.success) this.detalles.set(det.data || []);
     this.isLoading.set(false);
   }
@@ -158,5 +166,19 @@ export default class MovimientosPageComponent {
   getTipoNombre(tipoTransaccionId: string): string {
     const t = (this.tipos() || []).find(x => x.tipoTransaccionId === tipoTransaccionId);
     return t ? t.nombre : '';
+  }
+
+  // Al terminar la carga inicial, si venimos con estado de navegación, preseleccionar empresa/cuenta/fecha
+  private async applyNavigationStateIfAny() {
+    const st = (this.router.getCurrentNavigation()?.extras?.state as any) || (window.history.state as any);
+    const empresaId = st?.empresaId as string | undefined;
+    const cuentaBancariaId = st?.cuentaBancariaId as string | undefined;
+    const fechaISO = st?.fechaISO as string | undefined;
+    if (!empresaId || !cuentaBancariaId) return;
+    if (fechaISO) this.selectedFechaISO.set(fechaISO);
+    await this.onEmpresaChange(empresaId);
+    // Selecciona la cuenta y carga detalles
+    this.selectedCuentaId.set(cuentaBancariaId);
+    await this.loadDetallesDelDia();
   }
 }
