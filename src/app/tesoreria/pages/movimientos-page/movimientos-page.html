@@ -8,6 +8,11 @@
             <a routerLink="/dashboard/tesoreria" class="text-blue-600 hover:underline">Tesorería</a>
             <span class="mx-2">></span>
         </li>
+        <li class="flex items-center">
+            <a routerLink="/dashboard/tesoreria/resumen-cuentas" class="text-blue-600 hover:underline">Resumen
+                cuentas</a>
+            <span class="mx-2">></span>
+        </li>
         <li class="flex items-center text-gray-500">Detalle movimientos bancarios</li>
     </ol>
 </nav>
@@ -18,68 +23,79 @@
     </div>
 
     <div class="p-4 space-y-5">
-        <!-- Saldo actual -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <app-custom-icon [name]="'piggy-bank'" [size]="20"></app-custom-icon>
+        <!-- Saldo actual de la cuenta (para la fecha seleccionada) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Saldo actual -->
+            <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm">
+                <app-custom-icon [name]="'banknote'" [size]="20" [color]="'#00bb00'"></app-custom-icon>
                 <div>
-                    <div class="text-xs text-gray-500">Saldo actual de la cuenta</div>
-                    <div class="text-xl font-semibold text-gray-800">{{ currencySymbol }} {{ saldoActual |
-                        number:'1.2-2' }}</div>
+                    <div class="text-xs text-gray-500">Saldo Final</div>
+                    <div class="text-xl font-semibold text-green-800">
+                        {{ currencySymbol }} {{ cabecera()?.saldoFinal | number: '1.2-2' }}
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center justify-end text-sm text-gray-600">
-                Fecha/Hora: <span class="ml-2 font-medium">{{ nowLabel() }}</span>
+
+            <!-- Total débitos -->
+            <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm">
+                <div>
+                    <div class="text-xs text-gray-500">Débitos</div>
+                    <div class="text-xl font-semibold text-orange-600">
+                        {{ currencySymbol }} {{ cabecera()?.totalDebitos | number: '1.2-2' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total créditos -->
+            <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm">
+                <div>
+                    <div class="text-xs text-gray-500">Créditos</div>
+                    <div class="text-xl font-semibold text-blue-600">
+                        {{ currencySymbol }} {{ cabecera()?.totalCreditos | number: '1.2-2' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total flotante -->
+            <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm">
+                <div>
+                    <div class="text-xs text-gray-500">Flotante</div>
+                    <div class="text-xl font-semibold text-purple-600">
+                        {{ currencySymbol }} {{ cabecera()?.totalFlotante | number: '1.2-2' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saldo inicial -->
+            <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm">
+                <div>
+                    <div class="text-xs text-gray-500">Saldo inicial</div>
+                    <div class="text-xl font-semibold text-gray-700">
+                        {{ currencySymbol }} {{ cabecera()?.saldoInicial | number: '1.2-2' }}
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Fila 1: Empresa asignada y fecha/hora -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-end">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa asignada</label>
-                <select class="w-full input-control p-2 border rounded"
-                    (change)="onEmpresaChange($any($event.target).value)">
-                    <option value="">Seleccione empresa...</option>
-                    @for (e of (empresas() || []); track e.empresaId) {
-                    <option [value]="e.empresaId">{{ e.nombre }}</option>
-                    }
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha y hora</label>
-                <input type="text" class="w-full input-control p-2 border rounded bg-gray-50" [value]="nowLabel()"
-                    readonly>
-            </div>
-        </div>
 
-        <!-- Fila 2: Banco y Cuenta por empresa -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Banco</label>
-                <select class="w-full input-control p-2 border rounded"
-                    (change)="selectedBancoId.set($any($event.target).value)" [disabled]="!selectedEmpresaId()">
-                    <option value="">Todos los bancos</option>
-                    @for (b of (bancos() || []); track b.bancoId) {
-                    <option [value]="b.bancoId">{{ b.nombre }}</option>
-                    }
-                </select>
+        <!-- Contexto fijo: empresa, banco, cuenta, fecha -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div class="text-xs text-gray-500">Empresa</div>
+                <div class="font-semibold text-gray-800">{{ selectedEmpresaNombre }}</div>
             </div>
-
-            <div class="lg:col-span-1">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cuenta bancaria</label>
-                <select class="w-full input-control p-2 border rounded"
-                    (change)="onCuentaChange($any($event.target).value)" [disabled]="!selectedEmpresaId()">
-                    <option value="">Seleccione cuenta...</option>
-                    @for (c of (cuentasFiltradas || []); track c.cuentaBancariaId) {
-                    <option [value]="c.cuentaBancariaId">{{ c.numero }} - {{ c.descripcion }}</option>
-                    }
-                </select>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div class="text-xs text-gray-500">Banco</div>
+                <div class="font-semibold text-gray-800">{{ selectedBancoNombre }}</div>
             </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
-                <input type="text" class="w-full input-control p-2 border rounded bg-gray-50"
-                    [value]="currencySymbol || '-'" readonly>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div class="text-xs text-gray-500">Cuenta</div>
+                <div class="font-semibold text-gray-800">{{ selectedCuentaNumero }} - {{ selectedCuentaDescripcion }}
+                </div>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div class="text-xs text-gray-500">Fecha</div>
+                <div class="font-semibold text-gray-800">{{ selectedFechaISO() | date:'dd/MM/yyyy' }}</div>
             </div>
         </div>
 
@@ -96,34 +112,58 @@
                     }
                 </select>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Monto</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500 mr-8">{{
-                        currencySymbol }}</div>
-                    <input type="number" min="0" step="0.01" class="w-full input-control p-2 border rounded ml-10"
-                        [disabled]="!selectedCuentaId()" [value]="monto() || ''" (input)="onMontoInput($event)">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:space-x-4 space-y-3 sm:space-y-0 w-full">
+                <!-- Campo Monto -->
+                <div class="w-full sm:w-2/3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Monto</label>
+
+                    <div class="relative">
+                        <!-- Símbolo de moneda -->
+
+
+                        <!-- Input -->
+                        <input type="number" min="0" step="0.01"
+                            class="input-control w-full p-2 pl-8 border rounded-md focus:ring focus:ring-primary-300"
+                            [disabled]="!selectedCuentaId()" [value]="monto() || ''" (input)="onMontoInput($event)" />
+                    </div>
+                </div>
+
+                <!-- Botón agregar -->
+                <div class="flex justify-end sm:justify-start w-full sm:w-auto">
+                    <button type="button" (click)="agregarDetalle()"
+                        [disabled]="!selectedCuentaId() || !monto() || isAdding() || !cabeceraId() || (requiereRemediacion && !descripcion())"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm disabled:opacity-50 transition-all">
+                        @if (isAdding()) {
+                        <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        Agregando...
+                        } @else {
+                        <app-custom-icon [name]="'plus'" [size]="16" [color]="'#fff'"></app-custom-icon>
+                        Agregar
+                        }
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Botón agregar -->
-        <div class="flex justify-end">
-            <button type="button" (click)="agregarDetalle()"
-                [disabled]="!selectedCuentaId() || !selectedTipoTransaccionId() || !monto() || isAdding()"
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm disabled:opacity-50">
-                @if (isAdding()) {
-                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                </svg>
-                Agregando...
-                } @else {
-                <app-custom-icon [name]="'plus'" [size]="16" [color]="'#fff'"></app-custom-icon>
-                Agregar
+        <!-- Fila 4: Descripción (visible solo si el tipo requiere remediación) -->
+        @if (requiereRemediacion) {
+        <div class="grid grid-cols-1 gap-4 items-end">
+            <div class="w-full">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Descripción <span class="text-red-500">*</span></label>
+                <input type="text" class="input-control w-full p-2 border rounded-md focus:ring focus:ring-primary-300"
+                    [value]="descripcion()" (input)="onDescripcionInput($event)" placeholder="Describa la remediación..." />
+                @if (requiereRemediacion && !descripcion()) {
+                    <div class="mt-1 text-xs text-red-600">La descripción es obligatoria para este tipo de transacción.</div>
                 }
-            </button>
+            </div>
         </div>
+        }
+
+
 
         <!-- Tablas de débitos y créditos -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -131,10 +171,10 @@
             <div>
                 <h3 class="text-base font-semibold text-gray-800 mb-2">Movimientos - Débito</h3>
                 <div class="overflow-x-auto border border-gray-300 rounded">
-                    <table class="gc-table min-w-full text-left">
+                    <table class="gc-table min-w-full text-left text-xs">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="gc-th">Fecha</th>
+                                <th class="gc-th">Hora</th>
                                 <th class="gc-th">Tipo</th>
                                 <th class="gc-th">Usuario</th>
                                 <th class="gc-th gc-th--right">Monto</th>
@@ -152,14 +192,24 @@
                             </tr>
                             } @else {
                             @for (d of detallesDebito; track d.movimientoBancarioDetId) {
-                            <tr class="odd:bg-white even:bg-gray-50">
+                            <tr class="odd:bg-white even:bg-gray-50 text-xs">
                                 <td class="px-3 py-2">{{ d.created_at | date:'shortTime' }}</td>
-                                <td class="px-3 py-2">{{ getTipoNombre(d.tipoTransaccionId) }}</td>
+                                                                <td class="px-3 py-2">
+                                                                        {{ getTipoNombre(d.tipoTransaccionId) }}
+                                                                        @if (d.flotante) {
+                                                                            <span class="ml-2 inline-flex items-center rounded-full bg-purple-100 text-purple-700 text-[10px] font-medium px-2 py-0.5">Flotante</span>
+                                                                        }
+                                                                </td>
                                 <td class="px-3 py-2">{{ d.usrIngreso }}</td>
                                 <td class="px-3 py-2 text-right">{{ currencySymbol }} {{ d.valor | number:'1.2-2' }}
                                 </td>
-                                
-                                <td>    </td>
+                                <td class="px-3 py-2 text-center">
+                                    <button type="button" (click)="openDeleteModal(d)"
+                                        class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">
+                                        <app-custom-icon [name]="'trash-2'" [color]="'#eee'"
+                                            [size]="18"></app-custom-icon>
+                                    </button>
+                                </td>
                             </tr>
                             }
                             }
@@ -172,10 +222,10 @@
             <div>
                 <h3 class="text-base font-semibold text-gray-800 mb-2">Movimientos - Crédito</h3>
                 <div class="overflow-x-auto border border-gray-300 rounded">
-                    <table class="gc-table min-w-full text-left">
+                    <table class="gc-table min-w-full text-left text-xs">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="gc-th">Fecha</th>
+                                <th class="gc-th">Hora</th>
                                 <th class="gc-th">Tipo</th>
                                 <th class="gc-th">Usuario</th>
                                 <th class="gc-th gc-th--right">Monto</th>
@@ -193,19 +243,62 @@
                             </tr>
                             } @else {
                             @for (d of detallesCredito; track d.movimientoBancarioDetId) {
-                            <tr class="odd:bg-white even:bg-gray-50">
+                            <tr class="odd:bg-white even:bg-gray-50 text-xs">
                                 <td class="px-3 py-2">{{ d.created_at | date:'shortTime' }}</td>
-                                <td class="px-3 py-2">{{ getTipoNombre(d.tipoTransaccionId) }}</td>
+                                                                <td class="px-3 py-2">
+                                                                        {{ getTipoNombre(d.tipoTransaccionId) }}
+                                                                        @if (d.flotante) {
+                                                                            <span class="ml-2 inline-flex items-center rounded-full bg-purple-100 text-purple-700 text-[10px] font-medium px-2 py-0.5">Flotante</span>
+                                                                        }
+                                                                </td>
                                 <td class="px-3 py-2">{{ d.usrIngreso }}</td>
                                 <td class="px-3 py-2 text-right">{{ currencySymbol }} {{ d.valor | number:'1.2-2' }}
                                 </td>
-                                <td>    </td>
+                                <td class="px-3 py-2 text-center">
+                                    <button type="button" (click)="openDeleteModal(d)"
+                                        class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">
+                                        <app-custom-icon [name]="'trash-2'" [color]="'#eee'"
+                                            [size]="18"></app-custom-icon>
+                                    </button>
+                                </td>
                             </tr>
                             }
                             }
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DELETE DETALLE -->
+<div #deleteModal id="hs-delete-detalle"
+    class="hs-overlay hidden size-full fixed top-0 start-0 z-80 overflow-x-hidden overflow-y-auto pointer-events-none"
+    role="dialog" tabindex="-1" aria-labelledby="hs-delete-detalle-label">
+    <div
+        class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div
+            class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto">
+            <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                <h3 id="hs-delete-detalle-label" class="font-bold text-gray-800">Eliminar movimiento</h3>
+                <button type="button" (click)="closeModal()"
+                    class="size-8 inline-flex justify-center items-center rounded-full bg-gray-100 hover:bg-gray-200">✕</button>
+            </div>
+            <div class="p-4">
+                <div class="bg-red-50 border border-red-200 text-sm text-red-800 rounded-lg p-4" role="alert">
+                    ¿Está seguro de eliminar este movimiento?
+                    <div class="mt-2 text-gray-700">
+                        <span class="font-medium">Monto:</span> {{ currencySymbol }} {{ deleteTarget()?.valor |
+                        number:'1.2-2' }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200">
+                <button type="button" (click)="closeModal()"
+                    class="py-2 px-3 text-sm rounded-lg bg-white border">Cerrar</button>
+                <button type="button" (click)="confirmDelete()"
+                    class="py-2 px-3 text-sm rounded-lg text-white bg-red-600">Eliminar</button>
             </div>
         </div>
     </div>
