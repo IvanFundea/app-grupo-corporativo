@@ -45,8 +45,8 @@ export class TipoTransaccionService extends HttpService {
 
   async createTipoTransaccion(data: Omit<ITipoTransaccion, 'tipoTransaccionId'>): Promise<TipoTransaccionResponse | null> {
     try {
-      const { nombre, tipo } = data;
-      const resp = await firstValueFrom(this.post<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}`, { nombre, tipo }));
+      const { nombre, tipo, flotante, remediacion } = data;
+      const resp = await firstValueFrom(this.post<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}`, { nombre, tipo, flotante, remediacion }));
       if (resp.body?.success) {
         this.toastr.success(resp.body.message, 'Éxito');
         return resp.body;
@@ -61,8 +61,8 @@ export class TipoTransaccionService extends HttpService {
 
   async updateTipoTransaccion(data: ITipoTransaccion): Promise<TipoTransaccionResponse | null> {
     try {
-      const { tipoTransaccionId, nombre, tipo } = data;
-      const resp = await firstValueFrom(this.put<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}/${tipoTransaccionId}`, { nombre, tipo }));
+      const { tipoTransaccionId, nombre, tipo, flotante, remediacion } = data;
+      const resp = await firstValueFrom(this.put<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}/${tipoTransaccionId}`, { nombre, tipo, flotante, remediacion }));
       if (resp.body?.success) {
         this.toastr.success(resp.body.message, 'Éxito');
         return resp.body;

@@ -22,7 +22,7 @@ export class UpsertTipoTransaccionComponent {
 
   form = signal<FormGroup>(this.fb.group({}));
 
-  tipos: TipoTransaccionTipo[] = ['DEBITO', 'CREDITO', 'SALDO', 'CIERRE'];
+  tipos: TipoTransaccionTipo[] = ['DEBITO', 'CREDITO'];
 
   constructor() {
     effect(() => {
@@ -33,6 +33,8 @@ export class UpsertTipoTransaccionComponent {
       const newForm = this.fb.group({
         nombre: [t?.nombre ?? '', [Validators.required, Validators.minLength(2)]],
         tipo: [t?.tipo ?? 'DEBITO', [Validators.required]],
+        remediacion: [t?.remediacion ?? false],
+        flotante: [t?.flotante ?? false],
       });
 
       if (isNuevo) {

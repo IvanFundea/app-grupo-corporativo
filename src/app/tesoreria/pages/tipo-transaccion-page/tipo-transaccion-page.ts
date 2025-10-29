@@ -6,7 +6,7 @@ import { TipoTransaccionService } from '../../../../services/tesoreria/tipo-tran
 import { ITipoTransaccion } from '../../../../interfaces/tesoreria';
 import { UpsertTipoTransaccionComponent } from '../../components/upsert-tipo-transaccion/upsert-tipo-transaccion';
 
-const emptyTipo: ITipoTransaccion = { tipoTransaccionId: '', nombre: '', tipo: 'DEBITO' };
+const emptyTipo: ITipoTransaccion = { tipoTransaccionId: '', nombre: '', tipo: 'DEBITO', flotante: false, remediacion: false };
 
 @Component({
   selector: 'app-tipo-transaccion-page',

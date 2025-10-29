@@ -37,7 +37,9 @@
           <tr>
             <th class="gc-th">#</th>
             <th class="gc-th">Nombre</th>
-            <th class="gc-th">Modo</th>
+            <th class="gc-th">Tipo</th>
+            <th class="gc-th">Flotante</th>
+            <th class="gc-th">Remediación</th>
             <th class="gc-th">Acciones</th>
           </tr>
         </thead>
@@ -55,6 +57,8 @@
                 <td class="px-2 py-2 text-center border border-gray-300">{{ (pagination().page - 1) * pagination().pageSize + i + 1 }}</td>
                 <td class="px-2 py-2 border border-gray-300">{{ t.nombre }}</td>
                 <td class="px-2 py-2 border border-gray-300">{{ tipoLabel(t.tipo) }}</td>
+                <td class="px-2 py-2 border border-gray-300">{{ t.flotante ? 'Sí' : 'No' }}</td>
+                <td class="px-2 py-2 border border-gray-300">{{ t.remediacion ? 'Sí' : 'No' }}</td>
                 <td class="px-3 py-1.5 text-center border space-x-2 border-gray-300">
                   <button (click)="openUpsertModal(false, t)" class="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">
                     <app-custom-icon [name]="'square-pen'" [color]="'#eee'" [size]="18"></app-custom-icon>
