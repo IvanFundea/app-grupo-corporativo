@@ -65,7 +65,7 @@ export const routes: Routes = [
                         loadComponent: () => import('./tesoreria/pages/tesoreria-home/tesoreria-home'),
                     },
                     {
-                        path: 'home-movimientos',
+                        path: 'resumen-cuentas',
                         loadComponent: () => import('./tesoreria/pages/home-movimientos/home-movimientos'),
                     },
                     {

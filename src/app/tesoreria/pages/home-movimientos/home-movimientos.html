@@ -71,7 +71,7 @@
               <td colspan="10" class="px-3 py-6 text-center text-gray-500">Sin resultados</td>
             </tr>
           } @else {
-            @for (r of (cabeceras() || []); track r.cabeceraId) {
+            @for (r of (cabeceras() || []); track r.cuentaBancariaId) {
               <tr class="">
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.empresaNombre }}</td>
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.bancoNombre }}</td>
@@ -92,7 +92,7 @@
                     <app-custom-icon [name]="'pencil'" [color]="'#fff'" [size]="16"></app-custom-icon>
                     Modificar
                   </button> -->
-                  <button type="button" class="inline-flex items-center gap-1 px-3 py-1 rounded bg-primary-600 hover:bg-primary-800 text-white text-xs">
+                  <button type="button" (click)="irAModificar(r)" class="inline-flex items-center gap-1 px-3 py-1 rounded bg-primary-600 hover:bg-primary-800 text-white text-xs">
                     <app-custom-icon [name]="'pencil'" [color]="'#fff'" [size]="16"></app-custom-icon>
                     
                   </button>

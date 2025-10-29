@@ -19,7 +19,9 @@ interface AccountRow {
 
 interface CabeceraRow {
   cabeceraId: string;
+  empresaId: string;
   empresaNombre: string;
+  cuentaBancariaId: string;
   bancoNombre: string;
   cuentaNumero: string;
   saldoAnterior: number;
@@ -75,7 +77,8 @@ export default class HomeMovimientosPageComponent {
 
   ngOnInit() {
     const d = new Date();
-    d.setDate(d.getDate() - 1); // ayer por defecto
+    // d.setDate(d.getDate() - 1); // ayer por defecto
+    d.setDate(d.getDate() - 5); // Cambiamos la fecha para pruebas
     this.selectedFechaISO.set(d.toISOString().slice(0, 10));
     this.loadInitial();
   }
@@ -105,7 +108,6 @@ export default class HomeMovimientosPageComponent {
       if (cr?.success && cr.data) cuentasAgrupadas.push(...cr.data);
     }
     this.cuentas.set(cuentasAgrupadas);
-    console.log("CUENTAS: ",this.cuentas())
 
     await this.refreshRows();
     this.isLoading.set(false);
@@ -135,7 +137,7 @@ export default class HomeMovimientosPageComponent {
     const newCabeceras: CabeceraRow[] = [];
     // Para cada cuenta obtener la cabecera de la fecha (si existe) y construir fila
     await Promise.all(cuentas.map(async (c) => {
-      const cabResp = await this.movService.listarCabeceraPorFecha(c.cuentaBancariaId, fecha, c.empresaId);
+      const cabResp = await this.movService.listarCabeceraPorFecha(c.cuentaBancariaId, fecha, c.empresaId);      
       const empresa = empresasMap.get(c.empresaId)!;
       const banco = bancosMap.get(c.bancoId)!;
       const cuentaNumero = c.numero || '';
@@ -149,8 +151,10 @@ export default class HomeMovimientosPageComponent {
         const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos);
         const flotante = saldoBanco - saldoDisponible;
         newCabeceras.push({
-          cabeceraId: cab.cabeceraId || `${c.cuentaBancariaId}-${fecha}`,
+          cabeceraId: cab.cabeceraId || ``,
+          empresaId: c.empresaId,
           empresaNombre: empresa?.nombre || '',
+          cuentaBancariaId: c.cuentaBancariaId,
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
           saldoAnterior,
@@ -163,8 +167,10 @@ export default class HomeMovimientosPageComponent {
       } else {
         // Cabecera no encontrada -> mostrar ceros
         newCabeceras.push({
-          cabeceraId: `${c.cuentaBancariaId}-${fecha}`,
+          cabeceraId: ``,
+          empresaId: c.empresaId,
           empresaNombre: empresa?.nombre || '',
+          cuentaBancariaId: c.cuentaBancariaId,
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
           saldoAnterior: 0,
@@ -205,14 +211,16 @@ export default class HomeMovimientosPageComponent {
     return m?.simbolo || '';
   }
 
-  irAModificar(row: AccountRow) {
+  irAModificar(row: CabeceraRow) {
+    console.log("🚀 ~ HomeMovimientosPageComponent ~ irAModificar ~ row:", row.cabeceraId)
     // Navegar a movimientos con contexto preseleccionado
     const fecha = this.selectedFechaISO();
     this.router.navigate(['/dashboard/tesoreria/movimientos'], {
       state: {
-        empresaId: row.cuenta.empresaId,
-        cuentaBancariaId: row.cuenta.cuentaBancariaId,
+        empresaId: row.empresaId,
+        cuentaBancariaId: row.cuentaBancariaId,
         fechaISO: fecha,
+        cabeceraId: row.cabeceraId,
       }
     });
   }

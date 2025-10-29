@@ -4,29 +4,33 @@ import { HttpService } from '../HttpService';
 import { firstValueFrom } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { ApiResponse } from '../../interfaces/api-response';
-import { IMovimientoBancarioDet } from '../../interfaces/tesoreria';
+import { IMovimientoBancarioCompleto, IMovimientoBancarioDet } from '../../interfaces/tesoreria';
 
 
 export type MovimientoDetResponse = ApiResponse<IMovimientoBancarioDet>;
 export type MovimientoDetListResponse = ApiResponse<IMovimientoBancarioDet[]>;
 import { IMovimientoBancarioCab } from '../../interfaces/tesoreria';
 export type MovimientoCabResponse = ApiResponse<IMovimientoBancarioCab>;
+export type MovimientoCompletoResponse = ApiResponse<IMovimientoBancarioCompleto>;
 
 @Injectable({ providedIn: 'root' })
 export class MovimientosService extends HttpService {
-  private readonly endpoints = { base: '/tesoreria/movimiento-bancario' };
+  private readonly endpoints = { 
+    base: '/tesoreria/movimiento-bancario',
+    cabeceraExistente: '/tesoreria/movimiento-bancario/cabecera-filtros'
+  };
 
   constructor(http: HttpClient, private toastr: ToastrService) {
     super(http);
   }
 
-  // Crear detalle enviando empresa/cuenta/moneda, el backend crea/obtiene cabecera internamente
+  // Crear detalle usando cabeceraId (backend ya no requiere empresa/banco)
   async createDetalle(dto: {
-    empresaId: string;
-    cuentaBancariaId: string;
-    tipoMonedaBanco: string;
+    cabeceraId: string;
     tipoTransaccionId: string;
     valor: number;
+    flotante?: boolean;
+    descripcion?: string;
     usrIngreso: string;
   }): Promise<MovimientoDetResponse | null> {
     try {
@@ -72,12 +76,33 @@ export class MovimientosService extends HttpService {
     try {
       const params: any = { cuentaBancariaId, fecha };
       if (empresaId) params.empresaId = empresaId;
-      const resp = await firstValueFrom(this.get<MovimientoCabResponse>(`${this.endpoints.base}/cabeceras-por-fecha`, params));
+      const resp = await firstValueFrom(this.get<MovimientoCabResponse>(`${this.endpoints.cabeceraExistente}`, params));
       if (resp.body?.success) return resp.body;
       return null;
     } catch (error: any) {
       console.log('MovimientosService.listarCabeceraPorFecha error:', error);
       this.toastr.error(error?.error?.message || 'Error al obtener cabecera por fecha', 'Error');
+      return null;
+    }
+  }
+
+  // Crear o recuperar cabecera para una fecha específica/empresa/cuenta
+  async getOrCreateCabeceraPorFecha(dto: {
+    empresaId: string;
+    cuentaBancariaId: string;
+    fecha: string; // YYYY-MM-DD
+    usrIngreso: string;
+    tipoMonedaBanco?: string; // requerido solo si no existe y se va a crear
+  }): Promise<MovimientoCompletoResponse | null> {
+    try {
+      const resp = await firstValueFrom(
+        this.post<MovimientoCompletoResponse>(`${this.endpoints.base}/cabecera/por-fecha`, dto)
+      );
+      if (resp.body?.success) return resp.body;
+      return null;
+    } catch (error: any) {
+      console.log('MovimientosService.getOrCreateCabeceraPorFecha error:', error);
+      this.toastr.error(error?.error?.message || 'Error al obtener/crear cabecera', 'Error');
       return null;
     }
   }
