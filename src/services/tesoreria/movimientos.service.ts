@@ -15,9 +15,10 @@ export type MovimientoCompletoResponse = ApiResponse<IMovimientoBancarioCompleto
 
 @Injectable({ providedIn: 'root' })
 export class MovimientosService extends HttpService {
-  private readonly endpoints = { 
+  private readonly endpoints = {
     base: '/tesoreria/movimiento-bancario',
-    cabeceraExistente: '/tesoreria/movimiento-bancario/cabecera-filtros'
+    cabeceraExistente: '/tesoreria/movimiento-bancario/cabecera-filtros',
+    cabeceraReciente: '/tesoreria/movimiento-bancario/cabecera-reciente'
   };
 
   constructor(http: HttpClient, private toastr: ToastrService) {
@@ -79,6 +80,21 @@ export class MovimientosService extends HttpService {
       return null;
     } catch (error: any) {
       console.log('MovimientosService.listarCabeceraPorFecha error:', error);
+      this.toastr.error(error?.error?.message || 'Error al obtener cabecera por fecha', 'Error');
+      return null;
+    }
+  }
+
+  // Obtener la cabecera mas reciente para la fecha indicada
+  async cabeceraMasReciente(cuentaBancariaId: string, fecha: string, empresaId?: string): Promise<MovimientoCabResponse | null> {
+    try {
+      const params: any = { cuentaBancariaId, fecha };
+      if (empresaId) params.empresaId = empresaId;
+      const resp = await firstValueFrom(this.get<MovimientoCabResponse>(`${this.endpoints.cabeceraReciente}`, params));
+      if (resp.body?.success) return resp.body;
+      return null;
+    } catch (error: any) {
+      console.log('MovimientosService.cabeceraMasReciente error:', error);
       this.toastr.error(error?.error?.message || 'Error al obtener cabecera por fecha', 'Error');
       return null;
     }

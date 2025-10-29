@@ -79,7 +79,7 @@ export default class HomeMovimientosPageComponent {
   ngOnInit() {
     const d = new Date();
     // d.setDate(d.getDate() - 1); // ayer por defecto
-    d.setDate(d.getDate() - 5); // Cambiamos la fecha para pruebas
+    d.setDate(d.getDate() - 1); // Cambiamos la fecha para pruebas
     this.selectedFechaISO.set(d.toISOString().slice(0, 10));
     this.loadInitial();
   }
@@ -151,6 +151,7 @@ export default class HomeMovimientosPageComponent {
         const creditos = (cab.totalCreditos as number) || 0;
         const flotante = cab.totalFlotante || 0;
         const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos + flotante);
+        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);    
         newCabeceras.push({
           cabeceraId: cab.cabeceraId || ``,
           empresaId: c.empresaId,
@@ -159,15 +160,16 @@ export default class HomeMovimientosPageComponent {
           empresaNombre: empresa?.nombre || '',
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
-          saldoAnterior,
+          saldoAnterior: saldoAnterior ? saldoAnterior : cabReciente?.data?.saldoFinal || 0,
           debitos,
           creditos,
           saldoDisponible,
           totalFlotante: flotante,
-          saldoFinal: cab.saldoFinal || 0,
+          saldoFinal: cab.saldoFinal ? cab.saldoFinal : cabReciente?.data?.saldoFinal || 0,
         });
       } else {
-        // Cabecera no encontrada -> mostrar ceros
+        // Cabecera no encontrada -> mostrar ceros        
+        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);   
         newCabeceras.push({
           cabeceraId: ``,
           cuentaBancariaId: c.cuentaBancariaId,
@@ -176,12 +178,12 @@ export default class HomeMovimientosPageComponent {
           empresaNombre: empresa?.nombre || '',
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
-          saldoAnterior: 0,
+          saldoAnterior: cabReciente?.data?.saldoFinal || 0,
           debitos: 0,
           creditos: 0,
           saldoDisponible: 0,
           totalFlotante: 0,
-          saldoFinal: 0,
+          saldoFinal: cabReciente?.data?.saldoFinal || 0,
         });
       }
     }));
