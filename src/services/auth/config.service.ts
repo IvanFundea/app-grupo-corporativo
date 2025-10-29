@@ -99,6 +99,18 @@ export class ConfigService extends HttpService {
       return null;
     }
   }
+
+  async getConfigPorLlave(llave: string): Promise<ConfigResponse | null> {
+    try {
+      const resp = await firstValueFrom(this.get<ConfigResponse>(`${this.endpoints.configs}/por-llave/${llave}`));
+      if (resp.body?.success) return resp.body;
+      return null;
+    } catch (error: any) {
+      console.log('🚀 ~ ConfigService ~ getConfig ~ error:', error);
+      this.toastr.error(error?.error?.message || 'Error al obtener configuración', 'Error');
+      return null;
+    }
+  }
 }
 
 export type { IConfig, TipoConfiguracion };

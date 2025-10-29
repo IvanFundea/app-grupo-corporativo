@@ -10,6 +10,8 @@ import { TipoMonedaService } from '../../../../services/tesoreria/tipo-moneda.se
 import { TipoTransaccionService } from '../../../../services/tesoreria/tipo-transaccion.service';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 import { IBanco, ICuentaBancaria, IEmpresa, ITipoMoneda, ITipoTransaccion, TipoTransaccionTipo } from '../../../../interfaces/tesoreria';
+import { environment } from '../../../../environments/environment';
+import { ConfigService } from '../../../../services/auth/config.service';
 
 interface AccountRow {
   empresa: IEmpresa;
@@ -48,6 +50,7 @@ export default class HomeMovimientosPageComponent {
   private cuentaService = inject(CuentaBancariaService);
   private movService = inject(MovimientosService);
   private monedaService = inject(TipoMonedaService);
+  private configService = inject(ConfigService);
   private tipoTxService = inject(TipoTransaccionService);
 
   // Catálogos
@@ -76,10 +79,17 @@ export default class HomeMovimientosPageComponent {
   rows = signal<AccountRow[]>([]);
   isLoading = signal<boolean>(false);
 
-  ngOnInit() {
+  async ngOnInit() {
     const d = new Date();
     // d.setDate(d.getDate() - 1); // ayer por defecto
-    d.setDate(d.getDate() - 1); // Cambiamos la fecha para pruebas
+    // Obtener la cantidad de dias atras desde la tabla de configuraciones
+    let resp = await this.configService.getConfigPorLlave('dias_atras_movimientos');
+    if (resp?.success) {
+      let diasAtras = Number(resp?.data.valor) || 1;
+      d.setDate(d.getDate() - diasAtras); 
+    } else {
+      d.setDate(d.getDate() - (environment.diasAtrasMovimientos || 1)); 
+    }
     this.selectedFechaISO.set(d.toISOString().slice(0, 10));
     this.loadInitial();
   }
@@ -138,7 +148,7 @@ export default class HomeMovimientosPageComponent {
     const newCabeceras: CabeceraRow[] = [];
     // Para cada cuenta obtener la cabecera de la fecha (si existe) y construir fila
     await Promise.all(cuentas.map(async (c) => {
-      const cabResp = await this.movService.listarCabeceraPorFecha(c.cuentaBancariaId, fecha, c.empresaId);      
+      const cabResp = await this.movService.listarCabeceraPorFecha(c.cuentaBancariaId, fecha, c.empresaId);
       const empresa = empresasMap.get(c.empresaId)!;
       const banco = bancosMap.get(c.bancoId)!;
       const cuentaNumero = c.numero || '';
@@ -151,7 +161,7 @@ export default class HomeMovimientosPageComponent {
         const creditos = (cab.totalCreditos as number) || 0;
         const flotante = cab.totalFlotante || 0;
         const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos + flotante);
-        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);    
+        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);
         newCabeceras.push({
           cabeceraId: cab.cabeceraId || ``,
           empresaId: c.empresaId,
@@ -169,7 +179,7 @@ export default class HomeMovimientosPageComponent {
         });
       } else {
         // Cabecera no encontrada -> mostrar ceros        
-        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);   
+        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);
         newCabeceras.push({
           cabeceraId: ``,
           cuentaBancariaId: c.cuentaBancariaId,
