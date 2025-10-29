@@ -1,0 +1,137 @@
+<nav class="mb-4" aria-label="breadcrumb">
+  <ol class="flex flex-wrap text-sm text-gray-700">
+    <li class="flex items-center">
+      <a routerLink="/dashboard" class="text-blue-600 hover:underline">Inicio</a>
+      <span class="mx-2">></span>
+    </li>
+    <li class="flex items-center">
+      <a routerLink="/dashboard/config" class="text-blue-600 hover:underline">Configuración</a>
+      <span class="mx-2">></span>
+    </li>
+    <li class="flex items-center text-gray-500">Accesos</li>
+  </ol>
+</nav>
+
+<div class="bg-white shadow rounded-lg border border-gray-300">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-300">
+    <h2 class="text-lg font-semibold text-gray-800">Asignación de accesos por rol</h2>
+  </div>
+
+  <div class="p-4 space-y-4">
+    <!-- Select de roles -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+      <select class="w-full input-control p-2 border rounded" (change)="onRolChange($any($event.target).value)">
+        <option value="">Seleccione un rol...</option>
+        @for (r of (roles() || []); track r.rolId) {
+          <option [value]="r.rolId">{{ r.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Columna izquierda: menús y submenús -->
+      <div>
+        <h3 class="text-base font-semibold text-gray-800 mb-2">Menús disponibles</h3>
+
+        <div class="overflow-x-auto border border-gray-300 rounded mb-4">
+          <table class="gc-table min-w-full text-left">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="gc-th">Menú</th>
+                <th class="gc-th">Tipo</th>
+                <th class="gc-th">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of principalMenus; track m.menuId) {
+                <tr class="odd:bg-white even:bg-gray-50">
+                  <td class="px-3 py-2">
+                    <div class="flex items-center gap-2">
+                      <span>{{ m.label }}</span>
+                      <span class="text-xs inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700 border">Submenús asignados: {{ countSubAccesos(m.menuId) }}</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2">Principal</td>
+                  <td class="px-3 py-2">
+                    @if (isAssigned(m.menuId)) {
+                      <span class="text-xs inline-flex items-center px-2 py-1 rounded bg-gray-200 text-gray-700">Asignado</span>
+                    } @else {
+                      <button type="button" class="px-3 py-1 rounded bg-primary-600 hover:bg-primary-700 text-white text-xs" (click)="abrirAsignar(m)" [disabled]="!(selectedRolId())">Asignar</button>
+                    }
+                  </td>
+                </tr>
+              }
+              @for (m of subMenusAvailable(); track m.menuId) {
+                <tr class="odd:bg-white even:bg-gray-50">
+                  <td class="px-3 py-2">{{ m.label }}</td>
+                  <td class="px-3 py-2">Submenú</td>
+                  <td class="px-3 py-2">
+                    <button type="button" class="px-3 py-1 rounded bg-primary-600 hover:bg-primary-700 text-white text-xs" (click)="abrirAsignar(m)" [disabled]="!(selectedRolId())">Asignar</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Modal inline -->
+        @if (showUpsert() && upsertMenu() && selectedRol()) {
+          <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-lg border border-gray-300 w-full max-w-2xl p-4">
+              <h4 class="text-base font-semibold text-gray-800 mb-3">Asignar acceso</h4>
+              <app-upsert-acceso
+                [menu]="upsertMenu()!"
+                [rol]="selectedRolStrict()"
+                [accesos]="(accesos() || [])"
+                (save)="onSaveAcceso($event)"
+                (cancel)="cerrarModal()"
+              ></app-upsert-acceso>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Columna derecha: accesos actuales con DnD -->
+      <div>
+        <h3 class="text-base font-semibold text-gray-800 mb-2">Accesos del rol (ordenables)</h3>
+        <div class="overflow-x-auto border border-gray-300 rounded">
+          <table class="gc-table min-w-full text-left">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="gc-th">Tipo</th>
+                <th class="gc-th">Menú</th>
+                <th class="gc-th">Orden</th>
+                <th class="gc-th">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Principal accesos DnD -->
+              @for (a of principalAccesos(); track a.accesoId; let i = $index) {
+                <tr class="odd:bg-white even:bg-gray-50" draggable="true" (dragstart)="onDragStart(i)" (dragover)="onDragOver($event)" (drop)="onDrop(i)">
+                  <td class="px-3 py-2">Principal</td>
+                  <td class="px-3 py-2">{{ a.menu?.label }}</td>
+                  <td class="px-3 py-2">{{ a.ordenMenu }}</td>
+                  <td class="px-3 py-2">
+                    <button class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs disabled:opacity-50" (click)="eliminarAcceso(a)" [disabled]="a.menu?.principal && hasSubAccesos(a.menu?.menuId)" title="{{ a.menu?.principal && hasSubAccesos(a.menu?.menuId) ? 'Elimine primero los submenús' : '' }}">Eliminar</button>
+                  </td>
+                </tr>
+                <!-- Submenús bajo este principal -->
+                @for (s of subAccesos(a.menu?.menuId!); track s.accesoId; let j = $index) {
+                  <tr class="odd:bg-white even:bg-gray-50" draggable="true" (dragstart)="onDragStart(j)" (dragover)="onDragOver($event)" (drop)="onDropSub(j, a.menu?.menuId!)">
+                    <td class="px-3 py-2 pl-8">Submenú</td>
+                    <td class="px-3 py-2">{{ s.menu?.label }}</td>
+                    <td class="px-3 py-2">{{ s.ordenMenu }}</td>
+                    <td class="px-3 py-2">
+                      <button class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs" (click)="eliminarAcceso(s)">Eliminar</button>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

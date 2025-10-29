@@ -1,0 +1,171 @@
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { RolService } from '../../../../services/auth/rol.service';
+import { MenuService } from '../../../../services/auth/menu.service';
+import { AccesoService } from '../../../../services/auth/acceso.service';
+import { IAcceso, IMenu, IRol } from '../../../../interfaces/auth';
+import UpsertAccesoComponent from '../../components/upsert-acceso/upsert-acceso';
+
+@Component({
+  selector: 'app-acceso-page',
+  standalone: true,
+  imports: [CommonModule, RouterLink, UpsertAccesoComponent],
+  templateUrl: './acceso-page.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export default class AccesoPageComponent {
+  private rolService = inject(RolService);
+  private menuService = inject(MenuService);
+  private accesoService = inject(AccesoService);
+
+  roles = signal<IRol[]>([]);
+  selectedRolId = signal<string>('');
+
+  menus = signal<IMenu[]>([]);
+  accesos = signal<IAcceso[]>([]);
+
+  // Modal state
+  showUpsert = signal<boolean>(false);
+  upsertMenu = signal<IMenu | null>(null);
+
+  ngOnInit() {
+    this.loadRoles();
+    this.loadMenus();
+  }
+
+  async loadRoles() {
+    const r = await this.rolService.getRoles({ all: true });
+    if (r?.success) this.roles.set(r.data || []);
+  }
+
+  async loadMenus() {
+    const m = await this.menuService.getMenus({ all: true });
+    if (m?.success) this.menus.set(m.data || []);
+  }
+
+  async onRolChange(id: string) {
+    this.selectedRolId.set(id);
+    await this.refreshAccesos();
+  }
+
+  async refreshAccesos() {
+    const rolId = this.selectedRolId();
+    if (!rolId) { this.accesos.set([]); return; }
+    const res = await this.accesoService.getAccesosByRol(rolId);
+    if (res?.success) this.accesos.set(res.data || []);
+  }
+
+  get principalMenus(): IMenu[] {
+    return (this.menus() || []).filter(m => m.principal);
+  }
+
+  get subMenus(): IMenu[] {
+    return (this.menus() || []).filter(m => !m.principal);
+  }
+
+  selectedRol(): IRol | null {
+    const id = this.selectedRolId();
+    return (this.roles() || []).find(r => r.rolId === id) || null;
+  }
+
+  selectedRolStrict(): IRol {
+    return this.selectedRol() as IRol;
+  }
+
+  principalAccesos(): IAcceso[] {
+    return (this.accesos() || []).filter(a => !!a.menu?.principal);
+  }
+
+  subAccesos(mainMenuId: string): IAcceso[] {
+    return (this.accesos() || []).filter(a => a.mainMenuId === mainMenuId && !a.menu?.principal);
+  }
+
+  isAssigned(menuId?: string): boolean {
+    if (!menuId) return false;
+    return (this.accesos() || []).some(a => a.menuId === menuId);
+  }
+
+  // Submenús disponibles (no asignados aún para este rol)
+  subMenusAvailable(): IMenu[] {
+    const assignedIds = new Set((this.accesos() || []).map(a => a.menuId));
+    return (this.menus() || []).filter(m => !m.principal && !assignedIds.has(m.menuId || ''));
+  }
+
+  // Conteo de submenús ya asignados a un menú principal para el rol
+  countSubAccesos(mainMenuId?: string): number {
+    if (!mainMenuId) return 0;
+    return (this.accesos() || []).filter(a => a.mainMenuId === mainMenuId && !a.menu?.principal).length;
+  }
+
+  hasSubAccesos(mainMenuId?: string): boolean {
+    return this.countSubAccesos(mainMenuId) > 0;
+  }
+
+  async eliminarAcceso(acceso: IAcceso) {
+    // Si es un menú principal y tiene submenús asignados, impedir eliminación directa
+    if (acceso.menu?.principal && this.hasSubAccesos(acceso.menu?.menuId)) {
+      alert('Este menú principal tiene submenús asignados. Elimine o reasigne primero sus submenús.');
+      return;
+    }
+    const ok = confirm('¿Eliminar este acceso?');
+    if (!ok || !acceso.accesoId) return;
+    await this.accesoService.deleteAcceso(acceso.accesoId);
+    await this.refreshAccesos();
+  }
+
+  // Asignar: abre modal
+  abrirAsignar(menu: IMenu) {
+    this.upsertMenu.set(menu);
+    this.showUpsert.set(true);
+  }
+
+  cerrarModal() {
+    this.showUpsert.set(false);
+    this.upsertMenu.set(null);
+  }
+
+  // Guardar asignación
+  async onSaveAcceso(dto: any) {
+    await this.accesoService.createAcceso(dto);
+    await this.refreshAccesos();
+    this.cerrarModal();
+  }
+
+  // Reordenar (HTML5 drag & drop)
+  dragIndex: number | null = null;
+
+  onDragStart(index: number) { this.dragIndex = index; }
+  onDragOver(ev: DragEvent) { ev.preventDefault(); }
+
+  async onDrop(targetIndex: number) {
+    if (this.dragIndex === null || this.dragIndex === targetIndex) return;
+    const list = [...(this.accesos() || []).filter(a => a.menu?.principal)];
+    const moved = list.splice(this.dragIndex, 1)[0];
+    list.splice(targetIndex, 0, moved);
+
+    // Actualizar orden localmente (10,20,30...)
+    const updates = list.map((a, idx) => ({ ...a, ordenMenu: (idx + 1) * 10 }));
+    for (const u of updates) {
+      if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
+    }
+    await this.refreshAccesos();
+    this.dragIndex = null;
+  }
+
+  // Reordenar submenús por mainMenuId
+  async onDropSub(targetIndex: number, mainMenuId: string) {
+    if (this.dragIndex === null) return;
+    const sub = (this.accesos() || []).filter(a => a.mainMenuId === mainMenuId && !a.menu?.principal);
+    const list = [...sub];
+    const moved = list.splice(this.dragIndex, 1)[0];
+    list.splice(targetIndex, 0, moved);
+
+    const updates = list.map((a, idx) => ({ ...a, ordenMenu: (idx + 1) * 10 }));
+    for (const u of updates) {
+      if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
+    }
+    await this.refreshAccesos();
+    this.dragIndex = null;
+  }
+}

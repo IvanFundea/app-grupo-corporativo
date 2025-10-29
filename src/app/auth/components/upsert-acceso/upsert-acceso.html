@@ -1,0 +1,65 @@
+<form [formGroup]="form()" (ngSubmit)="onSubmit()" class="space-y-4">
+  <p class="text-sm text-gray-700">
+    Asignar {{ menu().principal ? 'menú' : 'submenú' }}
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 border text-gray-700 ml-1">
+      {{ menu().label }}
+    </span>
+    al rol
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 border text-gray-700 ml-1">
+      {{ rol().nombre }}
+    </span>
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Si es submenú, elegir el menú principal -->
+    <ng-container *ngIf="!menu().principal">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Menú principal</label>
+        <select class="w-full input-control p-2 border rounded" formControlName="mainMenuId">
+          <option [ngValue]="null">Seleccione opción</option>
+          @for (a of (accesos() || []); track a.accesoId) {
+            @if (a.menu?.principal) {
+              <option [value]="a.menu?.menuId">{{ a.menu?.label }}</option>
+            }
+          }
+        </select>
+        @if (form().get('mainMenuId')?.touched && form().get('mainMenuId')?.errors?.['required']) {
+          <div class="text-red-600 text-xs mt-1">Menú principal es requerido</div>
+        }
+      </div>
+    </ng-container>
+
+    <!-- Orden -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Orden (colocar antes de)</label>
+      <select class="w-full input-control p-2 border rounded" formControlName="ordenMenu">
+        @for (op of opcionesOrden; track op.value) {
+          <option [value]="op.value">{{ op.label }}</option>
+        }
+      </select>
+      @if (form().get('ordenMenu')?.touched && form().get('ordenMenu')?.invalid) {
+        <div class="text-red-600 text-xs mt-1">Orden del menú es requerido</div>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <label class="inline-flex items-center gap-2">
+      <input type="checkbox" formControlName="activo" class="rounded">
+      Activo
+    </label>
+    <label class="inline-flex items-center gap-2">
+      <input type="checkbox" formControlName="showApp" class="rounded">
+      Mostrar en app móvil
+    </label>
+    <label class="inline-flex items-center gap-2">
+      <input type="checkbox" formControlName="showWeb" class="rounded">
+      Mostrar en app web
+    </label>
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <button type="button" (click)="onCancel()" class="px-3 py-2 rounded border text-gray-700">Cancelar</button>
+    <button type="submit" class="px-3 py-2 rounded bg-primary-600 hover:bg-primary-700 text-white">{{ menu().principal ? 'Asignar menú' : 'Asignar submenú' }}</button>
+  </div>
+</form>
