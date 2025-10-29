@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
@@ -9,7 +9,7 @@ import { BancoService } from '../../../../services/tesoreria/banco.service';
 import { TipoMonedaService } from '../../../../services/tesoreria/tipo-moneda.service';
 import { TipoTransaccionService } from '../../../../services/tesoreria/tipo-transaccion.service';
 import { MovimientosService } from '../../../../services/tesoreria/movimientos.service';
-import { IEmpresa, ICuentaBancaria, ITipoMoneda, ITipoTransaccion, TipoTransaccionTipo, IBanco, IMovimientoBancarioDet } from '../../../../interfaces/tesoreria';
+import { IEmpresa, ICuentaBancaria, ITipoMoneda, ITipoTransaccion, TipoTransaccionTipo, IBanco, IMovimientoBancarioDet, IMovimientoBancarioCab } from '../../../../interfaces/tesoreria';
 
 @Component({
   selector: 'app-movimientos-page',
@@ -41,7 +41,13 @@ export default class MovimientosPageComponent {
   selectedCuentaId = signal<string>('');
   selectedTipoTransaccionId = signal<string>('');
   monto = signal<number | null>(null);
+  descripcion = signal<string>('');
   selectedFechaISO = signal<string>('');
+  cabeceraId = signal<string>('');
+  cabecera = signal<IMovimientoBancarioCab | null>(null);
+  deleteTarget = signal<IMovimientoBancarioDet | null>(null);
+
+  @ViewChild('deleteModal', { static: true }) deleteModal!: ElementRef<HTMLDivElement>;
 
   detalles = signal<IMovimientoBancarioDet[]>([]);
 
@@ -56,6 +62,16 @@ export default class MovimientosPageComponent {
     const today = new Date().toISOString().slice(0, 10);
     this.selectedFechaISO.set(today);
     this.loadInitial();
+  }
+
+  ngAfterViewInit() {
+    this.initializePreline();
+  }
+
+  private initializePreline() {
+    if (typeof window !== 'undefined' && (window as any).HSStaticMethods) {
+      setTimeout(() => (window as any).HSStaticMethods.autoInit(), 100);
+    }
   }
 
   private async loadInitial() {
@@ -78,7 +94,7 @@ export default class MovimientosPageComponent {
     if (tiposResp?.success) this.tipos.set(tiposResp.data || []);
 
     // Intentar aplicar estado de navegación preseleccionado
-    await this.applyNavigationStateIfAny();
+    await this.fetchData();
   }
 
   async onEmpresaChange(id: string) {
@@ -109,8 +125,7 @@ export default class MovimientosPageComponent {
   private async loadDetallesDelDia() {
     if (!this.selectedEmpresaId() || !this.selectedCuentaId()) return;
     this.isLoading.set(true);
-    const fecha = this.selectedFechaISO();
-    const det = await this.movService.findDetallesDelDia(this.selectedEmpresaId(), this.selectedCuentaId(), fecha);
+    const det = await this.movService.findDetallesDelDia(this.cabeceraId());
     if (det?.success) this.detalles.set(det.data || []);
     this.isLoading.set(false);
   }
@@ -119,6 +134,39 @@ export default class MovimientosPageComponent {
     const cuenta = (this.cuentas() || []).find(c => c.cuentaBancariaId === this.selectedCuentaId());
     const moneda = (this.monedas() || []).find(m => m.tipoMonedaId === (cuenta?.tipoMonedaId || ''));
     return moneda ? moneda.simbolo : '';
+  }
+
+  // Contexto seleccionado (solo lectura para la UI)
+  get selectedEmpresaNombre(): string {
+    const e = (this.empresas() || []).find(x => x.empresaId === this.selectedEmpresaId());
+    return e?.nombre || '-';
+  }
+
+  get selectedCuenta(): ICuentaBancaria | undefined {
+    return (this.cuentas() || []).find(c => c.cuentaBancariaId === this.selectedCuentaId());
+  }
+
+  get selectedBancoNombre(): string {
+    const bancoId = this.selectedCuenta?.bancoId || '';
+    const b = (this.bancos() || []).find(x => x.bancoId === bancoId);
+    return b?.nombre || '-';
+  }
+
+  get selectedCuentaNumero(): string {
+    return this.selectedCuenta?.numero || '';
+  }
+
+  get selectedCuentaDescripcion(): string {
+    return this.selectedCuenta?.descripcion || '';
+  }
+
+  // Tipo seleccionado y si requiere remediación (descripción obligatoria)
+  get tipoSeleccionado(): ITipoTransaccion | undefined {
+    return (this.tipos() || []).find(t => t.tipoTransaccionId === this.selectedTipoTransaccionId());
+  }
+
+  get requiereRemediacion(): boolean {
+    return !!this.tipoSeleccionado?.remediacion;
   }
 
   get detallesCredito() {
@@ -137,22 +185,85 @@ export default class MovimientosPageComponent {
     return creditos - debitos;
   }
 
+  async eliminarDetalle(det: IMovimientoBancarioDet) {
+    if (!det?.movimientoBancarioDetId) return;
+    const usr = this.auth.getUserStorage()?.userName || 'sistema';
+    const resp = await this.movService.removeDetalle(det.movimientoBancarioDetId, usr);
+    if (resp?.success) {
+      await this.fetchData();
+    }
+  }
+
+  openDeleteModal(det: IMovimientoBancarioDet) {
+    this.deleteTarget.set(det);
+    const modalEl = this.deleteModal.nativeElement;
+    if ((window as any).HSOverlay) new (window as any).HSOverlay(modalEl).open();
+    else {
+      modalEl.classList.remove('hidden');
+      modalEl.classList.add('pointer-events-auto');
+    }
+  }
+
+  closeModal() {
+    const modalEl = this.deleteModal?.nativeElement;
+    if (!modalEl) return;
+    if ((window as any).HSOverlay) {
+      (window as any).HSOverlay.close(modalEl);
+    } else {
+      modalEl.classList.add('hidden');
+      modalEl.classList.remove('open', 'pointer-events-auto');
+    }
+  }
+
+  async confirmDelete() {
+    const det = this.deleteTarget();
+    if (!det) return;
+    await this.eliminarDetalle(det);
+    this.closeModal();
+    this.deleteTarget.set(null);
+  }
+
   async agregarDetalle() {
-    if (!this.selectedEmpresaId() || !this.selectedCuentaId() || !this.selectedTipoTransaccionId() || !this.monto()) return;
+    if (!this.selectedCuentaId() || !this.monto()) return;
+    if (this.requiereRemediacion && !(`${this.descripcion()}`.trim())) {
+      return; // descripción requerida cuando el tipo tiene remediación
+    }
+    // Asegurar que exista cabeceraId
+    if (!this.cabeceraId()) {
+      const empresaId = this.selectedEmpresaId();
+      const cuentaBancariaId = this.selectedCuentaId();
+      if (empresaId && cuentaBancariaId) {
+        const cuenta = (this.cuentas() || []).find(c => c.cuentaBancariaId === cuentaBancariaId);
+        const usr = this.auth.getUserStorage()?.userName || 'sistema';
+        const cab = await this.movService.getOrCreateCabeceraPorFecha({
+          empresaId,
+          cuentaBancariaId,
+          fecha: this.selectedFechaISO(),
+          tipoMonedaBanco: cuenta?.tipoMonedaId,
+        });
+        if (cab?.success && cab.data) {
+          this.cabeceraId.set(cab.data.cabecera.cabeceraId);
+        } else {
+          return; // no se pudo crear/obtener cabecera
+        }
+      } else {
+        return;
+      }
+    }
+
     this.isAdding.set(true);
     const usr = this.auth.getUserStorage()?.userName || 'sistema';
-    const cuenta = (this.cuentas() || []).find(c => c.cuentaBancariaId === this.selectedCuentaId());
     const resp = await this.movService.createDetalle({
-      empresaId: this.selectedEmpresaId(),
-      cuentaBancariaId: this.selectedCuentaId(),
-      tipoMonedaBanco: cuenta?.tipoMonedaId || '',
+      cabeceraId: this.cabeceraId(),
       tipoTransaccionId: this.selectedTipoTransaccionId(),
       valor: Number(this.monto()),
+      descripcion: this.descripcion() ? `${this.descripcion()}`.trim() : undefined,
       usrIngreso: usr,
     });
     if (resp?.success) {
       this.monto.set(null);
-      await this.loadDetallesDelDia();
+      this.descripcion.set('');
+      await this.fetchData();
     }
     this.isAdding.set(false);
   }
@@ -163,22 +274,71 @@ export default class MovimientosPageComponent {
     this.monto.set(isNaN(val) ? 0 : val);
   }
 
+  onDescripcionInput(event: Event) {
+    const val = (event.target as HTMLInputElement).value || '';
+    this.descripcion.set(val);
+  }
+
   getTipoNombre(tipoTransaccionId: string): string {
     const t = (this.tipos() || []).find(x => x.tipoTransaccionId === tipoTransaccionId);
     return t ? t.nombre : '';
   }
 
-  // Al terminar la carga inicial, si venimos con estado de navegación, preseleccionar empresa/cuenta/fecha
-  private async applyNavigationStateIfAny() {
+  // // Al terminar la carga inicial, si venimos con estado de navegación, preseleccionar empresa/cuenta/fecha
+  // private async applyNavigationStateIfAny() {
+  //   const st = (this.router.getCurrentNavigation()?.extras?.state as any) || (window.history.state as any);
+  //   const empresaId = st?.empresaId as string | undefined;
+  //   const cuentaBancariaId = st?.cuentaBancariaId as string | undefined;
+  //   const fechaISO = st?.fechaISO as string | undefined;
+  //   const cabeceraId = st?.cabeceraId as string | undefined;
+  //   if (!empresaId || !cuentaBancariaId) return;
+  //   if (fechaISO) this.selectedFechaISO.set(fechaISO);
+  //   await this.onEmpresaChange(empresaId);
+  //   this.selectedCuentaId.set(cuentaBancariaId);
+  //   if (cabeceraId) {
+  //     this.cabeceraId.set(cabeceraId);
+  //     await this.loadDetallesDelDia();
+  //   } else {
+  //     // Crear o recuperar cabecera y cargar sus detalles
+  //     const cuenta = (this.cuentas() || []).find(c => c.cuentaBancariaId === cuentaBancariaId);
+  //     const resp = await this.movService.getOrCreateCabeceraPorFecha({
+  //       empresaId,
+  //       cuentaBancariaId,
+  //       fecha: this.selectedFechaISO(),
+  //       tipoMonedaBanco: cuenta?.tipoMonedaId,
+  //     });
+  //     if (resp?.success && resp.data) {
+  //       this.cabeceraId.set(resp.data.cabecera.cabeceraId);
+  //       this.detalles.set(resp.data.detalles || []);
+  //     } else {
+  //       // fallback a consulta por día
+  //       await this.loadDetallesDelDia();
+  //     }
+  //   }
+  // }
+
+  async fetchData() {
     const st = (this.router.getCurrentNavigation()?.extras?.state as any) || (window.history.state as any);
     const empresaId = st?.empresaId as string | undefined;
     const cuentaBancariaId = st?.cuentaBancariaId as string | undefined;
     const fechaISO = st?.fechaISO as string | undefined;
+    const cabeceraId = st?.cabeceraId as string | undefined;
     if (!empresaId || !cuentaBancariaId) return;
     if (fechaISO) this.selectedFechaISO.set(fechaISO);
     await this.onEmpresaChange(empresaId);
-    // Selecciona la cuenta y carga detalles
     this.selectedCuentaId.set(cuentaBancariaId);
-    await this.loadDetallesDelDia();
+      const cuenta = (this.cuentas() || []).find(c => c.cuentaBancariaId === cuentaBancariaId);
+      const resp = await this.movService.getOrCreateCabeceraPorFecha({
+        empresaId,
+        cuentaBancariaId,
+        fecha: this.selectedFechaISO(),
+        tipoMonedaBanco: cuenta?.tipoMonedaId,
+      });
+      if (resp?.success && resp.data) {
+        this.cabeceraId.set(resp.data.cabecera.cabeceraId);
+        this.cabecera.set(resp.data.cabecera);
+        this.detalles.set(resp.data.detalles || []);
+      }
+
   }
 }

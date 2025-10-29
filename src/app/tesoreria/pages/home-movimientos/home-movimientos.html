@@ -45,7 +45,7 @@
     </div>
 
     <!-- Tabla -->
-    <div class="overflow-x-auto rounded-lg text-sm">
+    <div class="overflow-x-auto rounded-lg text-xs">
       <table class="min-w-full text-left">
         <thead class="">
           <tr class="">
@@ -76,12 +76,12 @@
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.empresaNombre }}</td>
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.bancoNombre }}</td>
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.cuentaNumero }}</td>
-                <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.saldoAnterior }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-orange-100">Q. {{ r.debitos }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-blue-100">Q. {{ r.creditos }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-lime-100">Q. {{ r.saldoDisponible }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-purple-100">Q. {{ r.flotante }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-gray-50">Q. {{ r.saldoBanco }}</td>
+                <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoAnterior }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-orange-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.debitos }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-blue-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.creditos }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-lime-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoDisponible }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-purple-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.totalFlotante }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-gray-50">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoFinal }}</td>
 
                 <!-- <td class="px-3 py-2 text-right">{{ getMonedaSimbolo(r.cuenta.tipoMonedaId) }} {{ (r.cuenta.saldoBanco || 0) | number:'1.2-2' }}</td>
                 <td class="px-3 py-2 text-right">{{ getMonedaSimbolo(r.cuenta.tipoMonedaId) }} {{ r.debitoFlotante | number:'1.2-2' }}</td>

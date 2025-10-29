@@ -46,7 +46,8 @@ export interface IAcceso {
   rolId: string;                 // ID del rol relacionado
 
   // Relaciones (opcionalmente incluidas en consultas)
-//   menu?: IMenu;
+  menu?: IMenu;
+  subMenus?: IMenu[];
   rol?: IRol;
 
   // Auditoría
@@ -122,7 +123,3 @@ export interface IConfig {
   updated_at?: Date | null;     // Fecha de última actualización
   deleted_at?: Date | null;     // Fecha de eliminación lógica
 }
-
-
-
-

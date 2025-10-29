@@ -22,14 +22,15 @@ interface CabeceraRow {
   empresaId: string;
   empresaNombre: string;
   cuentaBancariaId: string;
+  tipoMonedaBanco: string,
   bancoNombre: string;
   cuentaNumero: string;
   saldoAnterior: number;
   debitos: number;
   creditos: number;
   saldoDisponible: number;
-  flotante: number;
-  saldoBanco: number;
+  totalFlotante: number;
+  saldoFinal: number;
 }
 
 @Component({
@@ -148,37 +149,39 @@ export default class HomeMovimientosPageComponent {
         const saldoAnterior = (cab.saldoInicial as number) || 0;
         const debitos = (cab.totalDebitos as number) || 0;
         const creditos = (cab.totalCreditos as number) || 0;
-        const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos);
-        const flotante = saldoBanco - saldoDisponible;
+        const flotante = cab.totalFlotante || 0;
+        const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos + flotante);
         newCabeceras.push({
           cabeceraId: cab.cabeceraId || ``,
           empresaId: c.empresaId,
-          empresaNombre: empresa?.nombre || '',
           cuentaBancariaId: c.cuentaBancariaId,
+          tipoMonedaBanco: c.tipoMonedaId || '',
+          empresaNombre: empresa?.nombre || '',
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
           saldoAnterior,
           debitos,
           creditos,
           saldoDisponible,
-          flotante,
-          saldoBanco,
+          totalFlotante: flotante,
+          saldoFinal: cab.saldoFinal || 0,
         });
       } else {
         // Cabecera no encontrada -> mostrar ceros
         newCabeceras.push({
           cabeceraId: ``,
+          cuentaBancariaId: c.cuentaBancariaId,
+          tipoMonedaBanco: c.tipoMonedaId,
           empresaId: c.empresaId,
           empresaNombre: empresa?.nombre || '',
-          cuentaBancariaId: c.cuentaBancariaId,
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
           saldoAnterior: 0,
           debitos: 0,
           creditos: 0,
           saldoDisponible: 0,
-          flotante: 0,
-          saldoBanco,
+          totalFlotante: 0,
+          saldoFinal: 0,
         });
       }
     }));

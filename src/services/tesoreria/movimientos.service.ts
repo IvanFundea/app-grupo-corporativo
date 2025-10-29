@@ -45,11 +45,9 @@ export class MovimientosService extends HttpService {
   }
 
   // Listar detalles del día por empresa y cuenta bancaria (asumiendo soporte en backend vía query params)
-  async findDetallesDelDia(empresaId: string, cuentaBancariaId: string, fechaISO?: string): Promise<MovimientoDetListResponse | null> {
+  async findDetallesDelDia(cabeceraId: string,): Promise<MovimientoDetListResponse | null> {
     try {
-      const params: any = { empresaId, cuentaBancariaId };
-      if (fechaISO) params.fecha = fechaISO;
-      const resp = await firstValueFrom(this.get<MovimientoDetListResponse>(`${this.endpoints.base}/detalles-filtros`, params));
+      const resp = await firstValueFrom(this.get<MovimientoDetListResponse>(`${this.endpoints.base}/detalles/${cabeceraId}`));
       if (resp.body?.success) return resp.body;
       return null;
     } catch (error: any) {
@@ -91,7 +89,6 @@ export class MovimientosService extends HttpService {
     empresaId: string;
     cuentaBancariaId: string;
     fecha: string; // YYYY-MM-DD
-    usrIngreso: string;
     tipoMonedaBanco?: string; // requerido solo si no existe y se va a crear
   }): Promise<MovimientoCompletoResponse | null> {
     try {

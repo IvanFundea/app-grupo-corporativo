@@ -1,7 +1,7 @@
 export interface ITipoMoneda {
-    tipoMonedaId: string;
-    descripcion:  string;
-    simbolo:      string;
+  tipoMonedaId: string;
+  descripcion: string;
+  simbolo: string;
 }
 
 export interface IEmpresa {
@@ -30,6 +30,8 @@ export interface ITipoTransaccion {
   tipoTransaccionId: string;
   nombre: string;
   tipo: TipoTransaccionTipo;
+  flotante: boolean;
+  remediacion: boolean;
 }
 
 export interface IBanco {
@@ -66,12 +68,17 @@ export interface IMovimientoBancarioCab {
   detalles?: IMovimientoBancarioDet[];
 }
 
+export interface IMovimientoBancarioCompleto {
+  cabecera: IMovimientoBancarioCab;  
+  detalles?: IMovimientoBancarioDet[];
+}
+
 export interface IMovimientoBancarioDet {
   movimientoBancarioDetId: string;
   cabeceraId: string;
   tipoTransaccionId: string;
   descripcion: string;
-  flotante: boolean; 
+  flotante: boolean;
   valor: number;
   usrIngreso: string;
   created_at: Date;
