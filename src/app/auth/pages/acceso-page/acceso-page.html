@@ -24,114 +24,168 @@
       <select class="w-full input-control p-2 border rounded" (change)="onRolChange($any($event.target).value)">
         <option value="">Seleccione un rol...</option>
         @for (r of (roles() || []); track r.rolId) {
-          <option [value]="r.rolId">{{ r.nombre }}</option>
+        <option [value]="r.rolId">{{ r.nombre }}</option>
         }
       </select>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Columna izquierda: menús y submenús -->
-      <div>
-        <h3 class="text-base font-semibold text-gray-800 mb-2">Menús disponibles</h3>
+    @if(selectedRolId().trim() === ''){
+    <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+      <p>Por favor, seleccione un rol para gestionar sus accesos.</p>
+    </div>
+    } @else {
 
-        <div class="overflow-x-auto border border-gray-300 rounded mb-4">
-          <table class="gc-table min-w-full text-left">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="gc-th">Menú</th>
-                <th class="gc-th">Tipo</th>
-                <th class="gc-th">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (m of principalMenus; track m.menuId) {
-                <tr class="odd:bg-white even:bg-gray-50">
-                  <td class="px-3 py-2">
-                    <div class="flex items-center gap-2">
-                      <span>{{ m.label }}</span>
-                      <span class="text-xs inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700 border">Submenús asignados: {{ countSubAccesos(m.menuId) }}</span>
-                    </div>
-                  </td>
-                  <td class="px-3 py-2">Principal</td>
-                  <td class="px-3 py-2">
-                    @if (isAssigned(m.menuId)) {
-                      <span class="text-xs inline-flex items-center px-2 py-1 rounded bg-gray-200 text-gray-700">Asignado</span>
-                    } @else {
-                      <button type="button" class="px-3 py-1 rounded bg-primary-600 hover:bg-primary-700 text-white text-xs" (click)="abrirAsignar(m)" [disabled]="!(selectedRolId())">Asignar</button>
-                    }
-                  </td>
-                </tr>
-              }
-              @for (m of subMenusAvailable(); track m.menuId) {
-                <tr class="odd:bg-white even:bg-gray-50">
-                  <td class="px-3 py-2">{{ m.label }}</td>
-                  <td class="px-3 py-2">Submenú</td>
-                  <td class="px-3 py-2">
-                    <button type="button" class="px-3 py-1 rounded bg-primary-600 hover:bg-primary-700 text-white text-xs" (click)="abrirAsignar(m)" [disabled]="!(selectedRolId())">Asignar</button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+    <h1 class="text-lg">Lista de accesos para el rol: <b>{{ selectedRol()?.nombre }}</b></h1>
 
-        <!-- Modal inline -->
-        @if (showUpsert() && upsertMenu() && selectedRol()) {
-          <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow-lg border border-gray-300 w-full max-w-2xl p-4">
-              <h4 class="text-base font-semibold text-gray-800 mb-3">Asignar acceso</h4>
-              <app-upsert-acceso
-                [menu]="upsertMenu()!"
-                [rol]="selectedRolStrict()"
-                [accesos]="(accesos() || [])"
-                (save)="onSaveAcceso($event)"
-                (cancel)="cerrarModal()"
-              ></app-upsert-acceso>
+
+    <div class="grid grid-cols-1 lg:grid-cols-6 gap-6">
+      <div class="col-span-2">
+        <b>Menús</b>
+        <ul class="mt-2 text-[0.75em] space-y-1">
+          @for (menu of principalMenus; track menu.menuId) {
+          @if (!isAssigned(menu.menuId)){
+          <li class="flex items-center justify-between bg-white border border-gray-200 rounded px-3 py-2">
+            <div class="flex items-center gap-2">
+              <app-custom-icon [name]="menu.icono" [size]="18"></app-custom-icon>
+              <span>{{ menu.label }}</span>
             </div>
-          </div>
-        }
-      </div>
+            <button
+              class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-full"
+              (click)="abrirAsignar(menu)">{{ 'Añadir' }}</button>
+          </li>
+          }}
+        </ul>
+        <p class="mt-3"><b>Sub-menús</b></p>
+        <ul class="mt-2 text-[0.75em] space-y-1">
+          @for (menu of subMenusAvailable(); track menu.menuId) {
+          @if (!isAssigned(menu.menuId)){
+          <li class="flex items-center justify-between bg-white border border-gray-200 rounded px-3 py-1">
+            <div class="flex items-center gap-2">
+              <app-custom-icon [name]="menu.icono" [size]="16"></app-custom-icon>
+              <span>{{ menu.label }}</span>
+            </div>
+            <button
+              class="inline-flex items-center px-3 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded-full"
+              (click)="abrirAsignar(menu)">{{ 'Añadir' }}</button>
+          </li>
+          }}
+        </ul>
 
-      <!-- Columna derecha: accesos actuales con DnD -->
-      <div>
-        <h3 class="text-base font-semibold text-gray-800 mb-2">Accesos del rol (ordenables)</h3>
-        <div class="overflow-x-auto border border-gray-300 rounded">
-          <table class="gc-table min-w-full text-left">
+      </div>
+      <div class="col-span-4">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-[0.85em] divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="gc-th">Tipo</th>
-                <th class="gc-th">Menú</th>
-                <th class="gc-th">Orden</th>
-                <th class="gc-th">Acciones</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700">Orden</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700">Menú</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700">Activo</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700">APP</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700">Web</th>
+                <th class="px-3 py-2 text-center text-xs font-medium text-gray-700">Acciones</th>
               </tr>
             </thead>
-            <tbody>
-              <!-- Principal accesos DnD -->
-              @for (a of principalAccesos(); track a.accesoId; let i = $index) {
-                <tr class="odd:bg-white even:bg-gray-50" draggable="true" (dragstart)="onDragStart(i)" (dragover)="onDragOver($event)" (drop)="onDrop(i)">
-                  <td class="px-3 py-2">Principal</td>
-                  <td class="px-3 py-2">{{ a.menu?.label }}</td>
-                  <td class="px-3 py-2">{{ a.ordenMenu }}</td>
-                  <td class="px-3 py-2">
-                    <button class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs disabled:opacity-50" (click)="eliminarAcceso(a)" [disabled]="a.menu?.principal && hasSubAccesos(a.menu?.menuId)" title="{{ a.menu?.principal && hasSubAccesos(a.menu?.menuId) ? 'Elimine primero los submenús' : '' }}">Eliminar</button>
-                  </td>
-                </tr>
-                <!-- Submenús bajo este principal -->
-                @for (s of subAccesos(a.menu?.menuId!); track s.accesoId; let j = $index) {
-                  <tr class="odd:bg-white even:bg-gray-50" draggable="true" (dragstart)="onDragStart(j)" (dragover)="onDragOver($event)" (drop)="onDropSub(j, a.menu?.menuId!)">
-                    <td class="px-3 py-2 pl-8">Submenú</td>
-                    <td class="px-3 py-2">{{ s.menu?.label }}</td>
-                    <td class="px-3 py-2">{{ s.ordenMenu }}</td>
-                    <td class="px-3 py-2">
-                      <button class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs" (click)="eliminarAcceso(s)">Eliminar</button>
-                    </td>
-                  </tr>
-                }
+            <tbody class="bg-white divide-y divide-gray-100">
+              @for (item of accesos(); track item.accesoId; let i = $index) {
+              <tr class="odd:bg-white even:bg-gray-50">
+                <td class="px-3 py-2 text-center align-middle"><b>{{ item.ordenMenu }}</b></td>
+                <td class="px-3 py-2 align-middle">
+                  <div class="flex items-center gap-2">
+                    <app-custom-icon [name]="item.menu.icono" [size]="18"></app-custom-icon>
+                    <b>{{ item.menu.label }}</b>
+                  </div>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle">
+                  <input type="checkbox" id="switchCheckDefault{{i}}"
+                    class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-0" [checked]="item.activo"
+                    (change)="changeActive(item, cbxActive.checked)" [value]="item.activo" #cbxActive>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle text-[0.8em]">
+                  <input type="checkbox" id="cbxShowApp{{i}}"
+                    class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-0" [checked]="item.showApp"
+                    (change)="changeShowApp(item, cbxShowApp.checked)" [disabled]="!item.activo" [value]="item.showApp"
+                    #cbxShowApp>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle text-[0.8em]">
+                  <input type="checkbox" id="cbxShowWeb{{i}}"
+                    class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-0" [checked]="item.showWeb"
+                    (change)="changeShowWeb(item, cbxShowWeb.checked)" [disabled]="!item.activo" [value]="item.showWeb"
+                    #cbxShowWeb>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle">
+                  <button (click)="eliminarAcceso(item)"
+                    class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition" type="button"
+                    aria-label="Eliminar acceso">
+                    <app-custom-icon [name]="'trash-2'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                  </button>
+                </td>
+              </tr>
+
+              @for (subacceso of item.subMenus; track subacceso.accesoId; let j = $index) {
+              <tr class="odd:bg-white even:bg-gray-50">
+                <td class="pl-4 py-2 text-center align-middle">
+                  {{ item.ordenMenu + '.' + subacceso.ordenMenu }}
+                </td>
+                <td class="pl-4 py-2 align-middle">
+                  <div class="flex items-center gap-2">
+                    <app-custom-icon [name]="subacceso.menu.icono" [size]="18"></app-custom-icon>
+                    {{ subacceso.menu.label }}
+                  </div>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle">
+                  <input type="checkbox" id="switchCheckDefaultSub{{i}}"
+                    class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-0" [checked]="subacceso.activo"
+                    (change)="changeActive(subacceso, cbxActive.checked)" [disabled]="!item.activo"
+                    [value]="subacceso.activo" #cbxActive>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle text-[0.8em]">
+                  <input type="checkbox" id="cbxShowAppSub{{i}}"
+                    class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-0" [checked]="subacceso.showApp"
+                    (change)="changeShowApp(subacceso, cbxShowApp.checked)"
+                    [disabled]="!subacceso.activo || !item.activo" [value]="subacceso.showApp" #cbxShowApp>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle text-[0.8em]">
+                  <input type="checkbox" id="cbxShowWebSub{{i}}"
+                    class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-0" [checked]="subacceso.showWeb"
+                    (change)="changeShowWeb(subacceso, cbxShowWeb.checked)"
+                    [disabled]="!subacceso.activo || !item.activo" [value]="subacceso.showWeb" #cbxShowWeb>
+                </td>
+
+                <td class="px-3 py-2 text-center align-middle">
+                  <button (click)="eliminarAcceso(subacceso)"
+                    class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition" type="button"
+                    aria-label="Eliminar subacceso">
+                    <app-custom-icon [name]="'trash-2'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                  </button>
+                </td>
+              </tr>
+              }
               }
             </tbody>
           </table>
         </div>
       </div>
     </div>
+
+    }
+
+    <!-- Modal inline -->
+    @if (showUpsert() && upsertMenu() && selectedRol()) {
+    <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg border border-gray-300 w-full max-w-2xl p-4">
+        <h4 class="text-base font-semibold text-gray-800 mb-3">Asignar acceso</h4>
+        <app-upsert-acceso [menu]="upsertMenu()!" [rol]="selectedRolStrict()" [accesos]="(accesos() || [])"
+          (save)="onSaveAcceso($event)" (cancel)="cerrarModal()"></app-upsert-acceso>
+      </div>
+    </div>
+    }
+
   </div>
 </div>

@@ -6,11 +6,12 @@ import { MenuService } from '../../../../services/auth/menu.service';
 import { AccesoService } from '../../../../services/auth/acceso.service';
 import { IAcceso, IMenu, IRol } from '../../../../interfaces/auth';
 import UpsertAccesoComponent from '../../components/upsert-acceso/upsert-acceso';
+import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 
 @Component({
   selector: 'app-acceso-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, UpsertAccesoComponent],
+  imports: [CommonModule, RouterLink, UpsertAccesoComponent, CustomIconComponent],
   templateUrl: './acceso-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -54,6 +55,7 @@ export default class AccesoPageComponent {
     if (!rolId) { this.accesos.set([]); return; }
     const res = await this.accesoService.getAccesosByRol(rolId);
     if (res?.success) this.accesos.set(res.data || []);
+    console.log("🚀 ~ AccesoPageComponent ~ refreshAccesos ~ this.accesos:", this.accesos())
   }
 
   get principalMenus(): IMenu[] {
@@ -62,6 +64,20 @@ export default class AccesoPageComponent {
 
   get subMenus(): IMenu[] {
     return (this.menus() || []).filter(m => !m.principal);
+  }
+
+  // IDs de menús ya asignados (incluye principales y submenús)
+  private assignedIdsSet(): Set<string> {
+    const set = new Set<string>();
+    const list = this.accesos() || [];
+    for (const a of list) {
+      if (a?.menuId) set.add(a.menuId);
+      const subs = a?.subMenus || [];
+      for (const s of subs) {
+        if (s?.menuId) set.add(s.menuId);
+      }
+    }
+    return set;
   }
 
   selectedRol(): IRol | null {
@@ -83,12 +99,12 @@ export default class AccesoPageComponent {
 
   isAssigned(menuId?: string): boolean {
     if (!menuId) return false;
-    return (this.accesos() || []).some(a => a.menuId === menuId);
+    return this.assignedIdsSet().has(menuId);
   }
 
   // Submenús disponibles (no asignados aún para este rol)
   subMenusAvailable(): IMenu[] {
-    const assignedIds = new Set((this.accesos() || []).map(a => a.menuId));
+    const assignedIds = this.assignedIdsSet();
     return (this.menus() || []).filter(m => !m.principal && !assignedIds.has(m.menuId || ''));
   }
 
@@ -147,7 +163,7 @@ export default class AccesoPageComponent {
     // Actualizar orden localmente (10,20,30...)
     const updates = list.map((a, idx) => ({ ...a, ordenMenu: (idx + 1) * 10 }));
     for (const u of updates) {
-      if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
+      // if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
     }
     await this.refreshAccesos();
     this.dragIndex = null;
@@ -163,9 +179,32 @@ export default class AccesoPageComponent {
 
     const updates = list.map((a, idx) => ({ ...a, ordenMenu: (idx + 1) * 10 }));
     for (const u of updates) {
-      if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
+      // if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
     }
     await this.refreshAccesos();
     this.dragIndex = null;
+  }
+
+  changeActive(acceso: IAcceso, checked: boolean) {
+    acceso.activo = checked;
+    this.updateAcceso(acceso);
+  }
+
+  async updateAcceso(acceso: IAcceso) {
+    let resp = await this.accesoService.updateAcceso(acceso)
+    if (resp?.success) {
+      // this.fetchData()
+      this.cerrarModal();
+    }
+  }
+
+  changeShowApp(acceso: IAcceso, checked: boolean) {
+    acceso.showApp = checked;
+    this.updateAcceso(acceso);
+  }
+
+  changeShowWeb(acceso: IAcceso, checked: boolean) {
+    acceso.showWeb = checked;
+    this.updateAcceso(acceso);
   }
 }
