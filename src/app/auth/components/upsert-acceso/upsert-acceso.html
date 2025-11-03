@@ -18,8 +18,8 @@
         <select class="w-full input-control p-2 border rounded" formControlName="mainMenuId">
           <option [ngValue]="null">Seleccione opción</option>
           @for (a of (accesos() || []); track a.accesoId) {
-            @if (a.menu?.principal) {
-              <option [value]="a.menu?.menuId">{{ a.menu?.label }}</option>
+            @if (a.menu.principal) {
+              <option [value]="a.menu.menuId">{{ a.menu.label }}</option>
             }
           }
         </select>
@@ -59,7 +59,20 @@
   </div>
 
   <div class="flex justify-end gap-2">
-    <button type="button" (click)="onCancel()" class="px-3 py-2 rounded border text-gray-700">Cancelar</button>
-    <button type="submit" class="px-3 py-2 rounded bg-primary-600 hover:bg-primary-700 text-white">{{ menu().principal ? 'Asignar menú' : 'Asignar submenú' }}</button>
+    <button
+      type="button"
+      (click)="onCancel()"
+      class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+    >
+      Cancelar
+    </button>
+
+    <button
+      type="submit"
+      [disabled]="form().invalid"
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {{ menu().principal ? 'Asignar menú' : 'Asignar submenú' }}
+    </button>
   </div>
 </form>
