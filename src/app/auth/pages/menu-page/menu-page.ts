@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination';
 import { IMenu } from '../../../../interfaces/auth';
+import type { ApiMetadata } from '../../../../interfaces/api-response';
 import { MenuService } from '../../../../services/auth/menu.service';
 import { UpsertMenuComponent } from '../../components/upsert-menu/upsert-menu';
 
@@ -29,7 +30,6 @@ const emptyMenu: IMenu = {
 export default class MenuPageComponent {
   menuService = inject(MenuService);
 
-  menusList = signal<IMenu[]>([]);
   menusPrincipales = signal<IMenu[]>([]);
   submenus = signal<IMenu[]>([]);
 
@@ -42,7 +42,8 @@ export default class MenuPageComponent {
   paginationMenus = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
   paginationSubs = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
 
-  isLoading = signal(false);
+  isLoadingMenus = signal(false);
+  isLoadingSubs = signal(false);
   esMenuPrincipal = signal(true);
 
   nuevoMenu = signal(true);
@@ -68,78 +69,53 @@ export default class MenuPageComponent {
     }
   }
 
-  private splitMenus(list: IMenu[]) {
-    const menus = (list || []).filter(m => !!m.principal);
-    const subs = (list || []).filter(m => !m.principal);
-    this.menusPrincipales.set(menus);
-    this.submenus.set(subs);
-  }
-
   async fetchData() {
-    if (this.isLoading()) return;
-    this.isLoading.set(true);
-    const resp = await this.menuService.getMenus({ all: true });
-    if (resp?.success) {
-      const data = resp.data || [];
-      this.menusList.set(data);
-      this.splitMenus(data);
-      this.updatePaginationTotals();
-      setTimeout(() => (window as any).HSStaticMethods?.autoInit(), 100);
-    }
-    this.isLoading.set(false);
+    await Promise.all([this.fetchMenusPage(), this.fetchSubmenusPage()]);
   }
 
-  // Filtering helpers
   private normalize(t: string): string { return (t || '').toLowerCase(); }
-  private filterMenus(list: IMenu[], term: string): IMenu[] {
-    const q = this.normalize(term);
-    if (!q) return list || [];
-    return (list || []).filter(m =>
-      this.normalize(m.label).includes(q) ||
-      this.normalize(m.icono || '').includes(q) ||
-      this.normalize(m.pathWeb || '').includes(q)
-    );
-  }
 
   getMenusPrincipalesPageSlice(): IMenu[] {
-    const filtered = this.filterMenus(this.menusPrincipales(), this.buscadorMenus());
-    const { page, pageSize } = this.paginationMenus();
-    const start = (page - 1) * pageSize;
-    return filtered.slice(start, start + pageSize);
+    return this.menusPrincipales() || [];
   }
 
   getSubmenusPageSlice(): IMenu[] {
-    const filtered = this.filterMenus(this.submenus(), this.buscadorSubs());
-    const { page, pageSize } = this.paginationSubs();
-    const start = (page - 1) * pageSize;
-    return filtered.slice(start, start + pageSize);
+    return this.submenus() || [];
   }
 
-  private updatePaginationTotals() {
-    const totalMenus = this.filterMenus(this.menusPrincipales(), this.buscadorMenus()).length;
-    const totalSubs = this.filterMenus(this.submenus(), this.buscadorSubs()).length;
-    this.paginationMenus.update(p => ({ ...p, totalItems: totalMenus }));
-    this.paginationSubs.update(p => ({ ...p, totalItems: totalSubs }));
+  private updateMenusPagination(meta?: ApiMetadata | null) {
+    if (meta) this.paginationMenus.update(p => ({ ...p, totalItems: meta.total, page: meta.page, pageSize: meta.limit }));
+  }
+
+  private updateSubsPagination(meta?: ApiMetadata | null) {
+    if (meta) this.paginationSubs.update(p => ({ ...p, totalItems: meta.total, page: meta.page, pageSize: meta.limit }));
   }
 
   onSearchMenus(term: string) {
     this.buscadorMenus.set(term);
     this.paginationMenus.update(p => ({ ...p, page: 1 }));
-    this.updatePaginationTotals();
+    this.fetchMenusPage();
   }
 
   onSearchSubs(term: string) {
     this.buscadorSubs.set(term);
     this.paginationSubs.update(p => ({ ...p, page: 1 }));
-    this.updatePaginationTotals();
+    this.fetchSubmenusPage();
   }
 
   onChangePageMenus(newPagination: IPagination) {
     this.paginationMenus.set(newPagination);
+    this.fetchMenusPage();
   }
 
   onChangePageSubs(newPagination: IPagination) {
     this.paginationSubs.set(newPagination);
+    this.fetchSubmenusPage();
+  }
+
+  // Tab switching helper to ensure consistent updates from template
+  setActiveTab(tab: 'menus' | 'submenus') {
+    this.activeTab.set(tab);
   }
 
   openUpsertModal(nuevo: boolean, menu: IMenu = emptyMenu) {
@@ -199,7 +175,7 @@ export default class MenuPageComponent {
     const { menuId, created_at, updated_at, deleted_at, ...payload } = menu;
     const resp = await this.menuService.createMenu(payload as any);
     if (resp?.success) {
-      await this.fetchData();
+      if (menu.principal) await this.fetchMenusPage(); else await this.fetchSubmenusPage();
       this.closeModal();
       this.menuEdit.set({ ...emptyMenu });
       this.nuevoMenu.set(true);
@@ -209,7 +185,7 @@ export default class MenuPageComponent {
   async updateMenu(menu: IMenu) {
     const resp = await this.menuService.updateMenu(menu);
     if (resp?.success) {
-      await this.fetchData();
+      if (menu.principal) await this.fetchMenusPage(); else await this.fetchSubmenusPage();
       this.closeModal();
     }
   }
@@ -217,7 +193,7 @@ export default class MenuPageComponent {
   async deleteMenu(menu: IMenu) {
     const resp = await this.menuService.deleteMenu(menu.menuId || '');
     if (resp?.success) {
-      await this.fetchData();
+      if (menu.principal) await this.fetchMenusPage(); else await this.fetchSubmenusPage();
       this.closeModal();
       this.menuEdit.set({ ...emptyMenu });
       this.nuevoMenu.set(true);
@@ -227,5 +203,41 @@ export default class MenuPageComponent {
   onToggleActivo(menu: IMenu, activo: boolean) {
     const updated: IMenu = { ...menu, activo } as IMenu;
     this.updateMenu(updated);
+  }
+
+  private async fetchMenusPage() {
+    if (this.isLoadingMenus()) return;
+    this.isLoadingMenus.set(true);
+    const { page, pageSize } = this.paginationMenus();
+    const resp = await this.menuService.getMenus({ page, limit: pageSize, busqueda: this.buscadorMenus(), principal: true });
+    if (resp?.success) {
+      const data = resp.data || [];
+      this.menusPrincipales.set(data);
+      this.updateMenusPagination(resp.metadata);
+      // Fallback cuando el API no envía metadata: usar longitud del arreglo
+      if (!resp.metadata) {
+        this.paginationMenus.update(p => ({ ...p, totalItems: data.length }));
+      }
+      setTimeout(() => (window as any).HSStaticMethods?.autoInit(), 100);
+    }
+    this.isLoadingMenus.set(false);
+  }
+
+  private async fetchSubmenusPage() {
+    if (this.isLoadingSubs()) return;
+    this.isLoadingSubs.set(true);
+    const { page, pageSize } = this.paginationSubs();
+    const resp = await this.menuService.getMenus({ page, limit: pageSize, busqueda: this.buscadorSubs(), principal: false });
+    if (resp?.success) {
+      const data = resp.data || [];
+      this.submenus.set(data);
+      this.updateSubsPagination(resp.metadata);
+      // Fallback cuando el API no envía metadata: usar longitud del arreglo
+      if (!resp.metadata) {
+        this.paginationSubs.update(p => ({ ...p, totalItems: data.length }));
+      }
+      setTimeout(() => (window as any).HSStaticMethods?.autoInit(), 100);
+    }
+    this.isLoadingSubs.set(false);
   }
 }

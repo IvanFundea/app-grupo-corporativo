@@ -26,21 +26,20 @@
     <div class="p-4">
         <!-- Tabs header -->
         <div class="flex border-b border-gray-300 mb-4">
-            <button type="button" (click)="activeTab.set('menus')" class="px-4 py-2 text-sm"
+            <button type="button" (click)="setActiveTab('menus')" class="px-4 py-2 text-sm"
                 [class.border-b-2]="activeTab() === 'menus'" [class.border-blue-600]="activeTab() === 'menus'">Menús
                 principales</button>
-            <button type="button" (click)="activeTab.set('submenus')" class="px-4 py-2 text-sm"
+            <button type="button" (click)="setActiveTab('submenus')" class="px-4 py-2 text-sm"
                 [class.border-b-2]="activeTab() === 'submenus'"
                 [class.border-blue-600]="activeTab() === 'submenus'">Submenús</button>
         </div>
 
-        <!-- Tab: Menús principales -->
-        @if (activeTab() === 'menus') {
-        <div>
+    <!-- Tab: Menús principales (toggle visibility without structural control) -->
+    <div [hidden]="activeTab() !== 'menus'">
             <form class="flex flex-wrap items-center gap-3 mb-3">
                 <div>
                     <label for="searchMenuPrin" class="sr-only">Buscar</label>
-                    <input id="searchMenuPrin" type="text" placeholder="Buscar..." [value]="buscadorMenus()"
+                    <input id="searchMenuPrin" type="text" placeholder="Buscar menús..." [value]="buscadorMenus()"
                         (input)="onSearchMenus($any($event.target).value)"
                         class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
@@ -58,11 +57,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (isLoading()) {
+                        @if (isLoadingMenus()) {
                         <tr>
                             <td colspan="6" class="px-4 py-8 text-center text-gray-500">Cargando menús...</td>
                         </tr>
-                        } @else if (paginationMenus().totalItems === 0) {
+                        } @else if (getMenusPrincipalesPageSlice().length === 0) {
                         <tr>
                             <td colspan="6" class="px-4 py-8 text-center text-gray-500">No hay menús principales</td>
                         </tr>
@@ -104,22 +103,20 @@
                     </tbody>
                 </table>
             </div>
-            @if (paginationMenus().totalItems > 0) {
+            @if (paginationMenus().totalItems > 0 || getMenusPrincipalesPageSlice().length > 0) {
             <div class="mt-3">
                 <app-pagination [paginationObj]="paginationMenus()" (changePage)="onChangePageMenus($event)"
                     [showText]="true" />
             </div>
             }
-        </div>
-        }
+    </div>
 
-        <!-- Tab: Submenús -->
-        @if (activeTab() === 'submenus') {
-        <div>
+    <!-- Tab: Submenús (toggle visibility without structural control) -->
+    <div [hidden]="activeTab() !== 'submenus'">
             <form class="flex flex-wrap items-center gap-3 mb-3">
                 <div>
                     <label for="searchSub" class="sr-only">Buscar</label>
-                    <input id="searchSub" type="text" placeholder="Buscar..." [value]="buscadorSubs()"
+                    <input id="searchSub" type="text" placeholder="Buscar submenus..." [value]="buscadorSubs()"
                         (input)="onSearchSubs($any($event.target).value)"
                         class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
@@ -137,11 +134,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (isLoading()) {
+                        @if (isLoadingSubs()) {
                         <tr>
                             <td colspan="6" class="px-4 py-8 text-center text-gray-500">Cargando submenús...</td>
                         </tr>
-                        } @else if (paginationSubs().totalItems === 0) {
+                        } @else if (getSubmenusPageSlice().length === 0) {
                         <tr>
                             <td colspan="6" class="px-4 py-8 text-center text-gray-500">No hay submenús</td>
                         </tr>
@@ -183,14 +180,13 @@
                     </tbody>
                 </table>
             </div>
-            @if (paginationSubs().totalItems > 0) {
+            @if (paginationSubs().totalItems > 0 || getSubmenusPageSlice().length > 0) {
             <div class="mt-3">
                 <app-pagination [paginationObj]="paginationSubs()" (changePage)="onChangePageSubs($event)"
                     [showText]="true" />
             </div>
             }
-        </div>
-        }
+    </div>
 
     </div>
 </div>

@@ -20,9 +20,10 @@ export class MenuService extends HttpService {
     super(http);
   }
 
-  async getMenus({ page = 1, limit = 10, busqueda = '', all = false } = {}): Promise<MenuListResponse | null> {
+  async getMenus({ page = 1, limit = 10, busqueda = '', principal, all = false }: { page?: number; limit?: number; busqueda?: string; principal?: boolean; all?: boolean } = {}): Promise<MenuListResponse | null> {
     try {
       let params: any = { page, limit, busqueda };
+      if (principal !== undefined) params.principal = principal;
       if (all) params = { ...params, todos: all };
       const resp = await firstValueFrom(this.get<MenuListResponse>(`${this.endpoints.menus}`, params));
       if (resp.body?.success) return resp.body;
