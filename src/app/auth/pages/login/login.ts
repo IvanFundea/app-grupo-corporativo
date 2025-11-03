@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../services/auth/auth.service';
+import { AccesoService } from '../../../../services/auth/acceso.service';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,7 @@ import { AuthService } from '../../../../services/auth/auth.service';
 export default class LoginComponent { 
 
   public authService = inject(AuthService);  
+  public accesoService = inject(AccesoService);
   // public userAliado = this.authService.getUserStorage();
   public router = inject(Router)
 
@@ -57,6 +59,26 @@ export default class LoginComponent {
       if(authData && authData.success) {
         localStorage.setItem('token', authData?.data.token || '');
         localStorage.setItem('usuario', JSON.stringify(authData?.data.user || {}));
+
+        // Obtener accesos por rol y guardarlos en localStorage
+        try {
+          const rolId = authData?.data.user?.rolId || authData?.data.user?.rol?.rolId || '';
+          if (rolId) {
+            const accesosResp = await this.accesoService.getAccesosByRol(rolId);
+            if (accesosResp?.data) {
+              localStorage.setItem('accesos', JSON.stringify(accesosResp.data));
+            } else {
+              // Asegurar que no haya datos obsoletos
+              localStorage.removeItem('accesos');
+            }
+          } else {
+            // Si no hay rol, limpiar accesos previos
+            localStorage.removeItem('accesos');
+          }
+        } catch (_) {
+          // En caso de error ya hay notificación desde el servicio; limpiar accesos
+          localStorage.removeItem('accesos');
+        }
 
         this.errorObj.set({
           message: '',

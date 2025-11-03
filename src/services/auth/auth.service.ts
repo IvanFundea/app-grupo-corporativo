@@ -4,7 +4,7 @@ import { HttpService } from '../HttpService';
 import { firstValueFrom } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { ApiResponse } from '../../interfaces/api-response';
-import { ILogin, IUsuario } from '../../interfaces/auth';
+import { IAcceso, ILogin, IUsuario } from '../../interfaces/auth';
 
 type LoginResponse = ApiResponse<ILogin>;
 
@@ -12,12 +12,15 @@ type LoginResponse = ApiResponse<ILogin>;
 export class AuthService extends HttpService {
   private readonly endpoints = {
     login: '/auth/login',
+    verifyToken: '/auth/verify-token',
     usuarios: '/auth/usuarios',
   };
 
   // Signal para el estado del usuario
   private _user = signal<IUsuario>(this.loadUserFromStorage());
+  private _accesos = signal<IAcceso[]>(this.loadAccesosFromStorage());
   public user = this._user.asReadonly();
+  public accesos = this._accesos.asReadonly();
 
   constructor(http: HttpClient, private toastr: ToastrService) {
     super(http);
@@ -60,10 +63,22 @@ export class AuthService extends HttpService {
     };
   }
 
+  private loadAccesosFromStorage(): IAcceso[] {
+    const accesos = localStorage.getItem('accesos');
+    if (accesos) return JSON.parse(accesos);
+
+    // Accesos "vacíos"
+    return [];
+  }
+
 
   /** Obtener snapshot del usuario actual */
   getUserStorage(): IUsuario {
     return this._user();
+  }
+
+  getAccesosStorage(): IAcceso[] {
+    return this._accesos();
   }
 
   /** Actualizar usuario en memoria y storage */
@@ -97,6 +112,16 @@ export class AuthService extends HttpService {
     }
   }
 
+  /** Verifica en el backend si el token sigue siendo válido */
+  async verifyToken(token: string): Promise<boolean> {
+    try {
+      const resp = await firstValueFrom(this.post<ApiResponse>(this.endpoints.verifyToken, { token }));
+      return !!resp.body?.success;
+    } catch (error: any) {
+      return false;
+    }
+  }
+
   logout(message: string = '') {
     if (message) {
       this.toastr.error(message, 'Sesión cerrada');
@@ -107,5 +132,6 @@ export class AuthService extends HttpService {
 
     // Resetear signal del usuario
     this._user.set(this.loadUserFromStorage());
+    this._accesos.set(this.loadAccesosFromStorage());
   }
 }
