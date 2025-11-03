@@ -227,7 +227,6 @@ export default class HomeMovimientosPageComponent {
   }
 
   irAModificar(row: CabeceraRow) {
-    console.log("🚀 ~ HomeMovimientosPageComponent ~ irAModificar ~ row:", row.cabeceraId)
     // Navegar a movimientos con contexto preseleccionado
     const fecha = this.selectedFechaISO();
     this.router.navigate(['/dashboard/tesoreria/movimientos'], {

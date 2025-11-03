@@ -79,7 +79,6 @@ export default class RolPageComponent {
     if (typeof window !== 'undefined' && (window as any).HSStaticMethods) {
       setTimeout(() => {
         (window as any).HSStaticMethods.autoInit();
-        console.log('Preline initialized');
       }, 100);
     }
   }
@@ -107,7 +106,6 @@ export default class RolPageComponent {
       setTimeout(() => {
         if ((window as any).HSStaticMethods) {
           (window as any).HSStaticMethods.autoInit();
-          console.log('✅ Preline reloaded after data fetch');
         }
       }, 100);
     }
@@ -143,8 +141,6 @@ export default class RolPageComponent {
   }
 
   openUpsertModal(nuevo: boolean, rol: IRol = emptyRol) {
-    console.log('🟦 Abriendo modal...');
-
     this.formKey.set(Date.now());
     this.nuevoRol.set(nuevo);
     this.rolEdit.set({ ...rol });
@@ -185,7 +181,6 @@ export default class RolPageComponent {
 
   /** Cierra el modal */
   closeModal() {
-    console.log('🔴 Cerrando modal...');
     const modalEl = this.upsertModal.nativeElement;
     const modalDEl = this.deleteModal.nativeElement;
 

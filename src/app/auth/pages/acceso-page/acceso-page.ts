@@ -55,15 +55,11 @@ export default class AccesoPageComponent {
     if (!rolId) { this.accesos.set([]); return; }
     const res = await this.accesoService.getAccesosByRol(rolId);
     if (res?.success) this.accesos.set(res.data || []);
-    console.log("🚀 ~ AccesoPageComponent ~ refreshAccesos ~ this.accesos:", this.accesos())
+  // debug log removed
   }
 
   get principalMenus(): IMenu[] {
     return (this.menus() || []).filter(m => m.principal);
-  }
-
-  get subMenus(): IMenu[] {
-    return (this.menus() || []).filter(m => !m.principal);
   }
 
   // IDs de menús ya asignados (incluye principales y submenús)
@@ -87,14 +83,6 @@ export default class AccesoPageComponent {
 
   selectedRolStrict(): IRol {
     return this.selectedRol() as IRol;
-  }
-
-  principalAccesos(): IAcceso[] {
-    return (this.accesos() || []).filter(a => !!a.menu?.principal);
-  }
-
-  subAccesos(mainMenuId: string): IAcceso[] {
-    return (this.accesos() || []).filter(a => a.mainMenuId === mainMenuId && !a.menu?.principal);
   }
 
   isAssigned(menuId?: string): boolean {
@@ -149,28 +137,10 @@ export default class AccesoPageComponent {
   }
 
   // Reordenar (HTML5 drag & drop)
-  dragIndex: number | null = null;
   dragSubAcceso: IAcceso | null = null;
-
-  onDragStart(index: number) { this.dragIndex = index; }
   onDragOver(ev: DragEvent) { ev.preventDefault(); }
 
   onDragStartSub(item: IAcceso) { this.dragSubAcceso = item; }
-
-  async onDrop(targetIndex: number) {
-    if (this.dragIndex === null || this.dragIndex === targetIndex) return;
-    const list = [...(this.accesos() || []).filter(a => a.menu?.principal)];
-    const moved = list.splice(this.dragIndex, 1)[0];
-    list.splice(targetIndex, 0, moved);
-
-    // Actualizar orden localmente (10,20,30...)
-    const updates = list.map((a, idx) => ({ ...a, ordenMenu: (idx + 1) * 10 }));
-    for (const u of updates) {
-      // if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
-    }
-    await this.refreshAccesos();
-    this.dragIndex = null;
-  }
 
   // Reordenar submenús por mainMenuId
   async onDropSub(targetIndex: number, mainMenuId: string) {

@@ -96,7 +96,6 @@ export default class PuestoPageComponent {
       setTimeout(() => {
         if ((window as any).HSStaticMethods) {
           (window as any).HSStaticMethods.autoInit();
-          console.log('✅ Preline reloaded after data fetch');
         }
       }, 100);
     }
@@ -132,8 +131,6 @@ export default class PuestoPageComponent {
   }
 
   openUpsertModal(nuevo: boolean, puesto: IPuesto = emptyPuesto) {
-    console.log('🟦 Abriendo modal...');
-
     this.formKey.set(Date.now());
     this.nuevoPuesto.set(nuevo);
     this.puestoEdit.set({ ...puesto });
@@ -174,7 +171,6 @@ export default class PuestoPageComponent {
 
   /** Cierra el modal */
   closeModal() {
-    console.log('🔴 Cerrando modal...');
     const modalEl = this.upsertModal.nativeElement;
     const modalDEl = this.deleteModal.nativeElement;
 

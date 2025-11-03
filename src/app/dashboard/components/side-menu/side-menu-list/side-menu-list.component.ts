@@ -40,7 +40,6 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
       }, 50);
     });
 
-    console.log('SideMenuListComponent initialized', this.usuario);
     this.esAdmin.set(this.usuario?.rol?.esAdmin || false);
   }
 
@@ -66,14 +65,12 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
         const routerLink = link.getAttribute('routerLink');
         if (routerLink && accordionId) {
           this.routeToAccordionMap[routerLink] = accordionId;
-          console.log(`Mapped route: ${routerLink} -> ${accordionId}`);
         }
       });
     });
   }
 
   private checkActiveRoutes(currentUrl: string) {
-    console.log('Checking route:', currentUrl);
     
     // Encontrar el acordeón que debe estar abierto para esta ruta
     const targetAccordion = this.findAccordionForRoute(currentUrl);
@@ -84,11 +81,9 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
     // Si encontramos un acordeón objetivo, abrirlo
     if (targetAccordion) {
       setTimeout(() => {
-        console.log(`Opening accordion: ${targetAccordion} for route: ${currentUrl}`);
         this.expandAccordion(targetAccordion);
       }, 100);
     } else {
-      console.log(`No accordion found for route: ${currentUrl} - all accordions will remain closed`);
     }
   }
 
@@ -137,7 +132,6 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
       const contentElement = accordionElement?.querySelector('.hs-accordion-content');
 
       if (accordionElement && toggleButton && contentElement) {
-        console.log('Closing accordion:', accordionId);
         
         // Método más agresivo para cerrar acordeones
         // 1. Usar Preline primero si está disponible
@@ -148,7 +142,6 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
               accordionInstance.hide();
             }
           } catch (error) {
-            console.log('Preline close failed, using manual method');
           }
         }
         
@@ -173,7 +166,6 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
     const contentElement = accordionElement?.querySelector('.hs-accordion-content');
 
     if (accordionElement && toggleButton && contentElement) {
-      console.log('Expanding accordion:', accordionId);
       
       // 1. Usar Preline primero si está disponible
       if (typeof window !== 'undefined' && (window as any).HSAccordion) {
@@ -184,7 +176,6 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
             return; // Si Preline funciona, terminar aquí
           }
         } catch (error) {
-          console.log('Preline expand failed, using manual method');
         }
       }
       
