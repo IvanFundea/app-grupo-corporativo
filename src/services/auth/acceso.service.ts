@@ -44,7 +44,7 @@ export class AccesoService extends HttpService {
     }
   }
 
-  async updateAcceso(acceso: Partial<IAcceso> & { accesoId: string }): Promise<AccesoResponse | null> {
+  async updateAcceso(acceso: IAcceso): Promise<AccesoResponse | null> {
     try {
       const { accesoId, ordenMenu, showApp, showWeb, activo, mainMenuId, menuId, rolId } = acceso as IAcceso;
       const resp = await firstValueFrom(

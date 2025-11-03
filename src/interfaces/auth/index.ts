@@ -46,9 +46,29 @@ export interface IAcceso {
   rolId: string;                 // ID del rol relacionado
 
   // Relaciones (opcionalmente incluidas en consultas)
-  menu?: IMenu;
-  subMenus?: IMenu[];
+  menu: IMenu;
+  subMenus?: ISubmenu[];
   rol?: IRol;
+
+  // Auditoría
+  created_at: Date;
+  updated_at?: Date | null;
+  deleted_at?: Date | null;
+}
+
+export interface ISubmenu {
+  accesoId?: string;              // UUID del acceso
+  ordenMenu: number;             // Orden del menú
+  showApp: boolean;              // Si se muestra en la app móvil
+  showWeb: boolean;              // Si se muestra en la web
+  activo: boolean;               // Estado del acceso
+
+  mainMenuId?: string | null;    // ID del menú principal (si aplica)
+  menuId: string;                // ID del menú relacionado
+  rolId: string;                 // ID del rol relacionado
+
+  // Relaciones (opcionalmente incluidas en consultas)
+  menu: IMenu;
 
   // Auditoría
   created_at: Date;
