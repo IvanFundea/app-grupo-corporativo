@@ -150,9 +150,12 @@ export default class AccesoPageComponent {
 
   // Reordenar (HTML5 drag & drop)
   dragIndex: number | null = null;
+  dragSubAcceso: IAcceso | null = null;
 
   onDragStart(index: number) { this.dragIndex = index; }
   onDragOver(ev: DragEvent) { ev.preventDefault(); }
+
+  onDragStartSub(item: IAcceso) { this.dragSubAcceso = item; }
 
   async onDrop(targetIndex: number) {
     if (this.dragIndex === null || this.dragIndex === targetIndex) return;
@@ -171,18 +174,19 @@ export default class AccesoPageComponent {
 
   // Reordenar submenús por mainMenuId
   async onDropSub(targetIndex: number, mainMenuId: string) {
-    if (this.dragIndex === null) return;
-    const sub = (this.accesos() || []).filter(a => a.mainMenuId === mainMenuId && !a.menu?.principal);
-    const list = [...sub];
-    const moved = list.splice(this.dragIndex, 1)[0];
-    list.splice(targetIndex, 0, moved);
+    if (!this.dragSubAcceso) return;
+    // Validar target index
+    const parent = (this.accesos() || []).find(a => a.menu?.menuId === mainMenuId);
+    const count = parent?.subMenus?.length || 0;
+    if (targetIndex < 0 || targetIndex >= count) { this.dragSubAcceso = null; return; }
 
-    const updates = list.map((a, idx) => ({ ...a, ordenMenu: (idx + 1) * 10 }));
-    for (const u of updates) {
-      // if (u.accesoId) await this.accesoService.updateAcceso({ accesoId: u.accesoId, ordenMenu: u.ordenMenu });
+    const newOrden = (targetIndex + 1);
+    const moved = { ...this.dragSubAcceso, ordenMenu: newOrden } as IAcceso;
+    if (moved.accesoId) {
+      await this.accesoService.updateAcceso(moved);
     }
     await this.refreshAccesos();
-    this.dragIndex = null;
+    this.dragSubAcceso = null;
   }
 
   changeActive(acceso: IAcceso, checked: boolean) {

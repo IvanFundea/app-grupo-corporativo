@@ -87,7 +87,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
               @for (item of accesos(); track item.accesoId; let i = $index) {
-              <tr class="odd:bg-white even:bg-gray-50">
+              <tr class="odd:bg-white even:bg-gray-100">
                 <td class="px-3 py-2 text-center align-middle"><b>{{ item.ordenMenu }}</b></td>
                 <td class="px-3 py-2 align-middle">
                   <div class="flex items-center gap-2">
@@ -126,9 +126,13 @@
               </tr>
 
               @for (subacceso of item.subMenus; track subacceso.accesoId; let j = $index) {
-              <tr class="odd:bg-white even:bg-gray-50">
+        <tr class="odd:bg-white even:bg-gray-100 hover:bg-gray-200"
+          draggable="true"
+          (dragstart)="onDragStartSub(subacceso)"
+                  (dragover)="onDragOver($event)"
+                  (drop)="onDropSub(j, item.menu.menuId!)">
                 <td class="pl-4 py-2 text-center align-middle">
-                  {{ item.ordenMenu + '.' + subacceso.ordenMenu }}
+              {{ item.ordenMenu + '.' + subacceso.ordenMenu }}
                 </td>
                 <td class="pl-4 py-2 align-middle">
                   <div class="flex items-center gap-2">
