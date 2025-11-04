@@ -38,7 +38,7 @@ export class UpsertCuentaBancariaComponent {
         tipoCuenta: [c?.tipoCuenta ?? '', [Validators.required]],
         tipoMonedaId: [c?.tipoMonedaId ?? '', [Validators.required]],
         descripcion: [c?.descripcion ?? ''],
-        saldoBanco: [c?.saldoBanco ?? null],
+        saldoBanco: [c?.saldoBanco ?? 0],
       });
 
       if (isNuevo) {
@@ -49,7 +49,7 @@ export class UpsertCuentaBancariaComponent {
           tipoCuenta: '',
           tipoMonedaId: '',
           descripcion: '',
-          saldoBanco: null,
+          saldoBanco: 0,
         });
       }
 
