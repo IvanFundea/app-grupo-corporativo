@@ -1,10 +1,16 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-page-404',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './404-page.html',
   styleUrl: './404-page.css',
 })
-export default class Page404Component { }
+export default class Page404Component { 
+  private location = inject(Location);
+
+  goBack() {
+    this.location.back();
+  }
+}
