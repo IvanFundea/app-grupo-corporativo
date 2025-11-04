@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, AfterViewInit, signal } from '@angular/core';
+import { Component, OnInit, inject, AfterViewInit, signal, effect } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { CustomIconComponent } from '../../../../shared/components/custom-icon/custom-icon.component';
@@ -18,8 +18,9 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
   usuario = this.authService.getUserStorage();
   esAdmin = signal(false);
   prefix = '/dashboard/'
-
-  accesos = signal<IAcceso[]>(this.authService.getAccesosStorage());
+  // Usar el signal reactivo del servicio para que el menú se actualice sin refresh
+  accesos = this.authService.accesos;
+  accesosLoading = this.authService.accesosLoading;
   
   // Mapeo dinámico de rutas a acordeones
   private routeToAccordionMap: { [key: string]: string } = {
@@ -45,6 +46,16 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
     });
 
     this.esAdmin.set(this.usuario?.rol?.esAdmin || false);
+
+    // Efecto: cuando cambian los accesos, reconstruir mapa de rutas y verificar acordeones
+    effect(() => {
+      const _ = this.accesos();
+      // Esperar a que Angular pinte el DOM con los nuevos enlaces
+      setTimeout(() => {
+        this.buildRouteMapFromHTML();
+        this.checkActiveRoutes(this.router.url);
+      }, 0);
+    });
   }
 
   ngAfterViewInit() {

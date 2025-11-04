@@ -8,6 +8,17 @@
 
 
 <!-- Menu dinámico (grupo de acordeones) -->
+@if(accesosLoading()){
+    <div class="p-3 text-sm text-secondary-500 flex items-center gap-2">
+        <svg class="animate-spin h-4 w-4 text-secondary-500" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        Cargando menú...
+    </div>
+} @else if (accesos().length === 0) {
+    <div class="p-3 text-sm text-secondary-500">Sin accesos asignados</div>
+} @else {
 <div class="hs-accordion-group" id="side-menu-accordion-group">
     @for(acceso of accesos(); track acceso.accesoId){
         <!-- Item de acordeón por cada acceso -->
@@ -46,6 +57,7 @@
         </div>
     }
 </div>
+}
 
 <!-- Configuración -->
 <!-- <a class="flex items-center gap-x-3 py-2.5 px-3 text-sm text-secondary-700 hover:bg-primary-200 hover:text-secondary-900 rounded-lg font-medium focus:outline-none focus:bg-primary-200 transition-colors duration-200"

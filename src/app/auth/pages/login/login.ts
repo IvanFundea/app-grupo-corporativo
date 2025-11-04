@@ -64,20 +64,29 @@ export default class LoginComponent {
         try {
           const rolId = authData?.data.user?.rolId || authData?.data.user?.rol?.rolId || '';
           if (rolId) {
+            this.authService.setAccesosLoading(true);
             const accesosResp = await this.accesoService.getAccesosByRol(rolId);
             if (accesosResp?.data) {
+              // Persistir y actualizar signal para que el menú lateral reaccione sin refresh
               localStorage.setItem('accesos', JSON.stringify(accesosResp.data));
+              this.authService.updateAccesos(accesosResp.data);
             } else {
               // Asegurar que no haya datos obsoletos
               localStorage.removeItem('accesos');
+              this.authService.updateAccesos([]);
             }
+            this.authService.setAccesosLoading(false);
           } else {
             // Si no hay rol, limpiar accesos previos
             localStorage.removeItem('accesos');
+            this.authService.updateAccesos([]);
+            this.authService.setAccesosLoading(false);
           }
         } catch (_) {
           // En caso de error ya hay notificación desde el servicio; limpiar accesos
           localStorage.removeItem('accesos');
+          this.authService.updateAccesos([]);
+          this.authService.setAccesosLoading(false);
         }
 
         this.errorObj.set({

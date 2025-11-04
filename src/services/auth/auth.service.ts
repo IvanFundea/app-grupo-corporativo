@@ -19,8 +19,10 @@ export class AuthService extends HttpService {
   // Signal para el estado del usuario
   private _user = signal<IUsuario>(this.loadUserFromStorage());
   private _accesos = signal<IAcceso[]>(this.loadAccesosFromStorage());
+  private _accesosLoading = signal<boolean>(false);
   public user = this._user.asReadonly();
   public accesos = this._accesos.asReadonly();
+  public accesosLoading = this._accesosLoading.asReadonly();
 
   constructor(http: HttpClient, private toastr: ToastrService) {
     super(http);
@@ -87,6 +89,17 @@ export class AuthService extends HttpService {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
+  /** Actualizar accesos en memoria y storage */
+  updateAccesos(accesos: IAcceso[]) {
+    this._accesos.set(accesos || []);
+    localStorage.setItem('accesos', JSON.stringify(accesos || []));
+  }
+
+  /** Cambiar estado de carga de accesos */
+  setAccesosLoading(loading: boolean) {
+    this._accesosLoading.set(loading);
+  }
+
   get token(): string | null {
     return localStorage.getItem('token');
   }
@@ -133,5 +146,6 @@ export class AuthService extends HttpService {
     // Resetear signal del usuario
     this._user.set(this.loadUserFromStorage());
     this._accesos.set(this.loadAccesosFromStorage());
+    this._accesosLoading.set(false);
   }
 }
