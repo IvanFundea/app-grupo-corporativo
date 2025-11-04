@@ -38,7 +38,7 @@ interface CabeceraRow {
 @Component({
   selector: 'app-home-movimientos',
   standalone: true,
-  imports: [RouterLink, CustomIconComponent, DatePipe],
+  imports: [RouterLink, CustomIconComponent, DatePipe, DecimalPipe],
   templateUrl: './home-movimientos.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
