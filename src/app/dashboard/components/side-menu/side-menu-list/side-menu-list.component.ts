@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { CustomIconComponent } from '../../../../shared/components/custom-icon/custom-icon.component';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../../services/auth/auth.service';
+import { IAcceso } from '../../../../../interfaces/auth';
 
 @Component({
   selector: 'app-side-menu-list',
@@ -16,6 +17,9 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
   authService = inject(AuthService); 
   usuario = this.authService.getUserStorage();
   esAdmin = signal(false);
+  prefix = '/dashboard/'
+
+  accesos = signal<IAcceso[]>(this.authService.getAccesosStorage());
   
   // Mapeo dinámico de rutas a acordeones
   private routeToAccordionMap: { [key: string]: string } = {
