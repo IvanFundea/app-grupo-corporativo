@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { CanActivate, Router, UrlTree, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { IAcceso } from '../../../interfaces/auth';
 
@@ -9,7 +9,7 @@ export class AccessGuard implements CanActivate {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(): boolean | UrlTree {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
     // Si no está autenticado, deja que el AuthGuard se encargue en rutas protegidas
     if (!this.authService.isAuthenticated()) {
       return this.router.createUrlTree(['/login']);
@@ -19,20 +19,43 @@ export class AccessGuard implements CanActivate {
     const user = this.authService.getUserStorage();
     if (user?.rol?.esAdmin) return true;
 
-    const url = this.normalizeUrl(this.router.url);
+  // Usar la URL de destino del snapshot, no this.router.url (que es la URL actual)
+  const url = this.normalizeUrl(state.url);
 
     // Obtener accesos almacenados
     const accesos: IAcceso[] = this.authService.getAccesosStorage() || [];
 
-    // Construir set de rutas permitidas a partir de submenús
-    const allowed = new Set(
-      accesos.flatMap(a => (a.subMenus || [])
-        .map(s => this.normalizeUrl(this.prefix + (s.menu?.pathWeb || '')))
-      )
-    );
+    // Extraer la parte de la URL después de '/dashboard/' para facilitar comparaciones
+  const rest = url.startsWith(this.prefix) ? url.slice(this.prefix.length) : url.replace(/^\/+/, '');
+  
 
-    // Coincidencia exacta o inicio de subruta
-    const isAllowed = Array.from(allowed).some(p => url === p || url.startsWith(p + '/'));
+    // Comprobar si algún subMenu coincide con la ruta solicitada (flexible)
+    const isAllowed = accesos.some(a => {
+        return (
+            a.subMenus || []).some(s => {
+                const raw = (s.menu?.pathWeb || '').replace(/^\/+|\/+$/g, '');
+                
+        if (!raw) return false;
+  
+        // Casos a considerar:
+        // - raw === rest (exacto)
+        // - rest startsWith raw + '/' (subruta)
+        // - rest endsWith raw (cuando pathWeb solo es el segmento final)
+        // - rest includes '/' + raw + '/' (raw dentro de la ruta)
+        if (rest === raw) return true;
+        if (rest.startsWith(raw + '/')) return true;
+        if (rest.endsWith('/' + raw)) return true;
+        if (rest.includes('/' + raw + '/')) return true;
+  
+        // También comparar con prefix + raw (normalizado) por compatibilidad
+        const candidate = this.normalizeUrl(this.prefix + raw);
+        if (url === candidate) return true;
+        if (url.startsWith(candidate + '/')) return true;
+  
+        return false;
+      }
+        );
+    });
 
     return isAllowed ? true : this.router.createUrlTree(['/401']);
   }
