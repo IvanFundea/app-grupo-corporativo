@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../services/auth/guards/auth-guard';
+import { AccessGuard } from '../services/auth/guards/access-guard';
 // import { AccessGuard } from './auth/guards/access-guard';
 
 export const routes: Routes = [
@@ -27,7 +28,7 @@ export const routes: Routes = [
             },
             {
                 path: 'config',
-                // canActivate: [AccessGuard]
+                canActivate: [AccessGuard],
                 children: [
                     {
                         path: 'menus',
@@ -58,7 +59,7 @@ export const routes: Routes = [
             {
                 path: 'tesoreria',
                 //loadComponent: () => import('./tesoreria/pages/tesoreria-home/tesoreria-home'),
-                // canActivate: [AccessGuard]
+                canActivate: [AccessGuard],
                 children: [
                     {
                         path: '',
