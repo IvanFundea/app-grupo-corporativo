@@ -22,6 +22,17 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
   accesos = this.authService.accesos;
   accesosLoading = this.authService.accesosLoading;
   
+  // Efecto: cuando cambian los accesos, reconstruir mapa de rutas y verificar acordeones
+  // Se crea como inicializador de campo para ejecutarse en un contexto de inyección (constructor/field initializer)
+  private _accesosEffect = effect(() => {
+    const _ = this.accesos();
+    // Esperar a que Angular pinte el DOM con los nuevos enlaces
+    setTimeout(() => {
+      this.buildRouteMapFromHTML();
+      this.checkActiveRoutes(this.router.url);
+    }, 0);
+  });
+
   // Mapeo dinámico de rutas a acordeones
   private routeToAccordionMap: { [key: string]: string } = {
     // Tesorería
@@ -47,15 +58,6 @@ export class SideMenuListComponent implements OnInit, AfterViewInit {
 
     this.esAdmin.set(this.usuario?.rol?.esAdmin || false);
 
-    // Efecto: cuando cambian los accesos, reconstruir mapa de rutas y verificar acordeones
-    effect(() => {
-      const _ = this.accesos();
-      // Esperar a que Angular pinte el DOM con los nuevos enlaces
-      setTimeout(() => {
-        this.buildRouteMapFromHTML();
-        this.checkActiveRoutes(this.router.url);
-      }, 0);
-    });
   }
 
   ngAfterViewInit() {

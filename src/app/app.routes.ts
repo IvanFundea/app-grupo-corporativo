@@ -70,6 +70,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./tesoreria/pages/home-movimientos/home-movimientos'),
                     },
                     {
+                        path: 'resumen-cuentas-readonly',
+                        loadComponent: () => import('./tesoreria/pages/resumen-movimientos-readonly/resumen-movimientos-readonly'),
+                    },
+                    {
                         path: 'tipo-moneda',
                         loadComponent: () => import('./tesoreria/pages/tipo-moneda-page/tipo-moneda-page'),
                     },
