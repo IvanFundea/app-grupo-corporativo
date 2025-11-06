@@ -38,7 +38,7 @@ export class UpsertCuentaBancariaComponent {
         tipoCuenta: [c?.tipoCuenta ?? '', [Validators.required]],
         tipoMonedaId: [c?.tipoMonedaId ?? '', [Validators.required]],
         descripcion: [c?.descripcion ?? ''],
-        saldoBanco: [c?.saldoBanco ?? 0],
+        saldoBanco: [c?.saldoBanco ?? 0, [Validators.required]],
       });
 
       if (isNuevo) {
