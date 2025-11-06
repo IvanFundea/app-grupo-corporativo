@@ -97,6 +97,10 @@ export const routes: Routes = [
                         path: 'asignar-contadores',
                         loadComponent: () => import('./tesoreria/pages/asignar-contadores/asignar-contadores'),
                     },
+                    {
+                        path: 'cierres',
+                        loadComponent: () => import('./tesoreria/pages/cierres-page/cierres-page'),
+                    },
                 ]
             },
             // {

@@ -83,10 +83,23 @@ export default class HomeMovimientosPageComponent {
     const d = new Date();
     // d.setDate(d.getDate() - 1); // ayer por defecto
     // Obtener la cantidad de dias atras desde la tabla de configuraciones
-    let resp = await this.configService.getConfigPorLlave('dias_atras_movimientos');
+    let resp = await this.configService.getConfigPorLlave('fecha_apertura');
     if (resp?.success) {
-      let diasAtras = Number(resp?.data.valor) || 1;
-      d.setDate(d.getDate() - diasAtras); 
+      const valor = resp?.data?.valor;
+      if (typeof valor === 'string') {
+        const posibleFecha = new Date(valor + 'T00:00:00');
+        if (!isNaN(posibleFecha.getTime()) && /^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+          // Si valor es una fecha ISO (YYYY-MM-DD), usarla como fecha seleccionada
+          d.setTime(posibleFecha.getTime());
+        } else {
+          // Si no es fecha, tratar como número de días atrás
+          const diasAtras = Number(valor) || 1;
+          d.setDate(d.getDate() - diasAtras);
+        }
+      } else {
+        const diasAtras = Number(resp?.data?.valor) || 1;
+        d.setDate(d.getDate() - diasAtras);
+      }
     } else {
       d.setDate(d.getDate() - (environment.diasAtrasMovimientos || 1)); 
     }
