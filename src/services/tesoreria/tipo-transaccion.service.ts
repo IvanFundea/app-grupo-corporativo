@@ -46,7 +46,9 @@ export class TipoTransaccionService extends HttpService {
   async createTipoTransaccion(data: Omit<ITipoTransaccion, 'tipoTransaccionId'>): Promise<TipoTransaccionResponse | null> {
     try {
       const { nombre, tipo, flotante, remediacion } = data;
-      const resp = await firstValueFrom(this.post<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}`, { nombre, tipo, flotante, remediacion }));
+      // Al crear, enviamos orden = 100 para que el API lo reemplace por el valor máximo de la tabla
+      const payload = { nombre, tipo, flotante, remediacion, orden: 100 };
+      const resp = await firstValueFrom(this.post<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}`, payload));
       if (resp.body?.success) {
         this.toastr.success(resp.body.message, 'Éxito');
         return resp.body;
@@ -62,7 +64,9 @@ export class TipoTransaccionService extends HttpService {
   async updateTipoTransaccion(data: ITipoTransaccion): Promise<TipoTransaccionResponse | null> {
     try {
       const { tipoTransaccionId, nombre, tipo, flotante, remediacion } = data;
-      const resp = await firstValueFrom(this.put<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}/${tipoTransaccionId}`, { nombre, tipo, flotante, remediacion }));
+      // No enviamos 'orden' en la actualización: el campo orden no es actualizable por input
+      const payload = { nombre, tipo, flotante, remediacion };
+      const resp = await firstValueFrom(this.put<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}/${tipoTransaccionId}`, payload));
       if (resp.body?.success) {
         this.toastr.success(resp.body.message, 'Éxito');
         return resp.body;
@@ -71,6 +75,24 @@ export class TipoTransaccionService extends HttpService {
     } catch (error: any) {
       console.log('TipoTransaccionService.updateTipoTransaccion error:', error);
       this.toastr.error(error?.error?.message || 'Error al actualizar transacción', 'Error');
+      return null;
+    }
+  }
+
+  // Actualiza únicamente el orden (usado por drag & drop). El backend debe reacomodar el resto.
+  async updateOrdenTipoTransaccion(tipoTransaccionId: string, orden: number): Promise<TipoTransaccionResponse | null> {
+    try {
+      const resp = await firstValueFrom(
+        this.put<TipoTransaccionResponse>(`${this.endpoints.tipoTransaccion}/${tipoTransaccionId}`, { orden })
+      );
+      if (resp.body?.success) {
+        this.toastr.success(resp.body.message || 'Orden actualizado', 'Éxito');
+        return resp.body;
+      }
+      return null;
+    } catch (error: any) {
+      console.log('TipoTransaccionService.updateOrdenTipoTransaccion error:', error);
+      this.toastr.error(error?.error?.message || 'Error al actualizar orden', 'Error');
       return null;
     }
   }

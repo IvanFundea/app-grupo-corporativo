@@ -6,7 +6,7 @@ import { TipoTransaccionService } from '../../../../services/tesoreria/tipo-tran
 import { ITipoTransaccion } from '../../../../interfaces/tesoreria';
 import { UpsertTipoTransaccionComponent } from '../../components/upsert-tipo-transaccion/upsert-tipo-transaccion';
 
-const emptyTipo: ITipoTransaccion = { tipoTransaccionId: '', nombre: '', tipo: 'DEBITO', flotante: false, remediacion: false };
+const emptyTipo: ITipoTransaccion = { tipoTransaccionId: '', nombre: '', tipo: 'DEBITO', flotante: false, remediacion: false, orden:100 };
 
 @Component({
   selector: 'app-tipo-transaccion-page',
@@ -28,6 +28,9 @@ export default class TipoTransaccionPageComponent {
   formKey = signal(Date.now());
   modal = signal({ titulo: 'Crear Tipo', visible: false });
 
+  // Drag & Drop state
+  private dragTipo: ITipoTransaccion | null = null;
+
   @ViewChild('upsertModal', { static: true }) upsertModal!: ElementRef<HTMLDivElement>;
   @ViewChild('deleteModal', { static: true }) deleteModal!: ElementRef<HTMLDivElement>;
 
@@ -43,6 +46,28 @@ export default class TipoTransaccionPageComponent {
     if (typeof window !== 'undefined' && (window as any).HSStaticMethods) {
       setTimeout(() => (window as any).HSStaticMethods.autoInit(), 100);
     }
+  }
+
+  // Drag & Drop handlers (similar a accesos-page)
+  onRowDragOver(ev: DragEvent) { ev.preventDefault(); }
+  onRowDragStart(item: ITipoTransaccion) { this.dragTipo = item; }
+  async onRowDrop(targetIndex: number) {
+    if (!this.dragTipo) return;
+    const count = (this.list() || []).length;
+    if (targetIndex < 0 || targetIndex >= count) { this.dragTipo = null; return; }
+
+    // Calcular el orden absoluto considerando la paginación actual
+    const base = (this.pagination().page - 1) * this.pagination().pageSize;
+    const newOrden = base + targetIndex + 1;
+
+    // Evitar llamadas innecesarias si no cambia
+    if (this.dragTipo.orden === newOrden) { this.dragTipo = null; return; }
+
+    if (this.dragTipo.tipoTransaccionId) {
+      await this.service.updateOrdenTipoTransaccion(this.dragTipo.tipoTransaccionId, newOrden);
+      await this.fetchData();
+    }
+    this.dragTipo = null;
   }
 
   async fetchData() {

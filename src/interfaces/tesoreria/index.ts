@@ -32,6 +32,7 @@ export interface ITipoTransaccion {
   tipo: TipoTransaccionTipo;
   flotante: boolean;
   remediacion: boolean;
+  orden: number;
 }
 
 export interface IBanco {
@@ -84,4 +85,11 @@ export interface IMovimientoBancarioDet {
   created_at: Date;
   updated_at?: Date;
   deleted_at?: Date;
+}
+
+export interface LogCierres {
+  cierreId: string;   // UUID
+  fecha: Date;        // Fecha del cierre
+  usuario: string;    // Usuario que registró
+  createdAt: Date;    // Fecha de creación
 }
