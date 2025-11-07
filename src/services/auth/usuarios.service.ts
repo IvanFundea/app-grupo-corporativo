@@ -13,6 +13,7 @@ type UsuarioListResponse = ApiResponse<IUsuario[]>;
 export class UsuariosService extends HttpService {
   private readonly endpoints = {
     usuarios: '/auth/usuarios',
+    cambiarClave: '/auth/usuarios/cambiar-clave'
   };
 
   constructor(http: HttpClient, private toastr: ToastrService) {
@@ -93,6 +94,21 @@ export class UsuariosService extends HttpService {
     } catch (error: any) {
       console.log('🚀 ~ UsuariosService ~ deleteUsuario ~ error:', error);
       this.toastr.error(error?.error?.message || 'Error al eliminar usuario', 'Error');
+      return null;
+    }
+  }
+
+  async cambiarClave(usuarioId: string, claveAnterior: string, claveNueva: string): Promise<ApiResponse | null> {
+    try {
+      const resp = await firstValueFrom(this.post<ApiResponse>(`${this.endpoints.cambiarClave}`, { usuarioId, claveAnterior, claveNueva }));
+      if (resp.body?.success) {
+        this.toastr.success(resp.body.message || 'Contraseña actualizada', 'Éxito');
+        return resp.body;
+      }
+      return null;
+    } catch (error: any) {
+      console.log('🚀 ~ UsuariosService ~ cambiarClave ~ error:', error);
+      this.toastr.error(error?.error?.message || 'Error al cambiar contraseña', 'Error');
       return null;
     }
   }

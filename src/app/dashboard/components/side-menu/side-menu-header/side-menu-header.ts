@@ -40,4 +40,9 @@ export class SideMenuHeaderComponent {
     this.router.navigate(['/login']);
   }
 
+  openProfile(event?: Event) {
+    event?.preventDefault();
+    this.router.navigate(['/dashboard/mi-perfil']);
+  }
+
 }

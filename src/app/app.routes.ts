@@ -27,6 +27,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./test/pages/test-page/test-page'),
             },
             {
+                path: 'mi-perfil',
+                loadComponent: () => import('./auth/pages/mi-perfil-page/mi-perfil-page'),
+            },
+            {
                 path: 'config',
                 canActivate: [AccessGuard],
                 children: [

@@ -5,7 +5,6 @@ import { CustomIconComponent } from '../../components/custom-icon/custom-icon.co
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [RouterLink, CustomIconComponent],
   templateUrl: './home-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

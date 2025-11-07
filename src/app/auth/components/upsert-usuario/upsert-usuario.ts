@@ -27,6 +27,7 @@ export class UpsertUsuarioComponent {
   puestos = input<IPuesto[]>([]);
   nuevo = input<boolean>(true);
   key = input<number>(0);
+  autoEdit = input<boolean>(false);
 
   @Output() save = new EventEmitter<IUsuario>();
   @Output() cancel = new EventEmitter<void>();
