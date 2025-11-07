@@ -11,7 +11,7 @@ import { TipoTransaccionService } from '../../../../services/tesoreria/tipo-tran
 import { IBanco, ICuentaBancaria, IEmpresa, ITipoMoneda, ITipoTransaccion, TipoTransaccionTipo } from '../../../../interfaces/tesoreria';
 import { environment } from '../../../../environments/environment';
 import { ConfigService } from '../../../../services/auth/config.service';
-import { FilesExportService } from '../../../../services/tesoreria/files-export.service';
+import { FilesExportService } from '../../../../services/files-export.service';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 
 interface AccountRow {
