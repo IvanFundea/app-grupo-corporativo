@@ -14,6 +14,8 @@
     <div class="flex items-center gap-2">
       <button (click)="openEdit()" class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">Editar perfil</button>
       <button (click)="openPasswordModal()" class="px-4 py-2 text-sm bg-amber-600 text-white rounded hover:bg-amber-700">Cambiar contraseña</button>
+      <button (click)="onChangePhotoClick()" class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">Cambiar foto</button>
+      <input #photoInput type="file" accept="image/png, image/jpeg" class="hidden" (change)="onPhotoSelected($event)" />
     </div>
   </div>
 

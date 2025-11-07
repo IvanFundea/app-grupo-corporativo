@@ -1,10 +1,11 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpService } from '../HttpService';
 import { firstValueFrom } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { ApiResponse } from '../../interfaces/api-response';
 import { IAcceso, ILogin, IUsuario } from '../../interfaces/auth';
+import { environment } from '../../environments/environment';
 
 type LoginResponse = ApiResponse<ILogin>;
 
@@ -24,14 +25,26 @@ export class AuthService extends HttpService {
   public accesos = this._accesos.asReadonly();
   public accesosLoading = this._accesosLoading.asReadonly();
 
+  private httpClient: HttpClient;
   constructor(http: HttpClient, private toastr: ToastrService) {
     super(http);
+    this.httpClient = http;
   }
 
   /** Cargar usuario desde localStorage (si existe) */
   private loadUserFromStorage(): IUsuario {
     const user = localStorage.getItem('user');
-    if (user) return JSON.parse(user);
+    if (user) {
+      const parsed: IUsuario = JSON.parse(user);
+      // Si existe una foto cacheada en localStorage, úsala
+      if (parsed?.userName) {
+        const cached = localStorage.getItem(`fotoPerfil:${parsed.userName}`);
+        if (cached && cached.startsWith('data:')) {
+          parsed.fotoUrl = cached as any;
+        }
+      }
+      return parsed;
+    }
 
     // Usuario "vacío"
     return {
@@ -113,7 +126,9 @@ export class AuthService extends HttpService {
       const resp = await firstValueFrom(this.post<LoginResponse>(this.endpoints.login, data));
       if (resp.body?.success) {
         if (resp.body.data.user) {
-          this.updateUser(resp.body.data.user);
+          // Guardar usuario y, si tiene foto, descargarla y cachearla en localStorage
+          const user = resp.body.data.user;
+          await this.fetchAndApplyUserPhoto(user);
         }
         return resp.body;
       }
@@ -123,6 +138,75 @@ export class AuthService extends HttpService {
       this.toastr.error(error?.error?.message || 'Error al iniciar sesión', 'Error');
       return null;
     }
+  }
+
+  /**
+   * Si el usuario posee fotoUrl, intenta descargarla desde el backend,
+   * la convierte a dataURL y la almacena en localStorage bajo clave `fotoPerfil:<userName>`.
+   * También actualiza el usuario en memoria con la dataURL para uso inmediato en la UI.
+   */
+  async fetchAndApplyUserPhoto(user: IUsuario): Promise<IUsuario> {
+    try {
+      if (!user?.fotoUrl) {
+        this.updateUser(user);
+        return user;
+      }
+      // Si ya es un dataURL, solo persistimos
+      if (typeof user.fotoUrl === 'string' && user.fotoUrl.startsWith('data:')) {
+        this.updateUser(user);
+        return user;
+      }
+
+      const fotoPath = String(user.fotoUrl || '').trim();
+      if (!fotoPath) {
+        this.updateUser(user);
+        return user;
+      }
+
+      // Construir URL para obtener la foto:
+      // - Si es absoluta (http/https), usarla tal cual
+      // - Si NO tiene '/', asumir que es el filename y pegar a /auth/usuarios/perfil/:fileName
+      // - Si tiene '/', tratarlo como ruta relativa al apiPath
+      let url: string;
+      const isAbsolute = /^https?:\/\//i.test(fotoPath);
+      if (isAbsolute) {
+        url = fotoPath;
+      } else if (!fotoPath.includes('/')) {
+        url = `${environment.apiPath}/files/perfil/${encodeURIComponent(fotoPath)}`;
+      } else {
+        const relative = fotoPath.startsWith('/') ? fotoPath : `/${fotoPath}`;
+        url = `${environment.apiPath}${relative}`;
+      }
+
+      // Preparar headers con token; NO forzar Content-Type
+      const token = localStorage.getItem('token') || '';
+      const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+      const blob = await firstValueFrom(
+        this.httpClient.get(url, { headers, responseType: 'blob' as const })
+      );
+
+      const dataUrl = await this.blobToDataURL(blob);
+      if (user.userName) {
+        localStorage.setItem(`fotoPerfil:${user.userName}`, dataUrl);
+      }
+      const updated = { ...user, fotoUrl: dataUrl } as IUsuario;
+      this.updateUser(updated);
+      return updated;
+    } catch (e) {
+      // Si falla la descarga, dejamos el user como está
+      this.updateUser(user);
+      return user;
+    }
+  }
+
+  private blobToDataURL(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(String(reader.result));
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 
   /** Verifica en el backend si el token sigue siendo válido */

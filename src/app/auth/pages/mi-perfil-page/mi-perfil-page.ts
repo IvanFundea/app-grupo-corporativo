@@ -36,6 +36,7 @@ export default class MiPerfilPageComponent {
 
   @ViewChild('upsertModal', { static: true }) upsertModal!: ElementRef<HTMLDivElement>;
   @ViewChild('passwordModal', { static: true }) passwordModal!: ElementRef<HTMLDivElement>;
+  @ViewChild('photoInput', { static: false }) photoInput!: ElementRef<HTMLInputElement>;
 
   async ngOnInit() {
     // Cargar roles y puestos para el modal de edición del perfil
@@ -45,6 +46,38 @@ export default class MiPerfilPageComponent {
     ]);
     if (r?.success) this.roles.set(r.data || []);
     if (p?.success) this.puestos.set(p.data || []);
+  }
+
+  onChangePhotoClick() {
+    if (this.photoInput) this.photoInput.nativeElement.click();
+  }
+
+  async onPhotoSelected(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    // Validar tipo simple en frontend
+    if (!/^image\/(png|jpeg|jpg)$/.test(file.type)) {
+      alert('Formato no permitido. Solo PNG/JPG/JPEG');
+      input.value = '';
+      return;
+    }
+    // Tamaño máximo 5MB coherente con backend
+    if (file.size > 5 * 1024 * 1024) {
+      alert('El archivo supera 5MB');
+      input.value = '';
+      return;
+    }
+    const userName = this.user()?.userName || '';
+    if (!userName) return;
+    const resp = await this.usuariosService.uploadPerfil(file, userName);
+    if (resp?.success && resp.data?.filename) {
+      // Guardamos solo el filename en fotoUrl para usar el endpoint /auth/usuarios/perfil/:fileName
+      const filename = resp.data.filename;
+      const updatedTemp = { ...this.user(), fotoUrl: filename } as any;
+      await this.auth.fetchAndApplyUserPhoto(updatedTemp); // descarga y cachea como dataURL
+    }
+    input.value = '';
   }
 
   get avatarUrl(): string {
