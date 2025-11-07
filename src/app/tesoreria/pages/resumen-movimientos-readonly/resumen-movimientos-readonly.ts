@@ -11,6 +11,8 @@ import { TipoTransaccionService } from '../../../../services/tesoreria/tipo-tran
 import { IBanco, ICuentaBancaria, IEmpresa, ITipoMoneda, ITipoTransaccion, TipoTransaccionTipo } from '../../../../interfaces/tesoreria';
 import { environment } from '../../../../environments/environment';
 import { ConfigService } from '../../../../services/auth/config.service';
+import { FilesExportService } from '../../../../services/tesoreria/files-export.service';
+import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 
 interface AccountRow {
   empresa: IEmpresa;
@@ -37,7 +39,7 @@ interface CabeceraRow {
 @Component({
   selector: 'app-home-movimientos-readonly',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, CustomIconComponent],
   templateUrl: './resumen-movimientos-readonly.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -51,6 +53,7 @@ export default class ResumenMovimientosReadonlyPageComponent {
   private monedaService = inject(TipoMonedaService);
   private configService = inject(ConfigService);
   private tipoTxService = inject(TipoTransaccionService);
+  private filesExport = inject(FilesExportService);
 
   // Catálogos
   empresas = signal<IEmpresa[]>([]);
@@ -74,6 +77,7 @@ export default class ResumenMovimientosReadonlyPageComponent {
   // Tabla
   rows = signal<AccountRow[]>([]);
   isLoading = signal<boolean>(false);
+  isExporting = signal<boolean>(false);
 
   async ngOnInit() {
     const d = new Date();
@@ -181,6 +185,22 @@ export default class ResumenMovimientosReadonlyPageComponent {
       this.endFechaISO.set(inicio);
     }
     await this.refreshRows();
+  }
+
+  async onExport() {
+    const inicio = this.startFechaISO();
+    const fin = this.endFechaISO();
+    if (!inicio || !fin) return;
+    let fi = inicio, ff = fin;
+    if (fi > ff) {
+      const tmp = fi; fi = ff; ff = tmp;
+    }
+    this.isExporting.set(true);
+    try {
+      await this.filesExport.guardarCabecerasRango(fi, ff);
+    } finally {
+      this.isExporting.set(false);
+    }
   }
 
 

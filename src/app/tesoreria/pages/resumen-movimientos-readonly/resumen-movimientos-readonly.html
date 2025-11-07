@@ -40,9 +40,9 @@
      [attr.max]="fechaCierre()"
      (change)="onFechaFinalChange($any($event.target).value)" />
       </div>
-      <div class="flex lg:justify-start justify-end">
+      <div class="flex lg:justify-start justify-end gap-2">
         <button type="button" (click)="onBuscar()" [disabled]="isLoading() || !endFechaISO() || !startFechaISO()"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50">
+          class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-800 disabled:opacity-50">
           @if (isLoading()) {
             <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -51,6 +51,18 @@
             Cargando ...
           } @else {
             Buscar
+          }
+        </button>
+        <button type="button" (click)="onExport()" [disabled]="isExporting() || isLoading() || !endFechaISO() || !startFechaISO()"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50">
+          @if (isExporting()) {
+            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            Exportando ...
+          } @else {
+            <app-custom-icon [name]="'file-spreadsheet'" [color]="'#fff'" [size]="16"></app-custom-icon> Exportar
           }
         </button>
       </div>
@@ -86,7 +98,7 @@
               <td colspan="10" class="px-3 py-6 text-center text-gray-500">Sin resultados</td>
             </tr>
           } @else {
-            @for (r of (cabeceras() || []); track r.cuentaBancariaId) {
+            @for (r of (cabeceras() || []); track r.id) {
               <tr class="">
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.fecha | date:'dd/MM/yyyy' }}</td>
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.empresa }}</td>
