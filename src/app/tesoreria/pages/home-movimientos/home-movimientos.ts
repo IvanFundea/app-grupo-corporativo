@@ -151,7 +151,6 @@ export default class HomeMovimientosPageComponent {
     this.isLoading.set(true);
     this.isLoading.set(false);  // ELIMINAR
     const fecha = this.selectedFechaISO();
-    const tiposMap = new Map(this.tipos().map(t => [t.tipoTransaccionId, t.tipo] as [string, TipoTransaccionTipo]));
 
     const empresasMap = new Map((this.empresas() || []).map(e => [e.empresaId, e] as [string, IEmpresa]));
     const bancosMap = new Map((this.bancos() || []).map(b => [b.bancoId, b] as [string, IBanco]));
@@ -165,16 +164,15 @@ export default class HomeMovimientosPageComponent {
       const empresa = empresasMap.get(c.empresaId)!;
       const banco = bancosMap.get(c.bancoId)!;
       const cuentaNumero = c.numero || '';
-      const saldoBanco = c.saldoBanco || 0;
 
       if (cabResp?.success && cabResp.data) {
         const cab = cabResp.data;
-        const saldoAnterior = (cab.saldoInicial as number) || 0;
         const debitos = (cab.totalDebitos as number) || 0;
         const creditos = (cab.totalCreditos as number) || 0;
         const flotante = cab.totalFlotante || 0;
-        const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos + flotante);
         const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);
+        const saldoAnterior = (cab.saldoInicial as number) || cabReciente?.data?.saldoFinal || 0;
+        const saldoDisponible = saldoAnterior + creditos - debitos;
         newCabeceras.push({
           cabeceraId: cab.cabeceraId || ``,
           empresaId: c.empresaId,
@@ -183,7 +181,7 @@ export default class HomeMovimientosPageComponent {
           empresaNombre: empresa?.nombre || '',
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
-          saldoAnterior: saldoAnterior ? saldoAnterior : cabReciente?.data?.saldoFinal || 0,
+          saldoAnterior: saldoAnterior,
           debitos,
           creditos,
           saldoDisponible,
