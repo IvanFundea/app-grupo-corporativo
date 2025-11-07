@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination';
 import { BancoService } from '../../../../services/tesoreria/banco.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 import { IBanco } from '../../../../interfaces/tesoreria';
 import { UpsertBancoComponent } from '../../components/upsert-banco/upsert-banco';
 
@@ -21,11 +22,13 @@ const emptyBanco: IBanco = {
 })
 export default class BancoPageComponent {
   bancoService = inject(BancoService);
+  authService = inject(AuthService);
 
   bancos = signal<IBanco[]>([]);
   pagination = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
   buscador = signal('');
   isLoading = signal(false);
+  isAdmin = signal<boolean>(false);
 
   nuevoBanco = signal(true);
   bancoEdit = signal<IBanco>({ ...emptyBanco });
@@ -36,6 +39,8 @@ export default class BancoPageComponent {
   @ViewChild('deleteModal', { static: true }) deleteModal!: ElementRef<HTMLDivElement>;
 
   async ngOnInit() {
+    const user = this.authService.getUserStorage();
+    this.isAdmin.set(!!user?.rol?.esAdmin);
     this.fetchData();
   }
 

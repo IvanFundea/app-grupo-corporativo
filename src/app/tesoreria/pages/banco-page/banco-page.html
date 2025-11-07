@@ -59,9 +59,11 @@
                   <button (click)="openUpsertModal(false, b)" class="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">
                     <app-custom-icon [name]="'square-pen'" [color]="'#eee'" [size]="18"></app-custom-icon>
                   </button>
-                  <button (click)="openDeleteModal(b)" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">
-                    <app-custom-icon [name]="'trash-2'" [color]="'#eee'" [size]="18"></app-custom-icon>
-                  </button>
+                  @if (isAdmin()) {
+                    <button (click)="openDeleteModal(b)" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">
+                      <app-custom-icon [name]="'trash-2'" [color]="'#eee'" [size]="18"></app-custom-icon>
+                    </button>
+                  }
                 </td>
               </tr>
             }

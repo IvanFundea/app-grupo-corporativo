@@ -6,6 +6,7 @@ import { CuentaBancariaService } from '../../../../services/tesoreria/cuenta-ban
 import { BancoService } from '../../../../services/tesoreria/banco.service';
 import { EmpresaService } from '../../../../services/tesoreria/empresa.service';
 import { TipoMonedaService } from '../../../../services/tesoreria/tipo-moneda.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 import { IBanco, ICuentaBancaria, IEmpresa, ITipoMoneda } from '../../../../interfaces/tesoreria';
 import { UpsertCuentaBancariaComponent } from '../../components/upsert-cuenta-bancaria/upsert-cuenta-bancaria';
 
@@ -32,6 +33,7 @@ export default class CuentaBancariaPageComponent {
   bancoService = inject(BancoService);
   empresaService = inject(EmpresaService);
   tipoMonedaService = inject(TipoMonedaService);
+  authService = inject(AuthService);
 
   cuentas = signal<ICuentaBancaria[]>([]);
   bancos = signal<IBanco[]>([]);
@@ -42,6 +44,7 @@ export default class CuentaBancariaPageComponent {
   selectedEmpresaId = signal<string>('');
   selectedBancoId = signal<string>('');
   isLoading = signal(false);
+  isAdmin = signal<boolean>(false);
 
   nuevaCuenta = signal(true);
   cuentaEdit = signal<ICuentaBancaria>({ ...emptyCuenta });
@@ -52,6 +55,8 @@ export default class CuentaBancariaPageComponent {
   @ViewChild('deleteModal', { static: true }) deleteModal!: ElementRef<HTMLDivElement>;
 
   async ngOnInit() {
+    const user = this.authService.getUserStorage();
+    this.isAdmin.set(!!user?.rol?.esAdmin);
     await this.fetchCatalogos();
     this.fetchData();
   }

@@ -4,6 +4,7 @@ import { CustomIconComponent } from '../../../shared/components/custom-icon/cust
 import { PaginationComponent } from '../../../shared/components/pagination/pagination';
 import { EmpresaService } from '../../../../services/tesoreria/empresa.service';
 import { TipoMonedaService } from '../../../../services/tesoreria/tipo-moneda.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 import { IEmpresa, ITipoMoneda } from '../../../../interfaces/tesoreria';
 import { UpsertEmpresaComponent } from '../../components/upsert-empresa/upsert-empresa';
 
@@ -26,12 +27,14 @@ const emptyEmpresa: IEmpresa = {
 export default class EmpresaPageComponent {
   empresaService = inject(EmpresaService);
   tipoMonedaService = inject(TipoMonedaService);
+  authService = inject(AuthService);
 
   empresaList = signal<IEmpresa[]>([]);
   tipoMonedaList = signal<ITipoMoneda[]>([]);
   pagination = signal<IPagination>({ page: 1, pageSize: 10, totalItems: 0 });
   buscador = signal('');
   isLoading = signal(false);
+  isAdmin = signal<boolean>(false);
 
   nuevaEmpresa = signal(true);
   empresaEdit = signal<IEmpresa>({ ...emptyEmpresa });
@@ -42,6 +45,8 @@ export default class EmpresaPageComponent {
   @ViewChild('deleteModal', { static: true }) deleteModal!: ElementRef<HTMLDivElement>;
 
   async ngOnInit() {
+    const user = this.authService.getUserStorage();
+    this.isAdmin.set(!!user?.rol?.esAdmin);
     await this.fetchTipoMonedas();
     this.fetchData();
   }
