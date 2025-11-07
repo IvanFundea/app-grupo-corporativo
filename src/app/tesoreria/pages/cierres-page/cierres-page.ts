@@ -7,11 +7,12 @@ import { LogCierres } from '../../../../interfaces/tesoreria';
 import { LogCierresService } from '../../../../services/tesoreria/log-cierres.service';
 import { AuthService } from '../../../../services/auth/auth.service';
 import { ConfigService } from '../../../../services/auth/config.service';
+import { TimezoneDatePipe } from '../../../shared/pipes/timezone-date.pipe';
 
 @Component({
   selector: 'app-cierres-page',
   standalone: true,
-  imports: [RouterLink, DatePipe, CustomIconComponent, PaginationComponent, DatePipe],
+  imports: [RouterLink, DatePipe, CustomIconComponent, PaginationComponent, DatePipe, TimezoneDatePipe],
   templateUrl: './cierres-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -95,7 +95,7 @@
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
                 <div class="text-xs text-gray-500">Fecha</div>
-                <div class="text-xl font-bold text-red-500">{{ selectedFechaISO() | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xl font-bold text-red-500">{{ selectedFechaISO() | tzDate:'dd/MM/yyyy':'-0600' }}</div>
             </div>
         </div>
 
@@ -193,7 +193,7 @@
                             } @else {
                             @for (d of detallesDebito; track d.movimientoBancarioDetId) {
                             <tr class="odd:bg-white even:bg-gray-50 text-xs">
-                                <td class="px-3 py-2">{{ d.created_at | date:'shortTime' }}</td>
+                                <td class="px-3 py-2">{{ d.created_at | tzDate:'HH:mm':'-0600' }}</td>
                                                                 <td class="px-3 py-2">
                                                                         {{ getTipoNombre(d.tipoTransaccionId) }}
                                                                         @if (d.flotante) {
@@ -244,7 +244,7 @@
                             } @else {
                             @for (d of detallesCredito; track d.movimientoBancarioDetId) {
                             <tr class="odd:bg-white even:bg-gray-50 text-xs">
-                                <td class="px-3 py-2">{{ d.created_at | date:'shortTime' }}</td>
+                                <td class="px-3 py-2">{{ d.created_at | tzDate:'HH:mm':'-0600' }}</td>
                                                                 <td class="px-3 py-2">
                                                                         {{ getTipoNombre(d.tipoTransaccionId) }}
                                                                         @if (d.flotante) {
