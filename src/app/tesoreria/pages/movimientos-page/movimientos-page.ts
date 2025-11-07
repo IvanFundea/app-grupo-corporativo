@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 import { TimezoneDatePipe } from '../../../shared/pipes/timezone-date.pipe';
 import { AuthService } from '../../../../services/auth/auth.service';
@@ -15,7 +15,7 @@ import { IEmpresa, ICuentaBancaria, ITipoMoneda, ITipoTransaccion, TipoTransacci
 @Component({
   selector: 'app-movimientos-page',
   standalone: true,
-  imports: [RouterLink, CustomIconComponent, DatePipe, DecimalPipe, TimezoneDatePipe],
+  imports: [RouterLink, CustomIconComponent, DecimalPipe, TimezoneDatePipe],
   templateUrl: './movimientos-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

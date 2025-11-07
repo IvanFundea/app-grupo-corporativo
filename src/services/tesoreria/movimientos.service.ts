@@ -18,11 +18,35 @@ export class MovimientosService extends HttpService {
   private readonly endpoints = {
     base: '/tesoreria/movimiento-bancario',
     cabeceraExistente: '/tesoreria/movimiento-bancario/cabecera-filtros',
-    cabeceraReciente: '/tesoreria/movimiento-bancario/cabecera-reciente'
+    cabeceraReciente: '/tesoreria/movimiento-bancario/cabecera-reciente',
+    cabecerasRango: '/tesoreria/movimiento-bancario/cabeceras-rango'
   };
 
   constructor(http: HttpClient, private toastr: ToastrService) {
     super(http);
+  }
+
+  // Listar cabeceras por rango de fechas (estructura personalizada desde backend)
+  async listarCabecerasPorRango(params: {
+    fechaInicio: string;
+    fechaFin: string;
+    empresaId?: string;
+    bancoId?: string;
+    cuentaBancariaId?: string;
+  }): Promise<ApiResponse<any[]> | null> {
+    try {
+      // Por ahora, solo enviar fechas; filtros preparados para uso futuro
+      const { fechaInicio, fechaFin } = params;
+      const resp = await firstValueFrom(
+        this.get<ApiResponse<any[]>>(this.endpoints.cabecerasRango, { fechaInicio, fechaFin })
+      );
+      if (resp.body?.success) return resp.body;
+      return null;
+    } catch (error: any) {
+      console.log('MovimientosService.listarCabecerasPorRango error:', error);
+      this.toastr.error(error?.error?.message || 'Error al listar cabeceras por rango', 'Error');
+      return null;
+    }
   }
 
   // Crear detalle usando cabeceraId (backend ya no requiere empresa/banco)

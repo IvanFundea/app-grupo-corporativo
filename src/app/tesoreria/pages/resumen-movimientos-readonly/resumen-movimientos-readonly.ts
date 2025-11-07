@@ -8,7 +8,6 @@ import { CuentaBancariaService } from '../../../../services/tesoreria/cuenta-ban
 import { MovimientosService } from '../../../../services/tesoreria/movimientos.service';
 import { TipoMonedaService } from '../../../../services/tesoreria/tipo-moneda.service';
 import { TipoTransaccionService } from '../../../../services/tesoreria/tipo-transaccion.service';
-import { CustomIconComponent } from '../../../shared/components/custom-icon/custom-icon.component';
 import { IBanco, ICuentaBancaria, IEmpresa, ITipoMoneda, ITipoTransaccion, TipoTransaccionTipo } from '../../../../interfaces/tesoreria';
 import { environment } from '../../../../environments/environment';
 import { ConfigService } from '../../../../services/auth/config.service';
@@ -38,7 +37,7 @@ interface CabeceraRow {
 @Component({
   selector: 'app-home-movimientos-readonly',
   standalone: true,
-  imports: [RouterLink, CustomIconComponent, DatePipe, DecimalPipe],
+  imports: [RouterLink, DatePipe],
   templateUrl: './resumen-movimientos-readonly.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -59,7 +58,7 @@ export default class ResumenMovimientosReadonlyPageComponent {
   monedas = signal<ITipoMoneda[]>([]);
   tipos = signal<ITipoTransaccion[]>([]);
   // Cabeceras que se muestran en la tabla (por cuenta y fecha)
-  cabeceras = signal<CabeceraRow[]>([]);
+  cabeceras = signal<any[]>([]);
 
   // Todas las cuentas pertenecientes a las empresas del usuario
   cuentas = signal<ICuentaBancaria[]>([]);
@@ -67,18 +66,10 @@ export default class ResumenMovimientosReadonlyPageComponent {
   // Filtros
   selectedEmpresaId = signal<string>('');
   selectedBancoId = signal<string>('');
-  selectedFechaISO = signal<string>('');
-  fechaCierreISO = signal<string>('');
-  fechaDiaAnterior = computed(() => {
-    const fechaStr = this.selectedFechaISO();
-    // Defender: si no hay fecha o no es ISO (YYYY-MM-DD), no calcular
-    if (!fechaStr || !/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) return '';
-    const fecha = new Date(fechaStr + 'T00:00:00'); // forzar medianoche local para evitar desfases
-    if (isNaN(fecha.getTime())) return '';
-    fecha.setDate(fecha.getDate() - 1);
-    // toISOString siempre UTC; mantenemos formato YYYY-MM-DD
-    return fecha.toISOString().slice(0, 10);
-  });
+  // Rango de fechas (inicio y fin). Por compatibilidad, se usaba selectedFechaISO como "fecha final"
+  startFechaISO = signal<string>('');
+  endFechaISO = signal<string>('');
+  fechaCierre = signal<string>('');  
 
   // Tabla
   rows = signal<AccountRow[]>([]);
@@ -109,8 +100,11 @@ export default class ResumenMovimientosReadonlyPageComponent {
     } else {
       d.setDate(d.getDate() - (environment.diasAtrasMovimientos || 2));
     }
-    this.selectedFechaISO.set(d.toISOString().slice(0, 10));
-    this.fechaCierreISO.set(d.toISOString().slice(0, 10));
+    const endISO = d.toISOString().slice(0, 10);
+    this.endFechaISO.set(endISO);
+    this.fechaCierre.set(endISO);
+    // Por defecto, la fecha inicial = fecha final (puedes ajustar a un rango mayor si se requiere)
+    this.startFechaISO.set(endISO);
     this.loadInitial();
   }
 
@@ -144,109 +138,55 @@ export default class ResumenMovimientosReadonlyPageComponent {
     this.isLoading.set(false);
   }
 
-  // Devuelve la lista de cuentas luego de aplicar filtros
-  private get cuentasFiltradas(): ICuentaBancaria[] {
-    const empresaId = this.selectedEmpresaId();
-    const bancoId = this.selectedBancoId();
-    return (this.cuentas() || []).filter(c =>
-      (empresaId ? c.empresaId === empresaId : true) &&
-      (bancoId ? c.bancoId === bancoId : true)
-    );
-  }
 
   async refreshRows() {
     this.isLoading.set(true);
-    const fecha = this.selectedFechaISO();
+    const inicio = this.startFechaISO();
+    const fin = this.endFechaISO();
 
-    const empresasMap = new Map((this.empresas() || []).map(e => [e.empresaId, e] as [string, IEmpresa]));
-    const bancosMap = new Map((this.bancos() || []).map(b => [b.bancoId, b] as [string, IBanco]));
-
-    const cuentas = this.cuentasFiltradas;
-
-    const newCabeceras: CabeceraRow[] = [];
-    // Para cada cuenta obtener la cabecera de la fecha (si existe) y construir fila
-    await Promise.all(cuentas.map(async (c) => {
-      const cabResp = await this.movService.listarCabeceraPorFecha(c.cuentaBancariaId, fecha, c.empresaId);
-      const empresa = empresasMap.get(c.empresaId)!;
-      const banco = bancosMap.get(c.bancoId)!;
-      const cuentaNumero = c.numero || '';
-      const saldoBanco = c.saldoBanco || 0;
-
-      if (cabResp?.success && cabResp.data) {
-        const cab = cabResp.data;
-        const saldoAnterior = (cab.saldoInicial as number) || 0;
-        const debitos = (cab.totalDebitos as number) || 0;
-        const creditos = (cab.totalCreditos as number) || 0;
-        const flotante = cab.totalFlotante || 0;
-        const saldoDisponible = (cab.saldoFinal as number) ?? (saldoAnterior + creditos - debitos + flotante);
-        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);
-        newCabeceras.push({
-          cabeceraId: cab.cabeceraId || ``,
-          empresaId: c.empresaId,
-          cuentaBancariaId: c.cuentaBancariaId,
-          tipoMonedaBanco: c.tipoMonedaId || '',
-          empresaNombre: empresa?.nombre || '',
-          bancoNombre: banco?.nombre || '',
-          cuentaNumero,
-          saldoAnterior: saldoAnterior ? saldoAnterior : cabReciente?.data?.saldoFinal || 0,
-          debitos,
-          creditos,
-          saldoDisponible,
-          totalFlotante: flotante,
-          saldoFinal: cab.saldoFinal ? cab.saldoFinal : cabReciente?.data?.saldoFinal || 0,
-        });
-      } else {
-        // Cabecera no encontrada -> mostrar ceros        
-        const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);
-        newCabeceras.push({
-          cabeceraId: ``,
-          cuentaBancariaId: c.cuentaBancariaId,
-          tipoMonedaBanco: c.tipoMonedaId,
-          empresaId: c.empresaId,
-          empresaNombre: empresa?.nombre || '',
-          bancoNombre: banco?.nombre || '',
-          cuentaNumero,
-          saldoAnterior: cabReciente?.data?.saldoFinal || 0,
-          debitos: 0,
-          creditos: 0,
-          saldoDisponible: 0,
-          totalFlotante: 0,
-          saldoFinal: cabReciente?.data?.saldoFinal || 0,
-        });
-      }
-    }));
-
-    // Orden básico por empresa y banco
-    newCabeceras.sort((a, b) => (a.empresaNombre.localeCompare(b.empresaNombre) || a.bancoNombre.localeCompare(b.bancoNombre)));
-
-    this.cabeceras.set(newCabeceras);
+    const resp = await this.movService.listarCabecerasPorRango({ fechaInicio: inicio, fechaFin: fin });
+    if (resp?.success) {
+      const data = resp.data || [];
+      
+      this.cabeceras.set(data);
+    } else {
+      this.cabeceras.set([]);
+    }
     this.isLoading.set(false);
   }
 
   onEmpresaChange(id: string) {
     this.selectedEmpresaId.set(id);
-    this.refreshRows();
   }
 
   onBancoChange(id: string) {
     this.selectedBancoId.set(id);
-    this.refreshRows();
   }
 
-  onFechaChange(val: string) {
-    // Espera fecha en formato YYYY-MM-DD
-    this.selectedFechaISO.set(val);
-    this.refreshRows();
+  onFechaInicialChange(val: string) {
+    this.startFechaISO.set(val);
   }
 
-  getMonedaSimbolo(tipoMonedaId: string): string {
-    const m = (this.monedas() || []).find(x => x.tipoMonedaId === tipoMonedaId);
-    return m?.simbolo || '';
+  onFechaFinalChange(val: string) {
+    this.endFechaISO.set(val);
   }
+
+  // Acción explícita de búsqueda (de momento usa solo la fecha final)
+  async onBuscar() {
+    const inicio = this.startFechaISO();
+    const fin = this.endFechaISO();
+    if (inicio && fin && inicio > fin) {
+      // Intercambiar si el usuario invirtió el rango
+      this.startFechaISO.set(fin);
+      this.endFechaISO.set(inicio);
+    }
+    await this.refreshRows();
+  }
+
 
   irAModificar(row: CabeceraRow) {
     // Navegar a movimientos con contexto preseleccionado
-    const fecha = this.selectedFechaISO();
+    const fecha = this.endFechaISO();
     this.router.navigate(['/dashboard/tesoreria/movimientos'], {
       state: {
         empresaId: row.empresaId,
