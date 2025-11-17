@@ -101,7 +101,7 @@ export default class HomeMovimientosPageComponent {
         d.setDate(d.getDate() - diasAtras);
       }
     } else {
-      d.setDate(d.getDate() - (environment.diasAtrasMovimientos || 1)); 
+      d.setDate(d.getDate() - (environment.diasAtrasMovimientos || 1));
     }
     this.selectedFechaISO.set(d.toISOString().slice(0, 10));
     this.loadInitial();
@@ -171,7 +171,10 @@ export default class HomeMovimientosPageComponent {
         const creditos = (cab.totalCreditos as number) || 0;
         const flotante = cab.totalFlotante || 0;
         const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);
-        const saldoAnterior = (cab.saldoInicial as number) || cabReciente?.data?.saldoFinal || 0;
+        let saldoAnterior = (cab.saldoInicial as number);
+        if (!saldoAnterior && cabReciente?.success && cabReciente.data) {
+          saldoAnterior = Number(cabReciente?.data?.saldoInicial + cabReciente?.data?.totalCreditos - cabReciente?.data?.totalDebitos) || 0
+        }
         const saldoDisponible = saldoAnterior + creditos - debitos;
         newCabeceras.push({
           cabeceraId: cab.cabeceraId || ``,
@@ -186,11 +189,15 @@ export default class HomeMovimientosPageComponent {
           creditos,
           saldoDisponible,
           totalFlotante: flotante,
-          saldoFinal: cab.saldoFinal ? cab.saldoFinal : cabReciente?.data?.saldoFinal || 0,
+          saldoFinal: cab.saldoFinal ? cab.saldoFinal : saldoAnterior || 0,
         });
       } else {
         // Cabecera no encontrada -> mostrar ceros        
         const cabReciente = await this.movService.cabeceraMasReciente(c.cuentaBancariaId, fecha, c.empresaId);
+        let saldoAnterior = 0;
+        if (cabReciente?.success && cabReciente.data) {
+          saldoAnterior = Number(cabReciente?.data?.saldoInicial + cabReciente?.data?.totalCreditos - cabReciente?.data?.totalDebitos) || 0
+        }
         newCabeceras.push({
           cabeceraId: ``,
           cuentaBancariaId: c.cuentaBancariaId,
@@ -199,7 +206,7 @@ export default class HomeMovimientosPageComponent {
           empresaNombre: empresa?.nombre || '',
           bancoNombre: banco?.nombre || '',
           cuentaNumero,
-          saldoAnterior: cabReciente?.data?.saldoFinal || 0,
+          saldoAnterior: saldoAnterior,
           debitos: 0,
           creditos: 0,
           saldoDisponible: 0,
