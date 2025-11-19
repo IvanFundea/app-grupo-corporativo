@@ -76,12 +76,12 @@
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.empresaNombre }}</td>
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.bancoNombre }}</td>
                 <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ r.cuentaNumero }}</td>
-                <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoAnterior | number:'1.2-2'  }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-orange-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.debitos | number:'1.2-2' }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-blue-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.creditos | number:'1.2-2' }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-lime-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoDisponible | number:'1.2-2' }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-purple-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.totalFlotante | number:'1.2-2' }}</td>
-                <td class="px-3 py-2 text-right border border-gray-400 bg-gray-50">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoFinal  | number:'1.2-2'}}</td>
+                <td class="px-3 py-2 border border-gray-400 bg-gray-50">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoAnterior | number:'1.2-2':'en-US'  }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-orange-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.debitos | number:'1.2-2':'en-US' }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-blue-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.creditos | number:'1.2-2':'en-US' }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-lime-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoDisponible | number:'1.2-2':'en-US' }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-purple-100">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.totalFlotante | number:'1.2-2':'en-US' }}</td>
+                <td class="px-3 py-2 text-right border border-gray-400 bg-gray-50">{{ getMonedaSimbolo(r.tipoMonedaBanco)}}. {{ r.saldoFinal  | number:'1.2-2':'en-US'}}</td>
 
                 <!-- <td class="px-3 py-2 text-right">{{ getMonedaSimbolo(r.cuenta.tipoMonedaId) }} {{ (r.cuenta.saldoBanco || 0) | number:'1.2-2' }}</td>
                 <td class="px-3 py-2 text-right">{{ getMonedaSimbolo(r.cuenta.tipoMonedaId) }} {{ r.debitoFlotante | number:'1.2-2' }}</td>

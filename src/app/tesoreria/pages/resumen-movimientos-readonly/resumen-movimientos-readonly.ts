@@ -36,10 +36,20 @@ interface CabeceraRow {
   saldoFinal: number;
 }
 
+interface ResumenMoneda {
+  moneda: string;
+  saldoInicial: number;
+  debitos: number;
+  creditos: number;
+  saldoDisponible: number;
+  flotante: number;
+  saldoFinal: number;
+}
+
 @Component({
   selector: 'app-home-movimientos-readonly',
   standalone: true,
-  imports: [RouterLink, DatePipe, CustomIconComponent],
+  imports: [RouterLink, DatePipe, CustomIconComponent, DecimalPipe],
   templateUrl: './resumen-movimientos-readonly.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -62,6 +72,8 @@ export default class ResumenMovimientosReadonlyPageComponent {
   tipos = signal<ITipoTransaccion[]>([]);
   // Cabeceras que se muestran en la tabla (por cuenta y fecha)
   cabeceras = signal<any[]>([]);
+  // Cabeceras resumidas por moneda (sumatorias por cada símbolo de moneda)
+  cabecerasResumen = signal<ResumenMoneda[]>([]);
 
   // Todas las cuentas pertenecientes a las empresas del usuario
   cuentas = signal<ICuentaBancaria[]>([]);
@@ -153,8 +165,10 @@ export default class ResumenMovimientosReadonlyPageComponent {
       const data = resp.data || [];
       
       this.cabeceras.set(data);
+      this.rebuildResumenPorMoneda();
     } else {
       this.cabeceras.set([]);
+      this.cabecerasResumen.set([]);
     }
     this.isLoading.set(false);
   }
@@ -201,6 +215,40 @@ export default class ResumenMovimientosReadonlyPageComponent {
     } finally {
       this.isExporting.set(false);
     }
+  }
+
+  /**
+   * Construye un arreglo de cabeceras resumidas por moneda.
+   * Por cada símbolo de moneda distinto, agrupa las cabeceras y suma sus campos numéricos.
+   */
+  private rebuildResumenPorMoneda() {
+    const rows = this.cabeceras() || [];
+    const map = new Map<string, ResumenMoneda>();
+
+    for (const r of rows) {
+      // Se asume r.moneda como símbolo. Si no existe, se agrupa bajo 'N/A'.
+      const moneda: string = (r?.moneda ?? 'N/A');
+      const current = map.get(moneda) || {
+        moneda,
+        saldoInicial: 0,
+        debitos: 0,
+        creditos: 0,
+        saldoDisponible: 0,
+        flotante: 0,
+        saldoFinal: 0,
+      };
+
+      current.saldoInicial += Number(r?.saldoInicial ?? 0);
+      current.debitos += Number(r?.debitos ?? 0);
+      current.creditos += Number(r?.creditos ?? 0);
+      current.saldoDisponible += Number(r?.saldoDisponible ?? 0);
+      current.flotante += Number(r?.flotante ?? 0);
+      current.saldoFinal += Number(r?.saldoFinal ?? 0);
+
+      map.set(moneda, current);
+    }
+
+    this.cabecerasResumen.set(Array.from(map.values()));
   }
 
 
