@@ -30,6 +30,9 @@ export default class AccesoPageComponent {
   showUpsert = signal<boolean>(false);
   upsertMenu = signal<IMenu | null>(null);
 
+  // Filtro para submenús
+  filterSubmenus = signal<string>('');
+
   ngOnInit() {
     this.loadRoles();
     this.loadMenus();
@@ -93,7 +96,21 @@ export default class AccesoPageComponent {
   // Submenús disponibles (no asignados aún para este rol)
   subMenusAvailable(): IMenu[] {
     const assignedIds = this.assignedIdsSet();
-    return (this.menus() || []).filter(m => !m.principal && !assignedIds.has(m.menuId || ''));
+    const filter = this.filterSubmenus().toLowerCase().trim();
+    let subs = (this.menus() || []).filter(m => !m.principal && !assignedIds.has(m.menuId || ''));
+    
+    if (filter) {
+      subs = subs.filter(m => 
+        (m.label || '').toLowerCase().includes(filter) ||
+        (m.descripcion || '').toLowerCase().includes(filter)
+      );
+    }
+    
+    return subs;
+  }
+
+  onFilterSubmenusChange(value: string) {
+    this.filterSubmenus.set(value);
   }
 
   // Conteo de submenús ya asignados a un menú principal para el rol
