@@ -19,8 +19,13 @@
  * ============================================================
  */
 
-@theme {
-  /* --- Tokens de marca (uso directo: bg-brand-navy, text-brand-orange, ...) --- */
+/* --- Tokens de marca ---------------------------------------------------
+   `static` fuerza a Tailwind a emitir siempre estas variables, aunque
+   ninguna plantilla use todavía la utilidad correspondiente. Así puedes
+   usarlas tanto como clase (bg-brand-navy, text-brand-orange, ...) como
+   directamente en CSS: color: var(--color-brand-gold);
+   --------------------------------------------------------------------- */
+@theme static {
   --color-brand-navy: #1e335e;
   --color-brand-night: #071737;
   --color-brand-steel: #95a2bb;
@@ -29,7 +34,9 @@
   --color-brand-orange: #fa9a37;
   --color-brand-gold: #fcc232;
   --color-brand-peach: #f9d3ad;
+}
 
+@theme {
   /* ============================================================
      PRIMARIO — Azul marino HVC (sustituye a `blue-*`)
      El tono de marca #1E335E queda en el paso 600, que es el que
