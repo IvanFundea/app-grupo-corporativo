@@ -22,7 +22,7 @@ export class CustomIconComponent {
   strokeWidth = input<number>(2);
 
   // Color primario de la paleta corporativa como valor por defecto
-  private readonly DEFAULT_COLOR = 'rgb(50, 50, 50)'; // primary-500
+  private readonly DEFAULT_COLOR = '#1E335E'; // primario HVC Kapital
 
   normalizedName = computed(() => (this.name() || '').toLowerCase().trim());
   iconExists = computed(() => !!this.normalizedName());

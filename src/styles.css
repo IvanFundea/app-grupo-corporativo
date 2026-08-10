@@ -1,91 +1,91 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 @import "preline/variants.css";
+@import "./styles/hvc-kapital.theme.css"; /* 🎨 Paleta corporativa HVC Kapital */
 @import "./styles/colors.css";
 @import "ngx-toastr/toastr"; /* ✅ Estilos de ngx-toastr */
 
-/* Custom color utilities for the corporate dashboard */
-.bg-primary-50 { background-color: rgb(189, 226, 245); }
-/* .bg-primary-100 { background-color: rgb(162, 215, 243); } */
-.bg-primary-100 { background-color: rgb(189, 226, 246); }
-.bg-primary-200 { background-color: rgb(134, 203, 241); }
-.bg-primary-500 { background-color: rgb(98, 189, 239); }
-.bg-primary-600 { background-color: rgb(42, 154, 214); }
-.bg-primary-700 { background-color: rgb(29, 134, 191); }
-.bg-primary-800 { background-color: rgb(13, 103, 151); }
+/* Custom color utilities for the corporate dashboard (paleta HVC Kapital) */
+.bg-primary-50 { background-color: #f2f5fa; }
+.bg-primary-100 { background-color: #e3e8f1; }
+.bg-primary-200 { background-color: #c7cfdf; }
+.bg-primary-500 { background-color: #2c4a82; }
+.bg-primary-600 { background-color: #1e335e; }
+.bg-primary-700 { background-color: #16274a; }
+.bg-primary-800 { background-color: #0e1c3b; }
 
-.bg-primary { background-color: rgb(22 93 152); }  /* #165D98*/
-.bg-secondary { background-color: rgb(242 242 242); }  /* #f2f2f2 */
-.bg-terciary { background-color: rgb(242 171 29); }  /* #F2AC1D*/
-.text-primary { color: rgb(22 93 152); }  /* #165D98*/
-.text-secondary { color: rgb(242 242 242); }  /* #F2F2F2*/
-.text-terciary { color: rgb(242 171 29); }  /* #F2AC1D*/
+.bg-primary { background-color: #1e335e; }    /* #1E335E */
+.bg-secondary { background-color: #edeff4; }  /* #EDEFF4 */
+.bg-terciary { background-color: #fa9a37; }   /* #FA9A37 */
+.text-primary { color: #1e335e; }             /* #1E335E */
+.text-secondary { color: #edeff4; }           /* #EDEFF4 */
+.text-terciary { color: #fa9a37; }            /* #FA9A37 */
 
-.bg-secondary-300 { background-color: rgb(178, 188, 202); }
-.bg-secondary-500 { background-color: rgb(100 116 139); }
-.bg-secondary-600 { background-color: rgb(71 85 105); }
-.bg-secondary-700 { background-color: rgb(51 65 85); }
-.bg-secondary-100 { background-color: rgb(221, 226, 232); }
-.bg-secondary-50 { background-color: rgb(248 250 252); }
+.bg-secondary-50 { background-color: #f6f7fa; }
+.bg-secondary-100 { background-color: #edeff4; }
+.bg-secondary-300 { background-color: #c8cedb; }
+.bg-secondary-500 { background-color: #8d9ebf; }
+.bg-secondary-600 { background-color: #565f73; }
+.bg-secondary-700 { background-color: #3d4657; }
 
 .bg-success-500 { background-color: rgb(34 197 94); }
 .bg-success-50 { background-color: rgb(240 253 244); }
-.bg-warning-500 { background-color: rgb(245 158 11); }
-.bg-warning-50 { background-color: rgb(255 251 235); }
+.bg-warning-500 { background-color: #fa9a37; }
+.bg-warning-50 { background-color: #fef7ef; }
 .bg-danger-500 { background-color: rgb(239 68 68); }
 .bg-danger-50 { background-color: rgb(254 242 242); }
 
-.bg-corporate-dark-blue { background-color: rgb(30 58 138); }
-.bg-corporate-light-blue { background-color: rgb(59 130 246); }
-.bg-corporate-accent-gold { background-color: rgb(245 158 11); }
+.bg-corporate-dark-blue { background-color: #071737; }
+.bg-corporate-light-blue { background-color: #95a2bb; }
+.bg-corporate-accent-gold { background-color: #fcc232; }
 
-.text-primary-500 { color: rgb(98, 189, 239); }
-.text-primary-600 { color: rgb(42, 154, 214); }
-.text-primary-700 { color: rgb(29, 134, 191); }
-.text-primary-800 { color: rgb(13, 103, 151); }
+.text-primary-500 { color: #2c4a82; }
+.text-primary-600 { color: #1e335e; }
+.text-primary-700 { color: #16274a; }
+.text-primary-800 { color: #0e1c3b; }
 
-.text-secondary-500 { color: rgb(100 116 139); }
-.text-secondary-600 { color: rgb(71 85 105); }
-.text-secondary-700 { color: rgb(51 65 85); }
-.text-secondary-900 { color: rgb(15 23 42); }
+.text-secondary-500 { color: #6e7789; }
+.text-secondary-600 { color: #565f73; }
+.text-secondary-700 { color: #3d4657; }
+.text-secondary-900 { color: #161c29; }
 
 .text-success-500 { color: rgb(34 197 94); }
 .text-success-700 { color: rgb(21 128 61); }
-.text-warning-500 { color: rgb(245 158 11); }
-.text-warning-700 { color: rgb(180 83 9); }
-.text-warning-300 { color: rgb(252 211 77); }
+.text-warning-500 { color: #fa9a37; }
+.text-warning-700 { color: #b2620e; }
+.text-warning-300 { color: #fcc232; }
 .text-danger-500 { color: rgb(239 68 68); }
 .text-danger-600 { color: rgb(220 38 38); }
 .text-danger-700 { color: rgb(185 28 28); }
 
-.border-primary-500 { border-color: rgb(14 165 233); }
-.border-primary-200 { border-color: rgb(186 230 253); }
+.border-primary-500 { border-color: #2c4a82; }
+.border-primary-200 { border-color: #c7cfdf; }
 
 /* Gradients */
 .bg-gradient-to-r.from-primary-500.to-primary-800 {
-  background: linear-gradient(to right, rgb(14 165 233), rgb(7 89 133));
+  background: linear-gradient(to right, #2c4a82, #0e1c3b);
 }
 
 .bg-gradient-to-r.from-primary-50.to-secondary-50 {
-  background: linear-gradient(to right, rgb(240 249 255), rgb(248 250 252));
+  background: linear-gradient(to right, #f2f5fa, #f6f7fa);
 }
 
 /* Hover states */
-.hover\:bg-primary-50:hover { background-color: rgb(240 249 255); }
-.hover\:bg-primary-200:hover { background-color: rgb(186 230 253); }
-.hover\:bg-secondary-50:hover { background-color: rgb(248 250 252); }
+.hover\:bg-primary-50:hover { background-color: #f2f5fa; }
+.hover\:bg-primary-200:hover { background-color: #c7cfdf; }
+.hover\:bg-secondary-50:hover { background-color: #f6f7fa; }
 .hover\:bg-success-50:hover { background-color: rgb(240 253 244); }
-.hover\:bg-warning-50:hover { background-color: rgb(255 251 235); }
+.hover\:bg-warning-50:hover { background-color: #fef7ef; }
 .hover\:bg-danger-50:hover { background-color: rgb(254 242 242); }
 
-.hover\:text-primary-700:hover { color: rgb(3 105 161); }
-.hover\:text-secondary-900:hover { color: rgb(15 23 42); }
+.hover\:text-primary-700:hover { color: #16274a; }
+.hover\:text-secondary-900:hover { color: #161c29; }
 .hover\:text-success-700:hover { color: rgb(21 128 61); }
-.hover\:text-warning-700:hover { color: rgb(180 83 9); }
+.hover\:text-warning-700:hover { color: #b2620e; }
 .hover\:text-danger-700:hover { color: rgb(185 28 28); }
 
 /* Ring styles */
-.ring-primary-200 { --tw-ring-color: rgb(186 230 253); }
+.ring-primary-200 { --tw-ring-color: #c7cfdf; }
 
 /* Custom scrollbar styles */
 .scrollbar-thin::-webkit-scrollbar {
@@ -93,16 +93,16 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: rgb(248 250 252);
+  background: #f6f7fa;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgb(203 213 225);
+  background: #c8cedb;
   border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgb(148 163 184);
+  background: #95a2bb;
 }
 
 /* Reusable form control with primary focus */
@@ -110,19 +110,19 @@
   display: block;
   width: 100%;
   border-radius: 0.375rem; /* rounded-md */
-  border: 1px solid rgb(209 213 219); /* gray-300 */
+  border: 1px solid #c8cedb; /* gray-300 */
   padding: 0.5rem 0.75rem; /* px-3 py-2 */
   font-size: 0.875rem; /* text-sm */
   outline: none;
 }
 .input-control:focus {
-  border-color: rgb(14 165 233); /* primary-500 */
+  border-color: #1e335e; /* primario HVC */
 }
 
 .sidebar-item-link {
-  background-color: #bfdbfe; /* bg-primary-200 → azul claro */
-  color: #1d4ed8;            /* text-primary-700 → azul intenso */
-  border-left: 4px solid #3b82f6; /* border-l-4 border-primary-500 → borde izquierdo azul */
+  background-color: #e3e8f1; /* bg-primary-100 → azul marino muy claro */
+  color: #1e335e;            /* text-primary → azul marino HVC */
+  border-left: 4px solid #fa9a37; /* acento naranja de marca */
 }
 
 /* ==============================
@@ -133,13 +133,13 @@
 :root {
   --table-font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   --table-font-size: 0.875rem; /* text-sm */
-  --table-text-color: rgb(17 24 39); /* gray-900 */
-  --table-header-bg: #ffffff; /* white */
-  --table-header-color: #0f172a; /* slate-900 */
+  --table-text-color: #272e3d; /* gris azulado oscuro */
+  --table-header-bg: #e3e8f1; /* azul marino muy claro */
+  --table-header-color: #1e335e; /* #1E335E primario HVC */
   --table-row-bg: #ffffff; /* white */
-  --table-row-alt-bg: #f3f4f6; /* gray-100 */
-  --table-row-hover-bg: #e5e7eb; /* gray-200 */
-  --table-border-color: #cbd5e1; /* slate-300 */
+  --table-row-alt-bg: #f6f7fa; /* gris azulado 50 */
+  --table-row-hover-bg: #edeff4; /* gris azulado 100 */
+  --table-border-color: #c8cedb; /* gris azulado 300 */
   --table-cell-py: 0.5rem; /* 8px */
   --table-cell-px: 0.5rem; /* 8px */
 }

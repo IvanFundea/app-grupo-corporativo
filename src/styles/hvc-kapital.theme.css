@@ -1,0 +1,156 @@
+/*
+ * ============================================================
+ *  HVC KAPITAL — Tema corporativo
+ * ============================================================
+ *  Paleta oficial
+ *    #1E335E  Azul marino (primario)
+ *    #071737  Azul noche (primario oscuro)
+ *    #95A2BB  Azul grisáceo
+ *    #A4ABBD  Gris azulado claro
+ *    #8D9EBF  Gris azulado medio
+ *    #FA9A37  Naranja (acento)
+ *    #FCC232  Dorado (acento secundario)
+ *    #F9D3AD  Melocotón (acento suave)
+ *
+ *  Este archivo redefine las escalas de color de Tailwind v4
+ *  (blue / sky / indigo / gray / slate / neutral / orange /
+ *  amber / yellow) para que TODA la aplicación adopte la
+ *  paleta sin tener que reescribir las clases en las plantillas.
+ * ============================================================
+ */
+
+@theme {
+  /* --- Tokens de marca (uso directo: bg-brand-navy, text-brand-orange, ...) --- */
+  --color-brand-navy: #1e335e;
+  --color-brand-night: #071737;
+  --color-brand-steel: #95a2bb;
+  --color-brand-mist: #a4abbd;
+  --color-brand-slate: #8d9ebf;
+  --color-brand-orange: #fa9a37;
+  --color-brand-gold: #fcc232;
+  --color-brand-peach: #f9d3ad;
+
+  /* ============================================================
+     PRIMARIO — Azul marino HVC (sustituye a `blue-*`)
+     El tono de marca #1E335E queda en el paso 600, que es el que
+     usan los botones/enlaces de la app (bg-blue-600, text-blue-600).
+     ============================================================ */
+  --color-blue-50: #f2f5fa;
+  --color-blue-100: #e3e8f1;
+  --color-blue-200: #c7cfdf;
+  --color-blue-300: #a4abbd; /* paleta */
+  --color-blue-400: #95a2bb; /* paleta */
+  --color-blue-500: #2c4a82;
+  --color-blue-600: #1e335e; /* paleta — color principal */
+  --color-blue-700: #16274a;
+  --color-blue-800: #0e1c3b;
+  --color-blue-900: #071737; /* paleta */
+  --color-blue-950: #03091a;
+
+  /* `sky` e `indigo` comparten la escala primaria para evitar
+     azules ajenos a la marca en componentes de terceros. */
+  --color-sky-50: #f2f5fa;
+  --color-sky-100: #e3e8f1;
+  --color-sky-200: #c7cfdf;
+  --color-sky-300: #a4abbd;
+  --color-sky-400: #95a2bb;
+  --color-sky-500: #2c4a82;
+  --color-sky-600: #1e335e;
+  --color-sky-700: #16274a;
+  --color-sky-800: #0e1c3b;
+  --color-sky-900: #071737;
+  --color-sky-950: #03091a;
+
+  --color-indigo-50: #f2f5fa;
+  --color-indigo-100: #e3e8f1;
+  --color-indigo-200: #c7cfdf;
+  --color-indigo-300: #a4abbd;
+  --color-indigo-400: #95a2bb;
+  --color-indigo-500: #2c4a82;
+  --color-indigo-600: #1e335e;
+  --color-indigo-700: #16274a;
+  --color-indigo-800: #0e1c3b;
+  --color-indigo-900: #071737;
+  --color-indigo-950: #03091a;
+
+  /* ============================================================
+     NEUTROS — Grises azulados de la paleta
+     Se mantiene la luminosidad de la escala original de Tailwind
+     para no degradar el contraste de los textos.
+     ============================================================ */
+  --color-gray-50: #f6f7fa;
+  --color-gray-100: #edeff4;
+  --color-gray-200: #dfe3eb;
+  --color-gray-300: #c8cedb;
+  --color-gray-400: #a4abbd; /* paleta */
+  --color-gray-500: #6e7789;
+  --color-gray-600: #565f73;
+  --color-gray-700: #3d4657;
+  --color-gray-800: #272e3d;
+  --color-gray-900: #161c29;
+  --color-gray-950: #0a0e17;
+
+  --color-slate-50: #f6f7fa;
+  --color-slate-100: #edeff4;
+  --color-slate-200: #dfe3eb;
+  --color-slate-300: #c8cedb;
+  --color-slate-400: #8d9ebf; /* paleta */
+  --color-slate-500: #6e7789;
+  --color-slate-600: #565f73;
+  --color-slate-700: #3d4657;
+  --color-slate-800: #272e3d;
+  --color-slate-900: #101a2e;
+  --color-slate-950: #071737; /* paleta */
+
+  /* `neutral-*` lo usan los componentes Preline en modo oscuro */
+  --color-neutral-50: #f6f7fa;
+  --color-neutral-100: #edeff4;
+  --color-neutral-200: #dfe3eb;
+  --color-neutral-300: #c8cedb;
+  --color-neutral-400: #a4abbd;
+  --color-neutral-500: #6e7789;
+  --color-neutral-600: #3d4657;
+  --color-neutral-700: #24304a;
+  --color-neutral-800: #16233f;
+  --color-neutral-900: #0d1a33;
+  --color-neutral-950: #071737; /* paleta */
+
+  /* ============================================================
+     ACENTOS — Naranja / dorado / melocotón
+     ============================================================ */
+  --color-orange-50: #fef7ef;
+  --color-orange-100: #fdeddc;
+  --color-orange-200: #f9d3ad; /* paleta — melocotón */
+  --color-orange-300: #fcc232; /* paleta — dorado */
+  --color-orange-400: #fa9a37; /* paleta — naranja */
+  --color-orange-500: #f08420;
+  --color-orange-600: #d46e12;
+  --color-orange-700: #ac570f;
+  --color-orange-800: #85430c;
+  --color-orange-900: #5e2f08;
+  --color-orange-950: #331904;
+
+  --color-amber-50: #fffaec;
+  --color-amber-100: #fef2ce;
+  --color-amber-200: #f9d3ad; /* paleta — melocotón */
+  --color-amber-300: #fdd466;
+  --color-amber-400: #fcc232; /* paleta — dorado */
+  --color-amber-500: #fa9a37; /* paleta — naranja */
+  --color-amber-600: #db7d10;
+  --color-amber-700: #b2620e;
+  --color-amber-800: #8a4c0c;
+  --color-amber-900: #5f3408;
+  --color-amber-950: #331b03;
+
+  --color-yellow-50: #fffaec;
+  --color-yellow-100: #fef2ce;
+  --color-yellow-200: #f9d3ad;
+  --color-yellow-300: #fdd466;
+  --color-yellow-400: #fcc232; /* paleta — dorado */
+  --color-yellow-500: #fa9a37; /* paleta — naranja */
+  --color-yellow-600: #db7d10;
+  --color-yellow-700: #b2620e;
+  --color-yellow-800: #8a4c0c;
+  --color-yellow-900: #5f3408;
+  --color-yellow-950: #331b03;
+}
